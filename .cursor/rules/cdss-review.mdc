@@ -1,0 +1,13 @@
+---
+description: "Review Clinical Decision Support code for human-in-the-loop, AI labeling, explainability, and scope boundaries"
+globs: []
+alwaysApply: false
+---
+
+# cdss-review
+
+Follow the complete instructions defined in the base skill file:
+
+@file .claude/commands/cdss-review.md
+
+Read that file fully and execute every step it describes against the current codebase.

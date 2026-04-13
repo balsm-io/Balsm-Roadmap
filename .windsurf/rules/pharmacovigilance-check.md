@@ -1,0 +1,12 @@
+---
+trigger: manual
+description: "Review adverse event reporting for structured fields, causality assessment, regulatory format, and signal detection"
+---
+
+# pharmacovigilance-check
+
+Follow the complete instructions defined in the base skill file:
+
+.claude/commands/pharmacovigilance-check.md
+
+Read that file fully and execute every step it describes against the current codebase.

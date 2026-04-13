@@ -1,0 +1,13 @@
+---
+description: "Validate structured medical data entry for required fields, coded terminology, versioning, and format compliance"
+globs: []
+alwaysApply: false
+---
+
+# clinical-template-check
+
+Follow the complete instructions defined in the base skill file:
+
+@file .claude/commands/clinical-template-check.md
+
+Read that file fully and execute every step it describes against the current codebase.

@@ -1,0 +1,13 @@
+---
+description: "Review UI code for WCAG AA compliance including contrast ratios, touch targets, focus states, and screen reader support"
+globs: []
+alwaysApply: false
+---
+
+# accessibility-check
+
+Follow the complete instructions defined in the base skill file:
+
+@file .claude/commands/accessibility-check.md
+
+Read that file fully and execute every step it describes against the current codebase.

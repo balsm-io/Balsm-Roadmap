@@ -1,0 +1,13 @@
+---
+description: "Generate a dark theme variant of an existing HTML mockup using CSS variable overrides"
+globs: []
+alwaysApply: false
+---
+
+# dark-theme
+
+Follow the complete instructions defined in the base skill file:
+
+@file .claude/commands/dark-theme.md
+
+Read that file fully and execute every step it describes against the current codebase.

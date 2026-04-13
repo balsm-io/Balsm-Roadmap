@@ -1,0 +1,13 @@
+---
+description: "Review database operations for ACID compliance, concurrency control, medical code validation, and migration reversibility"
+globs: []
+alwaysApply: false
+---
+
+# data-integrity-check
+
+Follow the complete instructions defined in the base skill file:
+
+@file .claude/commands/data-integrity-check.md
+
+Read that file fully and execute every step it describes against the current codebase.
