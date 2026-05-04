@@ -1,22 +1,21 @@
 <!--
   SYNC IMPACT REPORT
-  Version change: 0.0.0 → 1.0.0
-  Bump rationale: MAJOR — initial constitution adoption for the Balsm ecosystem
+  Version change: 1.0.0 → 1.1.0
+  Bump rationale: MINOR — technology stack update; architecture consolidation to 4 apps
 
-  Modified principles: N/A (initial version)
+  Modified principles:
+    - VIII. Multi-Platform Consistency: updated app count to Four (removed Balsm Business,
+      Balsm Store, Balsm Hub, Dawaa; consolidated into Balsm Pro with module-based access)
+    - Technology Stack: updated .NET 8+ → .NET 10.0, added EF Core 10.0.5 version pin
 
-  Added sections:
-    - Core Principles (10 principles)
-    - Technology Stack & Constraints
-    - Development Workflow & Quality Gates
-    - Governance
+  Added sections: N/A
 
-  Removed sections: N/A (initial version)
+  Removed sections: N/A
 
   Templates requiring updates:
-    - .specify/templates/plan-template.md        ✅ Aligned (Constitution Check section present)
-    - .specify/templates/spec-template.md         ✅ Aligned (user stories, requirements, edge cases)
-    - .specify/templates/tasks-template.md        ✅ Aligned (phased task structure, checkpoints)
+    - .specify/templates/plan-template.md        ✅ Aligned
+    - .specify/templates/spec-template.md         ✅ Aligned
+    - .specify/templates/tasks-template.md        ✅ Aligned
 
   Follow-up TODOs: None
 -->
@@ -187,10 +186,10 @@ MUST be evaluated for its performance impact.
 
 ### VIII. Multi-Platform Consistency
 
-Six apps from a single Flutter codebase per app, one .NET backend — consistency
+Four apps from a single Flutter codebase per app, one .NET backend — consistency
 across platforms is mandatory.
 
-- All Flutter apps (Patient, Pro, Dawaa, Hub, Connect, Website) MUST share a
+- All Flutter apps (Balsm, Balsm Pro, Balsm Connect) MUST share a
   common core library: authentication, networking, theming, standardized
   templates, offline sync, messaging
 - A single user account MUST access multiple apps based on roles — no separate
@@ -247,7 +246,7 @@ decisions.
 
 ## Technology Stack & Constraints
 
-- **Backend**: .NET 8+ modular monolith, C#, Entity Framework Core, SQLite
+- **Backend**: .NET 10.0 modular monolith, C#, Entity Framework Core 10.0.5, SQLite
   (local/embedded), PostgreSQL (cloud)
 - **Frontend Apps**: Flutter (Dart) — iOS, Android, Web, macOS, Windows, Linux
 - **Website**: Next.js (TypeScript) — marketing and public-facing
@@ -313,4 +312,4 @@ Platform. It supersedes all other practices, conventions, and ad-hoc decisions.
   tactical patterns exception, new abstractions) MUST be justified in the PR
   description with measurable benefit
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-20
+**Version**: 1.1.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-05-01

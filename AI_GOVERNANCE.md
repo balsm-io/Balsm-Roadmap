@@ -150,3 +150,11 @@
 - AI models must be versioned — every update to a model must be logged with a changelog, and rollback to a previous version must be supported
 - regular reviews (at least annually) must assess whether each AI feature continues to meet its intended purpose and complies with current regulations
 - user feedback on AI suggestions (accept/reject/modify patterns) must be collected and analyzed to guide model improvement
+
+---
+
+## 11. Threat Models
+
+See [AI_THREAT_MODELS.md](./AI_THREAT_MODELS.md).
+
+Every phase spec that introduces an AI feature must reference the applicable threat IDs from that document and confirm all `BLOCKING` mitigations are covered in its implementation plan.
