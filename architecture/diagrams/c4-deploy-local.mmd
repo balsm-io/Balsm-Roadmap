@@ -1,0 +1,61 @@
+graph TB
+    subgraph Local_Machine["Local Machine / On-Premise Server"]
+        subgraph Desktop["Desktop Application"]
+            BalsmDesktop["Balsm Desktop App<br/>(Flutter Desktop)"]
+        end
+
+        subgraph Server["Balsm Server (Cross-Platform Installable Bundle)"]
+            API["ASP.NET Core API"]
+            AdminUI["Admin UI (embedded)"]
+            ServerInfo["GET /api/v1/server-info<br/>(public, unauthenticated)"]
+            mDNSBroadcast["mDNS Broadcaster<br/>(balsm.local)"]
+            QRGen["QR Code Generator<br/>(URL + invite + name)"]
+            DeviceRegistry["Device Registry"]
+            InviteCodeSys["Invite Code System<br/>(one-time)"]
+            Files[("Local File Storage")]
+        end
+
+        subgraph DBEngine["Database Engine (Decoupled)"]
+            DB[(SQLite Database)]
+        end
+
+        subgraph Peripherals["Peripherals"]
+            PrinterQR["Printer + QR codes<br/>(offline doc exchange)"]
+        end
+    end
+
+    subgraph Network["Local Network"]
+        Mobile1["Balsm Mobile App<br/>(iOS / Android)"]
+        Mobile2["Balsm Mobile App<br/>multi-server connection<br/>(this server + cloud)"]
+        WebBrowser["Web Browser"]
+    end
+
+    subgraph Remote["Remote (optional)"]
+        BalsmCloud["Balsm Network Cloud<br/>(separate concurrent<br/>connection)"]
+    end
+
+    BalsmDesktop -->|"HTTP<br/>localhost:5050"| API
+    Mobile1 -.->|"mDNS query"| mDNSBroadcast
+    Mobile1 -->|"GET /server-info<br/>before auth"| ServerInfo
+    Mobile1 -->|"HTTP<br/>192.168.1.x:5050"| API
+    Mobile2 -->|"HTTPS"| BalsmCloud
+    Mobile2 -->|"HTTP<br/>192.168.1.x:5050"| API
+    WebBrowser -->|"HTTP<br/>192.168.1.x:5050"| API
+
+    API -->|"IPC / local socket<br/>independent lifecycle —<br/>API updates never<br/>touch DB engine"| DB
+    API --> Files
+    AdminUI -.embedded.-> API
+    QRGen --> InviteCodeSys
+    InviteCodeSys --> DeviceRegistry
+
+    %% Print-with-QR fallback: app generates the PDF + QR locally and
+    %% sends it to the user's OS print spooler — server never talks to the printer
+    BalsmDesktop -.->|"OS print spooler<br/>(print-with-QR fallback)"| PrinterQR
+    Mobile1 -.->|"OS print spooler"| PrinterQR
+
+    Mobile1 <-.->|"LAN P2P over mDNS+TLS<br/>(offline doc exchange)"| Mobile2
+
+    style API fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style DB fill:#438dd5,stroke:#2e6295,color:#ffffff
+    style ServerInfo fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style mDNSBroadcast fill:#85bbf0,stroke:#5d82a8,color:#000000

@@ -1,0 +1,84 @@
+graph TB
+    subgraph External_Actors["External Actors"]
+        Patient["Patient<br/>(Normal User)"]
+        FamilyMember["Family Member /<br/>Caregiver"]
+        Doctor["Healthcare Professional<br/>(Doctor, Nurse, Lab Tech,<br/>Radiologist, Pathologist)"]
+        Pharmacist["Pharmacist<br/>(Pharmacy Staff)"]
+        EntityAdmin["Entity Admin<br/>(Clinic/Hospital Manager)"]
+        Partner["Partner Organization<br/>(Pharma Co, Insurance,<br/>Research Institution)"]
+        Developer["Third-Party Developer<br/>(OAuth API consumer)"]
+        GovHealthAuth["Government Health Authority<br/>(MOH, regulators)"]
+        PublicVisitor["Public Visitor<br/>(no login)"]
+    end
+
+    subgraph Balsm_System["Balsm Healthcare Platform"]
+        BalsmApp["Balsm<br/>(Patient App)<br/><br/>Flutter — iOS, Android,<br/>Web, Desktop"]
+        BalsmPro["Balsm Pro<br/>(Practice Management)<br/><br/>Module-based: POS, Pharmacy,<br/>Clinical, Inventory, Scheduling,<br/>Lab, Imaging, Admin"]
+        BalsmConnect["Balsm Connect<br/>(Partner Portal)<br/><br/>Pharma analytics,<br/>insurance, research"]
+        BalsmHealth["balsm.health<br/>(Public Website)<br/><br/>Provider directory,<br/>educational content,<br/>Book Now flows"]
+        BackendCore["Backend Platform<br/><br/>REST API, OAuth 2.0,<br/>FHIR R4, Webhooks,<br/>Sync, Notifications"]
+    end
+
+    subgraph External_Systems["External Systems"]
+        PaymentGateway["Payment Gateway<br/>(Stripe, PayPal,<br/>local processors)"]
+        AIProvider["AI Provider (BYOK)<br/>(OpenAI, Gemini, Anthropic,<br/>Ollama, LM Studio)"]
+        SMS["SMS / Email Service<br/>(Twilio, SendGrid)"]
+        SocialAuth["Social Auth<br/>(Google, Apple)"]
+        AdsAPI["Advertising APIs<br/>(Facebook Marketing,<br/>Google Ads)"]
+        FhirEhr["FHIR / HL7 / Legacy EHR<br/>(Epic, Cerner, Meditech)"]
+        Dicom["DICOM / PACS<br/>(Imaging archives)"]
+        Insurance["Insurance Platforms<br/>(NPHIES, pre-auth,<br/>eligibility)"]
+        RegistryGov["Government Registries<br/>(Immunization, Cancer,<br/>Pharmacovigilance — EPVC, SFDA NPC)"]
+        Chat["Chat Channels<br/>(WhatsApp Business,<br/>Telegram Bot API)"]
+        PrintQR["Printer + QR Codes<br/>(Offline doc exchange)"]
+        CloudStorage["Cloud Storage<br/>(S3, Azure Blob)"]
+    end
+
+    %% Actor → App routing
+    Patient -->|"Books appointments,<br/>views records,<br/>orders medications"| BalsmApp
+    FamilyMember -->|"Manages dependents,<br/>delegated access"| BalsmApp
+    Doctor -->|"Clinical documentation,<br/>prescriptions, scheduling"| BalsmPro
+    Pharmacist -->|"Dispenses meds,<br/>POS, inventory"| BalsmPro
+    EntityAdmin -->|"Entity, staff,<br/>billing, reports"| BalsmPro
+    Partner -->|"Analytics, campaigns,<br/>research data"| BalsmConnect
+    PublicVisitor -->|"Browse providers,<br/>educational content"| BalsmHealth
+    Developer -->|"OAuth 2.0 + scopes<br/>(patient-authorized apps)"| BackendCore
+    GovHealthAuth -->|"Regulatory reporting<br/>(immunization, cancer registries)"| BackendCore
+
+    %% Apps → Backend
+    BalsmApp -->|"REST + WebSocket"| BackendCore
+    BalsmPro -->|"REST + WebSocket"| BackendCore
+    BalsmConnect -->|"REST + WebSocket"| BackendCore
+    BalsmHealth -->|"REST (public reads,<br/>Book Now hands off to Balsm)"| BackendCore
+
+    %% Backend → External Systems
+    BackendCore -->|"Payment processing,<br/>metered billing"| PaymentGateway
+    BackendCore -->|"Drug interactions, CDSS,<br/>scribing, scheduling AI<br/>(BYOK keys, never sent to Balsm)"| AIProvider
+    BackendCore -->|"Notifications,<br/>OTP, reminders"| SMS
+    BackendCore -->|"Sign-in"| SocialAuth
+    BackendCore -->|"Voucher-based<br/>ad campaigns"| AdsAPI
+    BackendCore -->|"FHIR R4 import/export,<br/>legacy migration"| FhirEhr
+    BackendCore -->|"Imaging studies,<br/>radiology orders"| Dicom
+    BackendCore -->|"Eligibility,<br/>pre-authorization,<br/>claims"| Insurance
+    BackendCore -->|"Automated regulatory<br/>reporting"| RegistryGov
+    BackendCore -->|"Chatbot — booking,<br/>inquiries (NLP via BYOK AI)"| Chat
+    BackendCore -->|"Medical files,<br/>signed URLs"| CloudStorage
+
+    %% Apps print locally via the user's OS spooler — backend never talks to printers
+    BalsmApp -.->|"OS print spooler<br/>(print-with-QR fallback)"| PrintQR
+    BalsmPro -.->|"OS print spooler<br/>(receipts, labels,<br/>print-with-QR fallback)"| PrintQR
+
+    style BackendCore fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style BalsmApp fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style BalsmPro fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style BalsmConnect fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style BalsmHealth fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style Patient fill:#08427b,stroke:#052e56,color:#ffffff
+    style FamilyMember fill:#08427b,stroke:#052e56,color:#ffffff
+    style Doctor fill:#08427b,stroke:#052e56,color:#ffffff
+    style Pharmacist fill:#08427b,stroke:#052e56,color:#ffffff
+    style EntityAdmin fill:#08427b,stroke:#052e56,color:#ffffff
+    style Partner fill:#08427b,stroke:#052e56,color:#ffffff
+    style Developer fill:#08427b,stroke:#052e56,color:#ffffff
+    style GovHealthAuth fill:#08427b,stroke:#052e56,color:#ffffff
+    style PublicVisitor fill:#08427b,stroke:#052e56,color:#ffffff

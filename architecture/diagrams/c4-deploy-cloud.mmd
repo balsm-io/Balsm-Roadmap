@@ -1,0 +1,128 @@
+graph TB
+    subgraph Internet["Internet"]
+        Users["Users<br/>(Mobile, Web, Desktop)"]
+        Developer["Third-Party Developer Apps<br/>(OAuth clients)"]
+        WebhookSubs["Webhook Subscribers<br/>(third-party systems)"]
+    end
+
+    subgraph Balsm_Cloud["Balsm Network — Cloud Infrastructure"]
+
+        subgraph Public_Subnet["Public Subnet"]
+            WAF["WAF<br/>(rate limit, OWASP rules,<br/>geoblock)"]
+            LB["Load Balancer<br/>(AWS ALB / Nginx)"]
+        end
+
+        subgraph Private_Subnet["Private Subnet"]
+            subgraph Auth_Cluster["Cloud Auth API Cluster (Identity SoT)"]
+                AuthAPI1["Auth API 1"]
+                AuthAPI2["Auth API N"]
+            end
+
+            subgraph API_Cluster["API Cluster"]
+                API1["API Instance 1"]
+                API2["API Instance 2"]
+                API3["API Instance N"]
+            end
+
+            subgraph Data_Tier["Data Tier"]
+                PrimaryDB[(PostgreSQL Primary)]
+                ReplicaDB[(PostgreSQL Replica)]
+                Redis[("Redis Cache")]
+            end
+
+            subgraph Storage["Storage"]
+                S3["S3 / Azure Blob<br/>(Encrypted at rest;<br/>signed URLs)"]
+            end
+
+            subgraph Workers["Background Workers"]
+                SyncWorker["Sync Worker"]
+                BillingWorker["Billing Worker"]
+                NotifWorker["Notification Worker"]
+                WebhookOutboundWorker["Webhook Outbound Worker<br/>(HMAC sign,<br/>5x retry / 24h, DLQ)"]
+            end
+
+            subgraph Security["Security & Secrets"]
+                KMS["KMS<br/>(encryption keys)"]
+                SecretsMgr["Secrets Manager<br/>(API creds, BYOK keys<br/>NEVER stored)"]
+            end
+
+            subgraph ObsStack["Observability"]
+                Logs["Logs"]
+                Metrics["Metrics"]
+                Traces["Traces (OTel)"]
+            end
+        end
+    end
+
+    subgraph External["External Services"]
+        Payment["Payment Gateway"]
+        SMS["SMS / Email"]
+        AI["AI Providers (BYOK)"]
+        FhirEhr["FHIR / HL7 / EHR"]
+        Dicom["DICOM / PACS"]
+        Insurance["Insurance / NPHIES"]
+        RegistryGov["Gov Registries"]
+        Chat["WhatsApp / Telegram"]
+    end
+
+    Users -->|"HTTPS"| WAF
+    Developer -->|"OAuth 2.0 + PKCE<br/>HTTPS"| WAF
+    WAF --> LB
+    LB --> AuthAPI1
+    LB --> AuthAPI2
+    LB --> API1
+    LB --> API2
+    LB --> API3
+
+    AuthAPI1 --> PrimaryDB
+    AuthAPI2 --> PrimaryDB
+    API1 --> PrimaryDB
+    API2 --> PrimaryDB
+    API3 --> PrimaryDB
+
+    API1 --> Redis
+    API2 --> Redis
+    API3 --> Redis
+
+    API1 --> S3
+    API2 --> S3
+    API3 --> S3
+
+    PrimaryDB -.replication.-> ReplicaDB
+
+    SyncWorker --> PrimaryDB
+    BillingWorker --> PrimaryDB
+    NotifWorker --> Redis
+    WebhookOutboundWorker --> PrimaryDB
+    WebhookOutboundWorker -->|"HMAC-signed POSTs"| WebhookSubs
+
+    BillingWorker --> Payment
+    NotifWorker --> SMS
+    API1 --> AI
+    API2 --> AI
+    API3 --> AI
+    API1 --> FhirEhr
+    API1 --> Dicom
+    API1 --> Insurance
+    API1 --> RegistryGov
+    API1 --> Chat
+
+    %% Security & Observability
+    API1 -.uses.-> SecretsMgr
+    AuthAPI1 -.uses.-> SecretsMgr
+    PrimaryDB -.encrypted.-> KMS
+    S3 -.encrypted.-> KMS
+    API1 -.emits.-> ObsStack
+    AuthAPI1 -.emits.-> ObsStack
+    Workers -.emits.-> ObsStack
+
+    style WAF fill:#cc4444,stroke:#882222,color:#ffffff
+    style LB fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style AuthAPI1 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style AuthAPI2 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style API1 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style API2 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style API3 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style PrimaryDB fill:#438dd5,stroke:#2e6295,color:#ffffff
+    style KMS fill:#665500,stroke:#332200,color:#ffffff
+    style SecretsMgr fill:#665500,stroke:#332200,color:#ffffff

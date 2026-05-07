@@ -1,0 +1,48 @@
+sequenceDiagram
+    autonumber
+    participant Client as Client App (Mobile / Desktop)
+    participant Source as Source Server (Local / Self-Hosted / Cloud)
+    participant Outbox as Sync Outbox (UUID v7 ordered)
+    participant Dispatcher as Webhook Dispatcher (Sync Worker)
+    participant Dest as Destination Server
+    participant DLQ as Dead Letter Queue
+
+    Note over Client,Source: Local change → outbox write
+    Client->>Source: POST /resource (e.g. new appointment)
+    Source->>Source: persist domain change
+    Source->>Outbox: append event (uuid v7, category, payload)
+    Source-->>Client: 200 OK
+
+    Note over Dispatcher,Dest: Server-to-server federation (chunked snapshots by data category)
+    loop Every poll interval
+        Dispatcher->>Outbox: read pending events
+        Note right of Dispatcher: split into chunks by category — entities, doctors, patients, records, inventory, billing, …
+        Dispatcher->>Dest: POST /sync/inbound (chunk N), HMAC-SHA256 signed
+        alt 200 OK
+            Dest->>Dest: apply chunk, then persist watermark per category
+            Dest-->>Dispatcher: ack { last_uuid }
+            Dispatcher->>Outbox: mark events delivered
+        else 4xx (validation)
+            Dest-->>Dispatcher: 4xx error detail
+            Dispatcher->>DLQ: park chunk + reason
+        else 5xx / timeout
+            Note right of Dispatcher: exponential backoff, up to 5 retries / 24h
+            Dispatcher->>Dest: retry POST /sync/inbound
+            alt all retries fail
+                Dispatcher->>DLQ: park chunk
+            end
+        end
+    end
+
+    Note over Client,Source: Mobile pull (watermark)
+    Client->>Source: GET /sync/pull?since={watermark}&limit=N
+    Source-->>Client: { events, next_watermark }
+    Client->>Client: apply, advance watermark
+
+    Note over Client,Source: Offline queue (mobile makes changes while disconnected)
+    Client->>Client: append to local SQLite outbox
+    Client->>Client: stay offline…
+    Client->>Source: POST /sync/push (queued events) on reconnect
+    Note right of Source: conflict resolution — clinical = server-authoritative, non-clinical = admin-configured
+    Source->>Source: validate, conflict-resolve
+    Source-->>Client: { applied, conflicted, rejected }

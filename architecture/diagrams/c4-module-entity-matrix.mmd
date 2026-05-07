@@ -1,0 +1,119 @@
+flowchart LR
+    subgraph EntityTypes["Entity Types"]
+        Pharmacy["Pharmacy"]
+        MedSupply["Medical Supply Store"]
+        Clinic["Clinic"]
+        Hospital["Hospital"]
+        Lab["Lab"]
+        ScanCenter["Scan Center"]
+        Hybrid["Hybrid<br/>(Pharmacy + Medical Supply)"]
+    end
+
+    subgraph Modules["Pro Modules"]
+        ModPOS["POS<br/>Tier 0 (Free)"]
+        ModPharm["Pharmacy<br/>Tier 0 (Free)<br/>+ Tier 4 (Metered, BYOK AI)"]
+        ModClin["Clinical<br/>Tier 0 (Free)"]
+        ModInv["Inventory<br/>Tier 0 (Free)"]
+        ModSched["Scheduling<br/>Tier 2 → Tier 1 → Tier 3"]
+        ModLab["Lab<br/>Tier 2 → Tier 5 (Add-on)"]
+        ModImg["Imaging<br/>Tier 2 → Tier 5 (Add-on)"]
+        ModAdmin["Admin<br/>Tier 0 (Free)"]
+    end
+
+    subgraph PermissionGroups["Permission Groups (Defaults)"]
+        Owner["Owner<br/>(all enabled modules)"]
+        Pharmacist["Pharmacist"]
+        Cashier["Cashier"]
+        Doctor["Doctor"]
+        Nurse["Nurse"]
+        LabTech["Lab Technician"]
+        Radiologist["Radiologist"]
+        Receptionist["Receptionist"]
+        InvMgr["Inventory Manager"]
+        Accountant["Accountant"]
+    end
+
+    %% Entity → enabled module (solid)
+    Pharmacy --> ModPOS
+    Pharmacy --> ModPharm
+    Pharmacy --> ModInv
+    Pharmacy --> ModAdmin
+
+    MedSupply --> ModPOS
+    MedSupply --> ModInv
+    MedSupply --> ModAdmin
+
+    Clinic --> ModClin
+    Clinic --> ModSched
+    Clinic --> ModInv
+    Clinic --> ModAdmin
+
+    Hospital --> ModPOS
+    Hospital --> ModPharm
+    Hospital --> ModClin
+    Hospital --> ModInv
+    Hospital --> ModSched
+    Hospital --> ModLab
+    Hospital --> ModImg
+    Hospital --> ModAdmin
+
+    Lab --> ModLab
+    Lab --> ModSched
+    Lab --> ModInv
+    Lab --> ModAdmin
+
+    ScanCenter --> ModImg
+    ScanCenter --> ModSched
+    ScanCenter --> ModInv
+    ScanCenter --> ModAdmin
+
+    Hybrid --> ModPOS
+    Hybrid --> ModPharm
+    Hybrid --> ModInv
+    Hybrid --> ModAdmin
+
+    %% Permission group → permitted module (dashed)
+    Owner -.-> ModPOS
+    Owner -.-> ModPharm
+    Owner -.-> ModClin
+    Owner -.-> ModInv
+    Owner -.-> ModSched
+    Owner -.-> ModLab
+    Owner -.-> ModImg
+    Owner -.-> ModAdmin
+
+    Pharmacist -.full.-> ModPOS
+    Pharmacist -.full.-> ModPharm
+    Pharmacist -.read.-> ModInv
+
+    Cashier -.sales/returns.-> ModPOS
+
+    Doctor -.full.-> ModClin
+    Doctor -.full.-> ModSched
+
+    Nurse -.view+vitals.-> ModClin
+
+    LabTech -.full.-> ModLab
+    LabTech -.view.-> ModSched
+
+    Radiologist -.full.-> ModImg
+    Radiologist -.view.-> ModSched
+
+    Receptionist -.full.-> ModSched
+    Receptionist -.copay only.-> ModPOS
+
+    InvMgr -.full.-> ModInv
+    InvMgr -.reports.-> ModPOS
+
+    Accountant -.financial reports.-> ModAdmin
+
+    style ModPOS fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style ModPharm fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style ModClin fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style ModInv fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style ModSched fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style ModLab fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style ModImg fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style ModAdmin fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style Hospital fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style Owner fill:#ffd700,stroke:#cc9900,color:#000000

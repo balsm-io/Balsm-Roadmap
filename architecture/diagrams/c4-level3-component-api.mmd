@@ -1,0 +1,195 @@
+graph TB
+    subgraph API_Container["Backend API Container (ASP.NET Core)"]
+
+        subgraph API_Layer["API Layer (Controllers)"]
+            ServerInfoController["Server Info Controller<br/><br/>GET /api/v1/server-info<br/>(public, unauthenticated)"]
+            AuthController["Auth Controller<br/><br/>Login, Register,<br/>Token mgmt, Device revoke"]
+            OAuthController["OAuth Controller<br/><br/>Authorization Code,<br/>Token exchange, PKCE"]
+            PatientController["Patient Controller<br/><br/>Records, history,<br/>family / dependents"]
+            AppointmentController["Appointment Controller<br/><br/>Scheduling, booking,<br/>cancellation"]
+            PrescriptionController["Prescription Controller<br/><br/>Creation, dispensing,<br/>QR scanning"]
+            InventoryController["Inventory Controller<br/><br/>Stock, POS, expiry,<br/>low-stock alerts"]
+            LabController["Lab Controller<br/><br/>Lab orders, specimens,<br/>results, ranges"]
+            ImagingController["Imaging Controller<br/><br/>Radiology orders,<br/>DICOM, reports"]
+            MessagingController["Messaging Controller<br/><br/>Patient↔doctor messages,<br/>staff threads"]
+            FhirController["FHIR Controller<br/><br/>FHIR R4 export / import"]
+            ReportController["Report Controller<br/><br/>Analytics, exports,<br/>population health"]
+            PartnerController["Partner Controller<br/><br/>Pharma analytics,<br/>research data"]
+            DeveloperApiController["Developer API Controller<br/><br/>Entity API keys,<br/>quotas, webhook subs"]
+            WebhookController["Webhook Controller<br/><br/>Inbound webhook receiver"]
+            SyncController["Sync Controller<br/><br/>Pull / push,<br/>watermarks"]
+        end
+
+        subgraph Business_Layer["Business Layer (MediatR Handlers)"]
+            AuthHandlers["Auth Handlers<br/><br/>Registration, login,<br/>session mgmt, account merge"]
+            OAuthHandlers["OAuth Handlers<br/><br/>Authorization Code,<br/>scope check, PKCE verify"]
+            PatientHandlers["Patient Handlers<br/><br/>Records, family group,<br/>delegation"]
+            AppointmentHandlers["Appointment Handlers<br/><br/>Slot mgmt, booking logic,<br/>smart matching"]
+            PrescriptionHandlers["Prescription Handlers<br/><br/>Drug validation,<br/>interaction checks"]
+            InventoryHandlers["Inventory Handlers<br/><br/>Stock tracking,<br/>low-stock alerts"]
+            LabHandlers["Lab Handlers<br/><br/>Order routing,<br/>result publication"]
+            ImagingHandlers["Imaging Handlers<br/><br/>DICOM ingestion,<br/>report linking"]
+            MessagingHandlers["Messaging Handlers<br/><br/>Threading, attachments,<br/>delivery receipts"]
+            BillingHandlers["Billing Handlers<br/><br/>Usage metering,<br/>invoicing"]
+            AnalyticsHandlers["Analytics Handlers<br/><br/>Reports, exports,<br/>population health"]
+            PartnerAnalyticsHandlers["Partner Analytics Handlers<br/><br/>Aggregated, anonymized,<br/>partner-scoped data"]
+            ResearchExportHandlers["Research Export Handlers<br/><br/>De-identified datasets,<br/>FHIR-shaped"]
+            SyncHandlers["Sync Handlers<br/><br/>Outbox processing,<br/>conflict resolution"]
+        end
+
+        subgraph Data_Layer["Data Layer (Repositories)"]
+            UserRepository["User Repository"]
+            PatientRepository["Patient Repository"]
+            AppointmentRepository["Appointment Repository"]
+            PrescriptionRepository["Prescription Repository"]
+            InventoryRepository["Inventory Repository"]
+            LabRepository["Lab Repository"]
+            ImagingRepository["Imaging Repository"]
+            MessagingRepository["Messaging Repository"]
+            BillingRepository["Billing Repository"]
+            PartnerRepository["Partner Repository"]
+            SyncOutbox["Sync Outbox"]
+            DeviceRepository["Device Repository"]
+        end
+
+        subgraph Cross_Cutting["Cross-Cutting Services"]
+            AuthService["Auth Service<br/><br/>JWT, sessions,<br/>cloud-default + local-fallback"]
+            PermissionService["Permission Service<br/><br/>RBAC, entity scoping,<br/>module gating"]
+            AIService["AI Abstraction Layer<br/><br/>Provider-agnostic;<br/>BYOK key mgmt (local-only)"]
+            NotificationService["Notification Service<br/><br/>SMS, email, push,<br/>in-app"]
+            AuditService["Audit Service<br/><br/>Immutable logs,<br/>PHI access tracking"]
+            ValidationService["Validation Service<br/><br/>FluentValidation"]
+            CacheService["Cache Service<br/><br/>Redis (cloud) /<br/>in-memory (local)"]
+            FileService["File Service<br/><br/>Upload, signed URLs"]
+            WebhookService["Webhook Service<br/><br/>HMAC sign, dispatch,<br/>5x retry / 24h"]
+            FHIRMappingService["FHIR Mapping Service<br/><br/>Resource ↔ entity"]
+            OAuthAuthService["OAuth Authorization Service<br/><br/>Codes, tokens, scopes,<br/>PKCE"]
+            ChatbotService["Chatbot Service<br/><br/>WhatsApp, Telegram,<br/>NLP via AIService"]
+            DocumentExchangeService["Document Exchange Service<br/><br/>Time-limited links,<br/>OTP, watermark, P2P"]
+            DeviceRegistryService["Device Registry Service<br/><br/>Trust, revoke cascade"]
+            ServerDiscoveryService["Server Discovery Service<br/><br/>mDNS, server-info"]
+        end
+
+        subgraph Background_Services["Background Services"]
+            SyncWorker["Sync Worker<br/><br/>Outbox poll,<br/>chunked webhook delivery"]
+            BillingWorker["Billing Worker<br/><br/>Usage aggregation,<br/>invoice generation"]
+            NotificationWorker["Notification Worker<br/><br/>Queue processing,<br/>retry logic"]
+            WebhookOutboundWorker["Webhook Outbound Worker<br/><br/>Subscriber delivery,<br/>backoff + DLQ"]
+        end
+    end
+
+    subgraph External_Deps["External Dependencies"]
+        DB[(Database<br/>SQLite / PostgreSQL)]
+        FileStore[("File Storage<br/>Local / S3")]
+        AISDK["AI Provider SDK"]
+        PaymentAPI["Payment Gateway"]
+        SMSAPI["SMS / Email API"]
+        FhirEhrAPI["FHIR / HL7 / EHR"]
+        DicomAPI["DICOM / PACS"]
+        InsuranceAPI["Insurance / NPHIES"]
+        RegistryAPI["Gov Registries"]
+        ChatAPI["WhatsApp / Telegram"]
+        WebhookSubsExt["Webhook Subscribers"]
+    end
+
+    %% Controllers → Handlers
+    AuthController --> AuthHandlers
+    OAuthController --> OAuthHandlers
+    PatientController --> PatientHandlers
+    AppointmentController --> AppointmentHandlers
+    PrescriptionController --> PrescriptionHandlers
+    InventoryController --> InventoryHandlers
+    LabController --> LabHandlers
+    ImagingController --> ImagingHandlers
+    MessagingController --> MessagingHandlers
+    FhirController --> PatientHandlers
+    ReportController --> AnalyticsHandlers
+    PartnerController --> PartnerAnalyticsHandlers
+    PartnerController --> ResearchExportHandlers
+    DeveloperApiController --> AuthHandlers
+    WebhookController --> SyncHandlers
+    SyncController --> SyncHandlers
+    ServerInfoController --> ServerDiscoveryService
+
+    %% Handlers → Repositories
+    AuthHandlers --> UserRepository
+    AuthHandlers --> DeviceRepository
+    OAuthHandlers --> UserRepository
+    PatientHandlers --> PatientRepository
+    AppointmentHandlers --> AppointmentRepository
+    PrescriptionHandlers --> PrescriptionRepository
+    InventoryHandlers --> InventoryRepository
+    LabHandlers --> LabRepository
+    ImagingHandlers --> ImagingRepository
+    MessagingHandlers --> MessagingRepository
+    BillingHandlers --> BillingRepository
+    AnalyticsHandlers --> PatientRepository
+    AnalyticsHandlers --> AppointmentRepository
+    AnalyticsHandlers --> InventoryRepository
+    PartnerAnalyticsHandlers --> PartnerRepository
+    ResearchExportHandlers --> PatientRepository
+    SyncHandlers --> SyncOutbox
+
+    %% Handlers → Cross-cutting Services
+    AuthHandlers --> AuthService
+    OAuthHandlers --> OAuthAuthService
+    PatientHandlers --> PermissionService
+    PrescriptionHandlers --> AIService
+    PrescriptionHandlers --> ValidationService
+    AppointmentHandlers --> NotificationService
+    LabHandlers --> NotificationService
+    ImagingHandlers --> NotificationService
+    MessagingHandlers --> NotificationService
+    BillingHandlers --> AuditService
+    SyncHandlers --> WebhookService
+    PatientHandlers --> FHIRMappingService
+    ResearchExportHandlers --> FHIRMappingService
+    PatientHandlers --> DocumentExchangeService
+    AuthService --> DeviceRegistryService
+
+    %% Repositories → DB
+    UserRepository --> DB
+    PatientRepository --> DB
+    AppointmentRepository --> DB
+    PrescriptionRepository --> DB
+    InventoryRepository --> DB
+    LabRepository --> DB
+    ImagingRepository --> DB
+    MessagingRepository --> DB
+    BillingRepository --> DB
+    PartnerRepository --> DB
+    SyncOutbox --> DB
+    DeviceRepository --> DB
+
+    %% Cross-cutting → External
+    FileService --> FileStore
+    AIService --> AISDK
+    NotificationService --> SMSAPI
+    BillingHandlers --> PaymentAPI
+    FHIRMappingService --> FhirEhrAPI
+    ImagingHandlers --> DicomAPI
+    BillingHandlers --> InsuranceAPI
+    AnalyticsHandlers --> RegistryAPI
+    ChatbotService --> ChatAPI
+    ChatbotService --> AIService
+
+    %% Background workers
+    SyncWorker --> SyncOutbox
+    SyncWorker --> WebhookService
+    BillingWorker --> BillingRepository
+    NotificationWorker --> NotificationService
+    WebhookOutboundWorker --> WebhookService
+    WebhookOutboundWorker --> WebhookSubsExt
+
+    style AuthService fill:#ffd700,stroke:#cc9900,color:#000000
+    style PermissionService fill:#ffd700,stroke:#cc9900,color:#000000
+    style AIService fill:#ffd700,stroke:#cc9900,color:#000000
+    style NotificationService fill:#ffd700,stroke:#cc9900,color:#000000
+    style AuditService fill:#ffd700,stroke:#cc9900,color:#000000
+    style WebhookService fill:#ffd700,stroke:#cc9900,color:#000000
+    style FHIRMappingService fill:#ffd700,stroke:#cc9900,color:#000000
+    style OAuthAuthService fill:#ffd700,stroke:#cc9900,color:#000000
+    style ChatbotService fill:#ffd700,stroke:#cc9900,color:#000000
+    style DocumentExchangeService fill:#ffd700,stroke:#cc9900,color:#000000
+    style DeviceRegistryService fill:#ffd700,stroke:#cc9900,color:#000000
+    style ServerDiscoveryService fill:#ffd700,stroke:#cc9900,color:#000000

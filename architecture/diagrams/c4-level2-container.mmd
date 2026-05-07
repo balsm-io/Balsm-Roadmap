@@ -1,0 +1,160 @@
+graph TB
+    subgraph Users["Users"]
+        PatientUser["Patient /<br/>Family Member"]
+        DoctorUser["Doctor / Nurse /<br/>Lab Tech / Radiologist"]
+        PharmacistUser["Pharmacist"]
+        AdminUser["Entity Admin"]
+        PartnerUser["Partner"]
+        DeveloperUser["Third-Party Developer"]
+        VisitorUser["Public Visitor"]
+    end
+
+    subgraph Balsm_Containers["Balsm Healthcare Platform"]
+
+        subgraph Client_Apps["Client Applications (Flutter — multi-platform)"]
+            BalsmApp["Balsm App<br/>(Patient App)<br/><br/>iOS, Android, Web,<br/>macOS, Windows, Linux<br/><br/>Multi-server connections"]
+
+            subgraph BalsmPro_Modules["Balsm Pro (Practice Management)"]
+                ProShell["Pro Shell<br/>(Adaptive nav,<br/>module discovery)"]
+                ModPOS["POS"]
+                ModPharm["Pharmacy"]
+                ModClin["Clinical"]
+                ModInv["Inventory"]
+                ModSched["Scheduling"]
+                ModLab["Lab"]
+                ModImg["Imaging"]
+                ModAdmin["Admin"]
+            end
+
+            BalsmConnect["Balsm Connect<br/>(Partner Portal)<br/><br/>Pharma analytics,<br/>insurance, research"]
+        end
+
+        Website["balsm.health<br/>(Public Website)<br/><br/>Next.js, React, TypeScript<br/>Vercel / CDN"]
+
+        subgraph Backend["Backend Server (cross-platform installable bundle)"]
+            API["Backend API<br/><br/>ASP.NET Core .NET 10.0<br/>REST + WebSocket (SignalR)"]
+            ServerInfo["Server Info Endpoint<br/><br/>GET /api/v1/server-info<br/>(unauthenticated)"]
+            mDNSBroadcaster["mDNS Broadcaster<br/><br/>balsm.local"]
+            DeviceRegistry["Device Registry<br/><br/>Device IDs, names,<br/>revocation state"]
+            InviteCodeSys["Invite Code System<br/><br/>One-time device<br/>registration"]
+            QRGen["QR Code Generator<br/><br/>Server URL + invite +<br/>display name"]
+            AdminUI["Admin UI<br/><br/>React + Vite<br/>(embedded at /admin)"]
+        end
+
+        subgraph CoreServices["Core Backend Services"]
+            CloudAuthAPI["Cloud Auth API<br/><br/>Identity SoT — registration,<br/>entity/workspace creation,<br/>OAuth Authorization Server"]
+            AuthLocal["Local Auth Fallback<br/><br/>Cached creds,<br/>JWT issuance offline,<br/>queues registrations"]
+            WebhookMgr["Webhook Manager<br/><br/>Event subscriptions,<br/>HMAC signing,<br/>5x retry / 24h"]
+            MessagingSvc["Messaging Service<br/><br/>Patient↔doctor messages,<br/>staff threads"]
+            NotifSvc["Notification Service<br/><br/>SMS, email, push,<br/>in-app reminders"]
+            DocExchangeSvc["Document Exchange Service<br/><br/>Time-limited links,<br/>OTP verify, watermark,<br/>LAN P2P (mDNS+TLS)"]
+            ChatbotSvc["Chatbot Service<br/><br/>WhatsApp / Telegram /<br/>in-app channels (NLP)"]
+            FHIRMapper["FHIR Mapping Service<br/><br/>HL7 FHIR R4<br/>import / export"]
+            AIAbstraction["AI Abstraction Layer<br/><br/>Provider-agnostic;<br/>BYOK keys local-only;<br/>graceful disable"]
+            SyncService["Sync Service<br/><br/>Outbox poll, chunked<br/>webhook delivery,<br/>watermark pull"]
+            BillingService["Billing Service<br/><br/>Metered tracking,<br/>invoicing, subscriptions"]
+        end
+
+        subgraph DataPlane["Data Plane"]
+            Database["Database Engine<br/><br/>SQLite (local/embedded)<br/>PostgreSQL (cloud)<br/>Decoupled lifecycle"]
+            FileStorage["File Storage<br/><br/>Local FS (offline)<br/>S3 / Azure Blob (cloud)"]
+            OutboxQueue["Sync Outbox<br/><br/>UUID v7 ordered,<br/>chunked snapshots"]
+        end
+    end
+
+    subgraph External["External Systems"]
+        PaymentGW["Payment Gateway"]
+        AISDK["AI Provider SDK<br/>(BYOK)"]
+        SMSEmail["SMS / Email<br/>(Twilio, SendGrid)"]
+        SocialLogin["Social Auth<br/>(Google, Apple)"]
+        AdsSDK["Ads APIs<br/>(Facebook, Google)"]
+        FhirEhrExt["FHIR / HL7 / EHR"]
+        DicomExt["DICOM / PACS"]
+        InsuranceExt["Insurance / NPHIES"]
+        RegistryExt["Gov Registries<br/>(immunization, cancer,<br/>pharmacovigilance)"]
+        ChatExt["WhatsApp / Telegram"]
+        WebhookSubs["Webhook Subscribers<br/>(third-party systems)"]
+        PrintQRExt["Printer + QR Codes"]
+    end
+
+    %% Users → Apps
+    PatientUser -->|"HTTPS / WSS"| BalsmApp
+    DoctorUser -->|"HTTPS / WSS"| ProShell
+    PharmacistUser -->|"HTTPS / WSS"| ProShell
+    AdminUser -->|"HTTPS / WSS"| ProShell
+    PartnerUser -->|"HTTPS"| BalsmConnect
+    VisitorUser -->|"HTTPS"| Website
+    DeveloperUser -->|"OAuth 2.0 + PKCE"| CloudAuthAPI
+
+    %% Pro module gating
+    ProShell -.->|"entity.hasModule() AND<br/>user.hasPermission()"| ModPOS
+    ProShell -.-> ModPharm
+    ProShell -.-> ModClin
+    ProShell -.-> ModInv
+    ProShell -.-> ModSched
+    ProShell -.-> ModLab
+    ProShell -.-> ModImg
+    ProShell -.-> ModAdmin
+
+    %% Apps → API
+    BalsmApp -->|"REST API / JSON"| API
+    ProShell -->|"REST API / JSON"| API
+    BalsmConnect -->|"REST API / JSON"| API
+    Website -->|"REST API (public reads)"| API
+    AdminUser -->|"HTTPS"| AdminUI
+    AdminUI -->|"Embedded"| API
+
+    %% Discovery & trust
+    BalsmApp -.->|"GET /server-info<br/>before auth"| ServerInfo
+    BalsmApp -.->|"mDNS query"| mDNSBroadcaster
+    QRGen -->|"encodes URL + invite<br/>+ name + version"| InviteCodeSys
+    InviteCodeSys --> DeviceRegistry
+
+    %% API → Core Services
+    API --> CloudAuthAPI
+    API -.->|"fallback when offline"| AuthLocal
+    API --> WebhookMgr
+    API --> MessagingSvc
+    API --> NotifSvc
+    API --> DocExchangeSvc
+    API --> ChatbotSvc
+    API --> FHIRMapper
+    API --> AIAbstraction
+    API --> SyncService
+    API --> BillingService
+
+    %% Data plane
+    API -->|"EF Core queries"| Database
+    API -->|"reads / writes"| FileStorage
+    API -->|"writes events"| OutboxQueue
+    SyncService -->|"reads"| OutboxQueue
+
+    %% External integrations
+    AIAbstraction -->|"HTTPS<br/>(entity-owned keys)"| AISDK
+    NotifSvc -->|"HTTPS"| SMSEmail
+    CloudAuthAPI -->|"OAuth"| SocialLogin
+    BillingService -->|"HTTPS"| PaymentGW
+    API -->|"Voucher-based campaigns"| AdsSDK
+    FHIRMapper -->|"FHIR R4"| FhirEhrExt
+    API -->|"DICOM"| DicomExt
+    API -->|"Eligibility / pre-auth"| InsuranceExt
+    API -->|"Regulatory reporting"| RegistryExt
+    ChatbotSvc -->|"Webhook channels"| ChatExt
+    WebhookMgr -->|"HMAC-signed POSTs<br/>chunked, 5x retry / 24h"| WebhookSubs
+
+    %% Print-with-QR: DocExchangeSvc generates the PDF+QR; the client app
+    %% receives it and sends to the user's OS print spooler — server never
+    %% talks to printers directly
+    DocExchangeSvc -.->|"PDF + embedded QR"| BalsmApp
+    DocExchangeSvc -.->|"PDF + embedded QR"| ProShell
+    BalsmApp -.->|"OS print spooler"| PrintQRExt
+    ProShell -.->|"OS print spooler"| PrintQRExt
+
+    style API fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style CloudAuthAPI fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style Database fill:#438dd5,stroke:#2e6295,color:#ffffff
+    style OutboxQueue fill:#438dd5,stroke:#2e6295,color:#ffffff
+    style BalsmApp fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style ProShell fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style BalsmConnect fill:#85bbf0,stroke:#5d82a8,color:#000000
+    style Website fill:#85bbf0,stroke:#5d82a8,color:#000000

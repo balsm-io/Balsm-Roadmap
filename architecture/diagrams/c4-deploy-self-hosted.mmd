@@ -1,0 +1,49 @@
+graph TB
+    subgraph Entity_Infrastructure["Entity's Private Infrastructure (1 workspace per server)"]
+        subgraph Server["Self-Hosted Balsm Server"]
+            API["ASP.NET Core API"]
+            ServerInfo["GET /api/v1/server-info<br/>(public)"]
+            DataSharingCtrls["Data Sharing Controls<br/>(opt-in per category:<br/>doctor profiles, services,<br/>pricing, slots, inventory)"]
+            Outbox[("Sync Outbox<br/>UUID v7 ordered,<br/>chunked snapshots")]
+        end
+
+        subgraph DBEngine["Database Engine (decoupled)"]
+            DB[(PostgreSQL or SQLite)]
+        end
+
+        Files[("File Storage")]
+    end
+
+    subgraph Balsm_Network["Balsm Network (Cloud)"]
+        NetworkAPI["Balsm Network API"]
+        NetworkDB[(Network Directory)]
+        FederationGate["Federation Gate<br/>(requires paid<br/>Balsm Network<br/>subscription)"]
+    end
+
+    subgraph Users["Users"]
+        EntityUsers["Entity's Users<br/>(Staff, Patients)"]
+        NetworkUsers["Balsm Network Users<br/>(Cross-entity discovery)"]
+        MobileMulti["Mobile App<br/>multi-server connection<br/>(entity server + cloud)"]
+    end
+
+    EntityUsers -->|"HTTPS<br/>direct to entity server"| API
+    MobileMulti -->|"GET /server-info"| ServerInfo
+    MobileMulti -->|"HTTPS"| API
+    MobileMulti -->|"HTTPS"| NetworkAPI
+    NetworkUsers -->|"HTTPS<br/>discovery via network"| NetworkAPI
+
+    API --> DataSharingCtrls
+    DataSharingCtrls -->|"only published categories"| Outbox
+    Outbox -->|"chunked HMAC-signed<br/>webhook POSTs<br/>5x retry / 24h"| FederationGate
+    FederationGate -->|"if subscription active"| NetworkAPI
+    NetworkAPI -.references back.-> API
+
+    API -->|"IPC / local socket<br/>independent lifecycle"| DB
+    API --> Files
+    NetworkAPI --> NetworkDB
+
+    style API fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style NetworkAPI fill:#1168bd,stroke:#0b4884,color:#ffffff
+    style DB fill:#438dd5,stroke:#2e6295,color:#ffffff
+    style FederationGate fill:#cc8800,stroke:#664400,color:#ffffff
+    style DataSharingCtrls fill:#88aa44,stroke:#445522,color:#ffffff

@@ -1,0 +1,263 @@
+classDiagram
+    class AuthController {
+        +Task~IActionResult~ Login(LoginRequest)
+        +Task~IActionResult~ Register(RegisterRequest)
+        +Task~IActionResult~ RefreshToken(RefreshTokenRequest)
+        +Task~IActionResult~ Logout(LogoutRequest)
+        +Task~IActionResult~ RevokeDevice(string deviceId)
+        -IMediator _mediator
+    }
+
+    class LoginCommand {
+        +string Identifier
+        +string Password
+        +string DeviceId
+        +string DeviceName
+        +string? InviteCode
+        +AuthMode Mode
+    }
+
+    class AuthMode {
+        <<enumeration>>
+        CloudDefault
+        LocalFallback
+    }
+
+    class LoginCommandHandler {
+        +Task~Result~LoginResponse~~ Handle(LoginCommand, CancellationToken)
+        -IUserRepository _userRepository
+        -IAuthService _authService
+        -IPermissionService _permissionService
+        -IAuditService _auditService
+    }
+
+    class RegisterCommand {
+        +string Email
+        +string? PhoneNumber
+        +string? NationalId
+        +string FirstName
+        +string LastName
+        +string Password
+    }
+
+    class RegisterCommandHandler {
+        +Task~Result~RegisterResponse~~ Handle(RegisterCommand, CancellationToken)
+        -IUserRepository _userRepository
+        -IAuthService _authService
+        -IValidator~RegisterCommand~ _validator
+    }
+
+    class IAuthService {
+        <<interface>>
+        +Task~TokenPair~ GenerateTokens(User, Device)
+        +Task~bool~ ValidateToken(string token)
+        +Task~RefreshToken?~ GetRefreshToken(string token)
+        +Task RevokeToken(string token)
+        +Task~User?~ AuthenticateUser(string identifier, string password)
+    }
+
+    class AuthService {
+        +Task~TokenPair~ GenerateTokens(User, Device)
+        +Task~bool~ ValidateToken(string token)
+        +Task~RefreshToken?~ GetRefreshToken(string token)
+        +Task RevokeToken(string token)
+        +Task~User?~ AuthenticateUser(string identifier, string password)
+        -IConfiguration _config
+        -IUserRepository _userRepository
+        -IRefreshTokenRepository _tokenRepository
+        -IPasswordHasher _passwordHasher
+    }
+
+    class IUserRepository {
+        <<interface>>
+        +Task~User?~ GetByEmail(string email)
+        +Task~User?~ GetByPhoneNumber(string phone)
+        +Task~User?~ GetByNationalId(string nationalId)
+        +Task~User?~ GetById(Guid id)
+        +Task Add(User user)
+        +Task Update(User user)
+    }
+
+    class UserRepository {
+        +Task~User?~ GetByEmail(string email)
+        +Task~User?~ GetByPhoneNumber(string phone)
+        +Task~User?~ GetByNationalId(string nationalId)
+        +Task~User?~ GetById(Guid id)
+        +Task Add(User user)
+        +Task Update(User user)
+        -AppDbContext _context
+    }
+
+    class User {
+        +Guid Id
+        +string Email
+        +string? PhoneNumber
+        +string? NationalId
+        +string FirstName
+        +string LastName
+        +string PasswordHash
+        +DateTime CreatedAt
+        +DateTime? LastLoginAt
+        +bool IsActive
+        +int FailedAttempts
+        +DateTime? LockoutUntil
+        +bool IsLocked
+        +List~Device~ Devices
+        +List~Session~ Sessions
+        +List~Role~ Roles
+    }
+
+    class Device {
+        +Guid Id
+        +Guid UserId
+        +string DeviceId
+        +string DeviceName
+        +string DeviceType
+        +DateTime FirstSeenAt
+        +DateTime LastActivityAt
+        +bool IsRevoked
+    }
+
+    class Session {
+        +Guid Id
+        +Guid UserId
+        +Guid DeviceId
+        +string AccessToken
+        +DateTime ExpiresAt
+        +DateTime CreatedAt
+        +bool IsActive
+    }
+
+    class RefreshToken {
+        +Guid Id
+        +Guid UserId
+        +Guid DeviceId
+        +string Token
+        +DateTime ExpiresAt
+        +DateTime CreatedAt
+        +bool IsRevoked
+    }
+
+    class TokenPair {
+        +string AccessToken
+        +string RefreshToken
+        +DateTime AccessTokenExpiresAt
+        +DateTime RefreshTokenExpiresAt
+    }
+
+    class Result~T~ {
+        +bool IsSuccess
+        +T? Value
+        +string? Error
+        +static Result~T~ Success(T value)
+        +static Result~T~ Failure(string error)
+    }
+
+    class RevokeDeviceCommand {
+        +Guid UserId
+        +string DeviceId
+    }
+
+    class RevokeDeviceCommandHandler {
+        +Task~Result~bool~~ Handle(RevokeDeviceCommand, CancellationToken)
+        -IUserRepository _userRepository
+        -IAuthService _authService
+        -IAuditService _auditService
+    }
+
+    class AccountMergeCommand {
+        +Guid PrimaryUserId
+        +Guid SecondaryUserId
+        +string Reason
+    }
+
+    class AccountMergeCommandHandler {
+        +Task~Result~MergeResult~~ Handle(AccountMergeCommand, CancellationToken)
+        -IUserRepository _userRepository
+        -IAuditService _auditService
+    }
+
+    class AuthorizationCodeCommand {
+        +Guid UserId
+        +string ClientId
+        +string RedirectUri
+        +string CodeChallenge
+        +string CodeChallengeMethod
+        +List~string~ Scopes
+    }
+
+    class TokenExchangeCommand {
+        +string ClientId
+        +string Code
+        +string CodeVerifier
+        +string RedirectUri
+    }
+
+    class IOAuthAuthorizationService {
+        <<interface>>
+        +Task~string~ IssueAuthorizationCode(AuthorizationCodeCommand)
+        +Task~Result~OAuthTokenPair~~ ExchangeCode(TokenExchangeCommand)
+        +Task~bool~ ValidateScopes(string accessToken, List~string~ requiredScopes)
+        +Task RevokeToken(string token)
+    }
+
+    class OAuthAuthorizationService {
+        +Task~string~ IssueAuthorizationCode(AuthorizationCodeCommand)
+        +Task~Result~OAuthTokenPair~~ ExchangeCode(TokenExchangeCommand)
+        +Task~bool~ ValidateScopes(string accessToken, List~string~ requiredScopes)
+        +Task RevokeToken(string token)
+        -IUserRepository _userRepository
+        -IPkceVerifier _pkce
+    }
+
+    class IInviteCodeService {
+        <<interface>>
+        +Task~bool~ Validate(string code)
+        +Task Consume(string code, Guid deviceId)
+        +Task~string~ Generate(Guid serverId, TimeSpan ttl)
+    }
+
+    class InviteCodeService {
+        +Task~bool~ Validate(string code)
+        +Task Consume(string code, Guid deviceId)
+        +Task~string~ Generate(Guid serverId, TimeSpan ttl)
+        -IInviteCodeRepository _repository
+        -IClock _clock
+    }
+
+    AuthController --> LoginCommand
+    AuthController --> RegisterCommand
+    AuthController --> RevokeDeviceCommand
+    AuthController --> AccountMergeCommand
+    LoginCommand --> LoginCommandHandler
+    RegisterCommand --> RegisterCommandHandler
+    RevokeDeviceCommand --> RevokeDeviceCommandHandler
+    AccountMergeCommand --> AccountMergeCommandHandler
+    AuthorizationCodeCommand --> IOAuthAuthorizationService
+    TokenExchangeCommand --> IOAuthAuthorizationService
+    LoginCommand --> AuthMode
+    LoginCommandHandler --> IAuthService
+    LoginCommandHandler --> IUserRepository
+    LoginCommandHandler --> IInviteCodeService
+    RegisterCommandHandler --> IAuthService
+    RegisterCommandHandler --> IUserRepository
+    RegisterCommandHandler --> IInviteCodeService
+    RevokeDeviceCommandHandler --> IUserRepository
+    RevokeDeviceCommandHandler --> IAuthService
+    AccountMergeCommandHandler --> IUserRepository
+    IAuthService <|.. AuthService
+    IUserRepository <|.. UserRepository
+    IOAuthAuthorizationService <|.. OAuthAuthorizationService
+    IInviteCodeService <|.. InviteCodeService
+    AuthService --> IUserRepository
+    UserRepository --> User
+    User --> Device
+    User --> Session
+    Device --> Session : revoke cascade
+    Device --> RefreshToken : revoke cascade
+    AuthService --> RefreshToken
+    AuthService --> TokenPair
+    LoginCommandHandler --> Result~T~
+    RegisterCommandHandler --> Result~T~
+    RevokeDeviceCommandHandler --> Result~T~
+    AccountMergeCommandHandler --> Result~T~
