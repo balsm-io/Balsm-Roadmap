@@ -47,6 +47,10 @@ $RECYCLE.BIN/
 # NFS temporary files
 .nfs*
 
+### VitePress
+node_modules/
+.vitepress/cache/
+.vitepress/dist/
 
 ### Claude skill workspaces (eval runs, benchmark outputs)
 .claude/skills/*-workspace/

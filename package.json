@@ -1,0 +1,13 @@
+{
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview",
+    "docs:diagrams": "for f in architecture/diagrams/*.mmd; do node_modules/.bin/mmdc -i \"$f\" -o \"architecture/diagrams/svg/$(basename ${f%.mmd}).svg\" --quiet; done"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.14.0",
+    "vitepress": "^1.6.3"
+  }
+}
