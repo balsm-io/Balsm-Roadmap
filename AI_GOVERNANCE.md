@@ -155,6 +155,6 @@
 
 ## 11. Threat Models
 
-See [AI_THREAT_MODELS.md](./AI_THREAT_MODELS.md).
+See [SYSTEM_THREAT_MODEL.md § AI/ML-Specific Threats](./SYSTEM_THREAT_MODEL.md#aiml-specific-threats-ai) for the AI/ML threat catalog (AI01–AI16) and mitigations. The same document contains the platform-wide cybersecurity and application-security threats that AI features inherit.
 
 Every phase spec that introduces an AI feature must reference the applicable threat IDs from that document and confirm all `BLOCKING` mitigations are covered in its implementation plan.

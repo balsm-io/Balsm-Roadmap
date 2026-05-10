@@ -203,8 +203,13 @@ Read [`CODING_STANDARDS.md`](./CODING_STANDARDS.md) for detailed technical patte
 
 ### Business & Compliance
 - [`AI_GOVERNANCE.md`](../../AI_GOVERNANCE.md) — AI governance, data privacy, and clinical AI policies
+- [`SYSTEM_THREAT_MODEL.md`](../../SYSTEM_THREAT_MODEL.md) — platform-wide STRIDE + AI/ML threat catalog and mitigations; phase specs reference threat IDs from this document
 - [`BUSINESS_FEATURES.md`](../../BUSINESS_FEATURES.md) — full feature specifications
 - [`PHASED_DELIVERY_STEPS.md`](../../PHASED_DELIVERY_STEPS.md) — delivery phases and milestones
 - [`GLOSSARY.md`](../../GLOSSARY.md) — domain terminology definitions
 - [`NON_FUNCTIONAL_REQUIREMENTS.md`](../../NON_FUNCTIONAL_REQUIREMENTS.md) — performance, scalability, compliance requirements
 - [`MIGRATION_INTEGRATION_GUIDE.md`](../../MIGRATION_INTEGRATION_GUIDE.md) — integration with external systems (HL7/FHIR, DICOM, etc.)
+
+### Project-scoped skills
+Claude Code auto-loads skills from [`.claude/skills/`](../../.claude/skills/). Notable:
+- **`healthcare-threat-modeling`** — produces a STRIDE + AI/ML threat model for a system or phase. Use when adding or auditing a phase, when a new external integration is introduced, or when reviewing security for a new feature. The skill reads `SYSTEM_THREAT_MODEL.md`, `NON_FUNCTIONAL_REQUIREMENTS.md`, `COMPLIANCE_REVIEW.md`, and the constitution as canonical context.

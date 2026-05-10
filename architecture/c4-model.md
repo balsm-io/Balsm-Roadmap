@@ -421,7 +421,7 @@ Visualises which Pro modules are enabled by each entity type, and which permissi
 
 - [BUSINESS_FEATURES.md](../../Balsm-Draft/BUSINESS_FEATURES.md) — Full business requirements
 - [AI_GOVERNANCE.md](../AI_GOVERNANCE.md) — AI safety and governance framework
-- [AI_THREAT_MODELS.md](../AI_THREAT_MODELS.md) — Security threat catalog for AI features
+- [SYSTEM_THREAT_MODEL.md](../SYSTEM_THREAT_MODEL.md) — Comprehensive threat catalog (cybersecurity, application security, and AI/ML)
 - [authentication-routing-strategy.md](./authentication-routing-strategy.md) — Auth routing patterns
 - [subdomain-map.md](./subdomain-map.md) — Network subdomain architecture
 

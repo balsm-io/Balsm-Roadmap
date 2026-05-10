@@ -1,0 +1,62 @@
+{
+  "skill_name": "healthcare-threat-modeling",
+  "evals": [
+    {
+      "id": 0,
+      "name": "phased-pharmacy-with-ai",
+      "prompt": "I'm building MediStock, an offline-first pharmacy management system for independent pharmacies in Indonesia. Here's the architecture:\n\n- Local server runs on a mini-PC inside each pharmacy (SQLite, .NET API). Cashier tablets and pharmacist laptops connect over the pharmacy's WiFi.\n- Optional cloud sync for chain owners with multiple branches — outbox pattern, last-write-wins for inventory, server-authoritative for prescriptions.\n- 6-phase delivery: (1) local-server foundation + auth, (2) inventory + barcode scanning, (3) POS with cash-drawer reconciliation, (4) digital prescriptions with QR codes, (5) cloud sync + chain analytics, (6) AI assistant for drug-interaction checks (BYOK to OpenAI/Gemini).\n- Multi-tenant: one cloud instance serves many pharmacy chains; data isolation by `EntityId`.\n- Stores PII (patient phone, KTP national ID), PHI (prescriptions, allergies, drug history), financial (sales, controlled-substance audit). Indonesian narcotics regulation (Permenkes 3/2015) requires controlled-substance dispensing audit.\n- Patients use a mobile app to view their prescriptions and request refills.\n\nCan you do a full security threat model for this? I want something I can hand to my engineering team and have them work through phase by phase.",
+      "expected_output": "A single markdown threat model with: trust-boundary recap, sensitive-data inventory, STRIDE catalog (with system-specific attack vectors not generic web threats), AI/ML section (because phase 6 uses BYOK LLM), mitigations marked BLOCKING/REQUIRED, phase coverage matrix (1-6), out-of-scope pointers. Should reference Indonesian PDP Law and Permenkes 3/2015 for narcotics. Should NOT pad with non-applicable threats.",
+      "assertions": [
+        {"text": "Includes a STRIDE catalog with all six categories (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege)"},
+        {"text": "Includes a dedicated AI/ML threats section because phase 6 uses BYOK LLM"},
+        {"text": "Includes a phase coverage matrix mapping threats to phases 1–6"},
+        {"text": "References Indonesian regulations (at minimum Permenkes 3/2015 for narcotics; ideally also Indonesian PDP Law / UU PDP)"},
+        {"text": "Includes a threat covering rogue server / mDNS or LAN spoofing on the pharmacy WiFi"},
+        {"text": "Includes a threat covering prescription QR-code forgery, with a cryptographic-signature mitigation"},
+        {"text": "Includes a cross-entity / multi-tenant data isolation failure threat with EntityId-scoped query mitigation"},
+        {"text": "Mitigations are explicitly marked BLOCKING or REQUIRED"},
+        {"text": "Includes a controlled-substance inventory manipulation threat tied to the Permenkes audit requirement"},
+        {"text": "Includes a sync-related threat (outbox poisoning, last-write-wins clock abuse, or replay) given the system has cloud sync"}
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "telemedicine-startup-no-phases",
+      "prompt": "We just got our seed round for a telemedicine startup in the UK called Sereno. Quick description:\n\n- Patients book video consults with GPs via our web app (Next.js) and iOS/Android (Flutter).\n- Backend is a Node.js + Postgres monolith on AWS eu-west-1.\n- We use Twilio for video, Stripe for payments, NHS Login for patient auth (OAuth/OIDC).\n- Doctors authenticate with our own SSO + GMC number verification.\n- We use OpenAI GPT-4 to auto-summarise consultation transcripts into clinical notes (the doctor reviews and edits before saving).\n- We send prescriptions electronically via the EPS (Electronic Prescription Service) API.\n- All clinical data stored in Postgres with column-level encryption for free-text fields.\n\nWe're not phased — it all ships at MVP. My investors want to see a security threat model before we go live. Can you produce one?",
+      "expected_output": "A markdown threat model. Should NOT include a phase coverage matrix (no phases) — instead a Component Coverage matrix or skip that section. Should include AI/ML threats (uses GPT-4 for summarisation). Should reference UK GDPR/DPA 2018, NHS DSP Toolkit, and DCB0129/DCB0160 if applicable. Specific threats around: NHS Login token handling, EPS prescription tampering, video session hijack, clinical-summary AI errors, GMC credential verification.",
+      "assertions": [
+        {"text": "Includes a STRIDE catalog with all six categories (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege)"},
+        {"text": "Includes a dedicated AI/ML threats section because the system uses GPT-4 for clinical-note summarisation"},
+        {"text": "Does NOT include a phase coverage matrix (system is not phased — uses component coverage or omits the section)"},
+        {"text": "References UK regulations (at minimum UK GDPR / DPA 2018; ideally NHS DSP Toolkit or DCB0129/DCB0160)"},
+        {"text": "Includes an AI-summarisation hallucination / fabrication threat (T or AI04-style — affects clinical safety)"},
+        {"text": "Includes an NHS Login OAuth/OIDC token-handling threat (PKCE, state, scope, or token replay)"},
+        {"text": "Includes an EPS prescription submission tampering or replay threat with HMAC/signature mitigation"},
+        {"text": "Includes a Twilio video session hijack or eavesdropping threat"},
+        {"text": "Mitigations are explicitly marked BLOCKING or REQUIRED"},
+        {"text": "Includes a doctor credential / GMC verification spoofing threat"}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "lab-information-system-no-ai",
+      "prompt": "I'm the architect at MedLab Group, a chain of diagnostic labs in Saudi Arabia. We're building a new LIS (Lab Information System) to replace our 15-year-old vendor system. Stack:\n\n- C# .NET 8 backend, SQL Server, Angular frontend.\n- Hosted on-prem in our Riyadh data centre. No cloud, no offline mode.\n- Integrates with: HL7 v2 from analyser instruments (chemistry, haematology, microbiology), DICOM for some imaging, FHIR API for hospital partners, SFDA reporting for notifiable diseases.\n- Workflow: specimen collection → accessioning → instrument result → tech verification → pathologist verification (where required) → result release to ordering doctor + patient portal.\n- Patient portal lets patients view their results once released.\n- Roles: phlebotomist, lab tech, pathologist, doctor (external — accesses via FHIR), patient.\n- Data: PHI (results, diagnoses, specimen chain of custody), PII (Iqama/national ID, phone), no payment data (billing is a separate system).\n- No AI features. We don't do clinical decision support.\n\nCan you do a security threat model? I want to focus on threats we'd realistically see, not generic web stuff.",
+      "expected_output": "A markdown threat model. Should NOT include an AI/ML section (no AI features in the system). Should NOT include phase coverage matrix (single release). Should include component coverage. Specific threats around: HL7 instrument tampering (forged results), DICOM PHI leakage, pathologist verification bypass, specimen chain of custody, FHIR API authorisation, patient-portal IDOR, on-prem ransomware. Should reference Saudi PDPL (Royal Decree M/19) and SFDA reporting requirements, NOT Egypt-specific or US HIPAA.",
+      "assertions": [
+        {"text": "Includes a STRIDE catalog with all six categories (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege)"},
+        {"text": "Does NOT include an AI/ML threats section (the system has no AI features)"},
+        {"text": "Does NOT include a phase coverage matrix (single release — uses component coverage or omits the section)"},
+        {"text": "References Saudi-specific regulations (Saudi PDPL Royal Decree M/19, SFDA reporting, or NPHIES); does NOT use HIPAA / US-specific compliance content"},
+        {"text": "Includes an HL7 v2 instrument tampering / forged result injection threat (HL7 has no native auth)"},
+        {"text": "Includes a DICOM metadata PHI leakage threat with redaction mitigation"},
+        {"text": "Includes a pathologist verification state-machine bypass threat (Draft → Verified → Released)"},
+        {"text": "Includes a patient-portal IDOR / horizontal escalation threat (Iqama enumeration or cross-patient access)"},
+        {"text": "Includes a FHIR API authorisation / scope threat for external doctor access"},
+        {"text": "Mitigations are explicitly marked BLOCKING or REQUIRED"}
+      ],
+      "files": []
+    }
+  ]
+}
