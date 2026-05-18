@@ -51,6 +51,20 @@ A doctor's Balsm Pro account is **scoped to an entity** — their clinic or hosp
 
 ---
 
+## Adoption Considerations
+
+> These are common patterns observed during onboarding and adoption — product, UX, and support teams should design with them in mind.
+
+- **Preference for familiar workflows** — Doctors have well-established clinical routines developed over years of practice. They are more likely to embrace new tools when the system adapts to their existing flow rather than requiring significant changes to how they work. Features should minimize friction and make the recommended path feel natural.
+
+- **Selective knowledge sharing** — Doctors tend to prefer keeping their clinical notes, templates, and protocols within their own practice. Collaboration features such as shared template libraries or protocol sharing should be entirely opt-in, with sharing initiated by the doctor rather than expected by default.
+
+- **Contextual engagement with collaboration** — Features like referrals, shared care plans, and internal messaging see higher engagement when surfaced at the right moment in the workflow (e.g., a referral prompt at the end of an encounter) rather than as standalone items in a general dashboard.
+
+- **Respect for clinical autonomy** — Doctors value independence in their clinical decision-making. Where workflow steps or oversight mechanisms are required (e.g., for supervised practitioners), these should be presented in the context of patient safety and care quality rather than as administrative controls.
+
+---
+
 ## Default Permissions (`Doctor` group)
 
 | Module | Access Level |
