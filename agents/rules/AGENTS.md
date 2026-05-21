@@ -33,7 +33,7 @@ Balsm is a healthcare platform consisting of multiple repositories:
 - do not leave dead code, commented-out code, or TODO comments without a linked issue
 - do not mix formatting changes with functional changes in the same commit
 - always check for typos in code, variable names, strings, comments, and documentation before submitting — typos in identifiers cause bugs, typos in user-facing text damage credibility
-- when a user request adds, modifies, or removes a business requirement, feature, or behavioral rule — update all affected documentation before or alongside the code implementation; this includes [`BUSINESS_FEATURES.md`](../../BUSINESS_FEATURES.md) for feature specs, [`PHASED_DELIVERY_STEPS.md`](../../PHASED_DELIVERY_STEPS.md) for delivery tasks, [`GLOSSARY.md`](../../GLOSSARY.md) for new or changed domain terms, [`NON_FUNCTIONAL_REQUIREMENTS.md`](../../NON_FUNCTIONAL_REQUIREMENTS.md) for validation and performance rules, agent rules ([`AGENTS.md`](./AGENTS.md), [`CODING_STANDARDS.md`](./CODING_STANDARDS.md)) for AI behavior or coding convention changes, Claude skills (`.claude/commands/`) for new or modified slash commands, and any other relevant spec document; code changes without corresponding documentation updates are incomplete
+- when a user request adds, modifies, or removes a business requirement, feature, or behavioral rule — update all affected documentation before or alongside the code implementation; this includes [`BUSINESS_FEATURES.md`](../../BUSINESS_FEATURES.md) for feature specs, [`PHASED_DELIVERY_STEPS.md`](../../PHASED_DELIVERY_STEPS.md) for delivery tasks, [`GLOSSARY.md`](../../GLOSSARY.md) for new or changed domain terms, [`NON_FUNCTIONAL_REQUIREMENTS.md`](../../NON_FUNCTIONAL_REQUIREMENTS.md) for validation and performance rules, [`CERTIFICATIONS.md`](../../CERTIFICATIONS.md) for standards and certification compliance, agent rules ([`AGENTS.md`](./AGENTS.md), [`CODING_STANDARDS.md`](./CODING_STANDARDS.md)) for AI behavior or coding convention changes, Claude skills (`.claude/commands/`) for new or modified slash commands, and any other relevant spec document; code changes without corresponding documentation updates are incomplete
 
 ---
 
@@ -109,6 +109,7 @@ Balsm is a healthcare platform consisting of multiple repositories:
 - all clinical data operations must be ACID-compliant
 - use optimistic concurrency control for concurrent record edits — do not silently overwrite
 - validate medical data against relevant coding standards (ICD-10, CPT, HCPCS, SNOMED CT, LOINC, RxNorm) where applicable
+- all generated code must comply with the standards defined in [`CERTIFICATIONS.md`](../../CERTIFICATIONS.md) — read that file before generating code that touches clinical data, lab results, medications, diagnoses, FHIR resources, or patient records
 - maintain referential integrity — never leave orphaned records or broken foreign key relationships
 - file uploads must validate file type, size limits, and content integrity
 
@@ -137,10 +138,16 @@ Balsm is a healthcare platform consisting of multiple repositories:
 
 ## 7. Healthcare-Specific Rules
 
+- **before implementing any clinical, lab, pharmacy, FHIR, or medication feature — read [`CERTIFICATIONS.md` Section 3](../../CERTIFICATIONS.md) and ensure the implementation satisfies all code-level compliance rules defined there**
 - prescription validation rules (drug interactions, allergy checks, dosage limits) are safety-critical — do not bypass, weaken, or shortcut them
 - clinical workflows must always maintain audit trails — never skip audit logging for convenience
 - consent checks must be enforced before any data sharing operation
-- medical terminology and coding standards (ICD-10, CPT, HCPCS, SNOMED CT, LOINC, RxNorm, HL7 FHIR, DICOM) must be used correctly — do not approximate or simplify medical codes
+- medical terminology and coding standards (ICD-10, CPT, HCPCS, SNOMED CT, LOINC, RxNorm, HL7 FHIR, DICOM) must be used correctly — do not approximate or simplify medical codes; full usage rules are in [`CERTIFICATIONS.md`](../../CERTIFICATIONS.md)
+- all FHIR resources must include `resourceType`, `id`, `meta.profile`, and mandatory R4 elements — use the standard R4 resource types; never invent custom structures where standard ones exist
+- all lab/observation codes must use LOINC with `system: "http://loinc.org"` — never use free-text or internal codes where LOINC equivalents exist
+- all clinical findings and diagnoses must be coded with SNOMED CT (`system: "http://snomed.info/sct"`) — ICD-10 is acceptable as a secondary billing code alongside SNOMED, not a replacement
+- all medication references must include RxNorm `RxCUI` with `system: "http://www.nlm.nih.gov/research/umls/rxnorm"`
+- all patient data must be exportable as a FHIR Bundle on request — no data lock-in
 - patient-facing content must support internationalization — no hardcoded strings
 
 ---
@@ -204,6 +211,7 @@ Read [`CODING_STANDARDS.md`](./CODING_STANDARDS.md) for detailed technical patte
 ### Business & Compliance
 - [`AI_GOVERNANCE.md`](../../AI_GOVERNANCE.md) — AI governance, data privacy, and clinical AI policies
 - [`SYSTEM_THREAT_MODEL.md`](../../SYSTEM_THREAT_MODEL.md) — platform-wide STRIDE + AI/ML threat catalog and mitigations; phase specs reference threat IDs from this document
+- [`CERTIFICATIONS.md`](../../CERTIFICATIONS.md) — target certifications (DPG, FHIR, SNOMED, LOINC, ICD-10, RxNorm, PDPL) and **mandatory code-level compliance rules** for all generated code
 - [`BUSINESS_FEATURES.md`](../../BUSINESS_FEATURES.md) — full feature specifications
 - [`PHASED_DELIVERY_STEPS.md`](../../PHASED_DELIVERY_STEPS.md) — delivery phases and milestones
 - [`GLOSSARY.md`](../../GLOSSARY.md) — domain terminology definitions

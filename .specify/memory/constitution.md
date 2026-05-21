@@ -1,14 +1,19 @@
 <!--
   SYNC IMPACT REPORT
-  Version change: 1.0.0 → 1.1.0
-  Bump rationale: MINOR — technology stack update; architecture consolidation to 4 apps
+  Version change: 1.1.0 → 1.2.0
+  Bump rationale: MINOR — added Principle XI (Certifications & Standards Compliance);
+  updated Principle I, Principle III, Technology Stack, and Development Workflow
+  to reference CERTIFICATIONS.md as the authoritative compliance document
 
   Modified principles:
-    - VIII. Multi-Platform Consistency: updated app count to Four (removed Balsm Business,
-      Balsm Store, Balsm Hub, Dawaa; consolidated into Balsm Pro with module-based access)
-    - Technology Stack: updated .NET 8+ → .NET 10.0, added EF Core 10.0.5 version pin
+    - I. Patient Safety First: added CERTIFICATIONS.md as authority for coding standards
+    - III. Regulatory Compliance: added DPG Standard, FHIR CapabilityStatement,
+      LOINC, SNOMED CT, RxNorm, ICD-10 as explicit compliance requirements
+    - Technology Stack: added CERTIFICATIONS.md reference
+    - Development Workflow: added CERTIFICATIONS.md to mandatory doc update list
 
-  Added sections: N/A
+  Added sections:
+    - XI. Certifications & Standards Compliance (new principle)
 
   Removed sections: N/A
 
@@ -38,7 +43,8 @@ deadlines, and convenience MUST never compromise safety-critical workflows.
 - Emergency access overrides MUST be time-limited, fully audited, and trigger
   immediate patient notification
 - Medical terminology and coding standards (ICD-10, CPT, SNOMED CT, LOINC,
-  RxNorm, HL7 FHIR, DICOM) MUST be used correctly — approximations are forbidden
+  RxNorm, HL7 FHIR, DICOM) MUST be used correctly — approximations are forbidden;
+  the full code-level rules for each standard are in `CERTIFICATIONS.md`
 - AI features MUST be assistive only — they MUST never replace human clinical
   judgment (see Principle X)
 
@@ -79,6 +85,22 @@ When regulation conflicts with a feature request, regulation wins.
   Anti-Corruption Commission regulations, Anti-Cyber Crime Law
 - **GCC**: WHO Ethical Criteria for Medicinal Drug Promotion, data residency
   requirements per jurisdiction
+- **International standards** (enforced in all code, specs, and ideas):
+  - HL7 FHIR R4 — all externally exchanged resources MUST use standard R4 types;
+    the API MUST expose a `/metadata` CapabilityStatement endpoint
+  - LOINC — all lab observations, vital signs, and clinical document types MUST
+    use LOINC codes (`system: "http://loinc.org"`); LOINC registration is required
+    before shipping any lab feature
+  - SNOMED CT — clinical findings, diagnoses, and procedures MUST use SNOMED CT
+    concept IDs (`system: "http://snomed.info/sct"`); ICD-10 is for billing only
+  - RxNorm — all medication references MUST include RxNorm RxCUI
+    (`system: "http://www.nlm.nih.gov/research/umls/rxnorm"`)
+  - ICD-10 — all billing diagnoses MUST use ICD-10 codes validated against the
+    active code set before persistence
+  - DPG Standard — all code MUST remain open-source (AGPL), platform-independent,
+    privacy-by-design, and data-extractable as FHIR Bundle on request
+  - Full code-level rules for all standards are in `CERTIFICATIONS.md` —
+    read that file before writing any spec, plan, or code touching clinical data
 - Controlled substance tracking MUST be implemented before pharmacy module
   launch — deferring it is not acceptable (CR-01)
 - Prescription attachment for controlled substances MUST default to **required**
@@ -244,6 +266,29 @@ decisions.
 - AI inputs MUST be sanitized against prompt injection attacks
 - Refer to `AI_GOVERNANCE.md` for the complete governance framework
 
+### XI. Certifications & Standards Compliance
+
+All ideas, requirements, specs, plans, and code MUST be compliant with the
+certifications and standards defined in `CERTIFICATIONS.md`.
+
+- **Compliance starts at idea stage** — before writing a spec or plan for any
+  feature that touches clinical data, lab results, medications, diagnoses, FHIR
+  resources, or patient records, read `CERTIFICATIONS.md` and identify which
+  standards apply
+- **Specs MUST include a Certification Compliance section** identifying applicable
+  standards (FHIR R4, LOINC, SNOMED CT, ICD-10, RxNorm, DPG, PDPL) and any
+  new compliance obligations introduced by the feature
+- **Plans MUST gate on certifications** — the Constitution Check in every
+  `plan.md` MUST verify that the design satisfies all applicable code-level
+  compliance rules from `CERTIFICATIONS.md Section 3`
+- **Code MUST not be submitted** if it introduces medical codes, FHIR resources,
+  clinical data structures, or patient data flows that are not compliant with
+  `CERTIFICATIONS.md`
+- The certification status table in `CERTIFICATIONS.md` MUST be updated when a
+  certification is obtained or a new compliance action is taken
+- Refer to `CERTIFICATIONS.md` for the sequenced application roadmap, code-level
+  compliance rules, per-phase checklist, and evidence artifact registry
+
 ## Technology Stack & Constraints
 
 - **Backend**: .NET 10.0 modular monolith, C#, Entity Framework Core 10.0.5, SQLite
@@ -259,7 +304,7 @@ decisions.
 - **Logging**: Structured (key-value), always include CorrelationId, UserId,
   Action, Module — never log PHI
 - **Medical Standards**: ICD-10, CPT, HCPCS, SNOMED CT, LOINC, RxNorm, HL7
-  FHIR, DICOM
+  FHIR R4, DICOM — code-level compliance rules in `CERTIFICATIONS.md`
 - **Dependency Injection**: Constructor injection only — never instantiate
   dependencies with `new` inside business logic
 - **SOLID Principles**: Enforced — Single Responsibility, Open/Closed, Liskov
@@ -277,7 +322,8 @@ decisions.
 - Do not commit generated files, build artifacts, or environment-specific config
 - When a business requirement changes, ALL affected documentation MUST be updated
   alongside code: BUSINESS_FEATURES.md, PHASED_DELIVERY_STEPS.md, GLOSSARY.md,
-  NON_FUNCTIONAL_REQUIREMENTS.md, and relevant agent rules
+  NON_FUNCTIONAL_REQUIREMENTS.md, CERTIFICATIONS.md (if standards or certification
+  status changes), and relevant agent rules
 - Code changes without corresponding documentation updates are incomplete
 - All list API endpoints MUST support pagination, filtering, and sorting
 - API responses MUST use a consistent error response structure with correlation
@@ -312,4 +358,4 @@ Platform. It supersedes all other practices, conventions, and ad-hoc decisions.
   tactical patterns exception, new abstractions) MUST be justified in the PR
   description with measurable benefit
 
-**Version**: 1.1.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-05-01
+**Version**: 1.2.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-05-21

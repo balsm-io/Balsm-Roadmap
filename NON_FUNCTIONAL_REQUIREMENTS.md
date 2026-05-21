@@ -65,10 +65,12 @@
 ### 2.4 Compliance
 - the system must be designed for HIPAA compliance (US) with support for Business Associate Agreements (BAAs)
 - the system must support GDPR compliance (EU) including right to erasure, data portability, and consent management
+- the system must comply with Egypt's Personal Data Protection Law (PDPL) — collect only data necessary for the stated health purpose, record patient consent, prohibit cross-border PHI transfer without consent and legal basis, and fulfill data deletion requests within 30 days (anonymization where hard-delete is prohibited)
 - the system must maintain audit trails for a minimum of 7 years as required by healthcare regulations
 - the system must support configurable data retention policies per entity to comply with local regulations
 - all third-party integrations must go through security review and must not receive PHI unless covered by a BAA or equivalent agreement
 - penetration testing must be conducted at least annually, with critical findings remediated within 72 hours
+- all code and requirements must comply with the certification standards defined in [`CERTIFICATIONS.md`](./CERTIFICATIONS.md) — this is the authoritative reference for FHIR R4, LOINC, SNOMED CT, ICD-10, RxNorm, DPG Standard, and PDPL code-level rules
 
 ---
 
@@ -106,7 +108,9 @@
 
 ### 4.2 Data Validation
 - all user inputs must be validated on both client and server side
-- medical data must be validated against relevant coding standards (ICD-10, CPT, SNOMED CT, LOINC) where applicable
+- medical data must be validated against relevant coding standards (ICD-10, CPT, SNOMED CT, LOINC, RxNorm) where applicable — see [`CERTIFICATIONS.md` Section 3](./CERTIFICATIONS.md) for the full code-level rules for each standard
+- LOINC codes must use `system: "http://loinc.org"`; SNOMED CT codes must use `system: "http://snomed.info/sct"`; RxNorm codes must use `system: "http://www.nlm.nih.gov/research/umls/rxnorm"` — never use free-text or internal identifiers in coded fields
+- when a standard code is unavailable, use `DataAbsentReason` — never omit or fabricate a code
 - file uploads must validate file type, size limits, and content integrity (checksum verification)
 - QR code data must include integrity checksums to detect tampering
 
@@ -302,14 +306,16 @@
 ## 9. Interoperability Standards
 
 ### 9.1 Healthcare Standards
-- the system must support HL7 FHIR R4 for healthcare data exchange
+- the system must support HL7 FHIR R4 for healthcare data exchange — the API must expose a `/metadata` endpoint returning a valid `CapabilityStatement` documenting supported resources, operations, and search parameters
+- all FHIR resources exchanged externally must include `resourceType`, `id`, `meta.profile`, and all mandatory R4 elements — anti-corruption layers must translate between FHIR types and internal domain models
 - the system must support DICOM for medical imaging interoperability (radiology, pathology)
-- the system must support ICD-10 for diagnosis coding
+- the system must support ICD-10 for diagnosis coding — ICD-10 codes must be validated against the active code set before persistence
 - the system must support CPT and HCPCS codes for procedure coding
-- the system must support SNOMED CT for clinical terminology
-- the system must support LOINC for laboratory and clinical observation coding
-- the system must support RxNorm for medication nomenclature and interoperability
+- the system must support SNOMED CT for clinical terminology — all clinical findings, diagnoses, and procedures must use SNOMED CT concept IDs stored alongside display terms
+- the system must support LOINC for laboratory and clinical observation coding — all lab observations, vital signs, and clinical document types must use LOINC codes; LOINC registration at loinc.org is required before shipping any lab-related feature
+- the system must support RxNorm for medication nomenclature and interoperability — all medication references must include RxNorm `RxCUI`
 - the system must support WHO ATC classification for drug classification and pharmacovigilance
+- full code-level compliance rules for all of the above standards are defined in [`CERTIFICATIONS.md` Section 3](./CERTIFICATIONS.md) — that document is authoritative
 
 ### 9.2 API Standards
 - all external APIs must follow RESTful conventions with consistent resource naming and HTTP status codes

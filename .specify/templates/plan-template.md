@@ -33,6 +33,16 @@
 
 [Gates determined based on constitution file]
 
+**Certification compliance gate** *(required if feature touches clinical data, FHIR, lab, medications, or patient records)*:
+- [ ] Read `CERTIFICATIONS.md Section 3` and identified all applicable standards for this feature
+- [ ] Design uses correct system URIs: LOINC `http://loinc.org`, SNOMED `http://snomed.info/sct`, RxNorm `http://www.nlm.nih.gov/research/umls/rxnorm`
+- [ ] No free-text used where a coded value (LOINC, SNOMED, ICD-10, RxNorm) is required — `DataAbsentReason` used when code is unavailable
+- [ ] FHIR resources include `resourceType`, `id`, `meta.profile`, and all mandatory R4 elements
+- [ ] Anti-corruption layer planned for any FHIR ↔ domain model translation
+- [ ] `/metadata` CapabilityStatement update required? [Yes / No]
+- [ ] New personal data collected? Consent mechanism planned? [Yes / No]
+- [ ] All new data exportable as FHIR Bundle on patient request? [Yes / No]
+
 ## Project Structure
 
 ### Documentation (this feature)

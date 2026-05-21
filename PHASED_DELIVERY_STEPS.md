@@ -117,6 +117,14 @@ This document outlines the essential steps and deliverables for the Balsm MVP an
 - Note data impact of rollback
 - Define decision criteria for triggering a rollback
 
+## 22. Certifications & Standards Compliance
+
+See [`CERTIFICATIONS.md`](./CERTIFICATIONS.md) for the full certification roadmap, sequenced application plan, and mandatory code-level compliance requirements (FHIR R4, LOINC, SNOMED CT, ICD-10, RxNorm, DPG Standard, Egypt PDPL).
+
+**Per-phase checklist:**
+- Run the per-phase certification checklist defined in `CERTIFICATIONS.md §4`
+- Update the certification status table in `CERTIFICATIONS.md` if a certification is obtained or an application is submitted this phase
+
 ---
 
 > Use this checklist to guide each phase plan. Technical details belong in the technical documentation — this outlines what to deliver, not how.

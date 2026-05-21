@@ -95,6 +95,26 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+### Certification Compliance *(required for features touching clinical data, lab results, medications, diagnoses, FHIR resources, or patient records)*
+
+<!--
+  ACTION REQUIRED: Identify which standards apply to this feature and any new
+  compliance obligations it introduces. Read CERTIFICATIONS.md before filling this out.
+  Delete rows for standards that do not apply to this feature.
+-->
+
+| Standard | Applies? | Obligation |
+|----------|----------|------------|
+| HL7 FHIR R4 | Yes / No | [Which resources? Does `/metadata` CapabilityStatement need updating?] |
+| LOINC | Yes / No | [Which lab/observation codes? LOINC registration status?] |
+| SNOMED CT | Yes / No | [Which clinical findings, diagnoses, or procedures?] |
+| ICD-10 | Yes / No | [Which diagnosis codes? Billing context?] |
+| RxNorm | Yes / No | [Which medications require RxCUI?] |
+| DPG Standard | Yes / No | [Any new personal data collected? Data exportable as FHIR Bundle?] |
+| Egypt PDPL | Yes / No | [New personal data collected? Consent captured?] |
+
+**New compliance obligations this feature introduces**: [Describe or write "None"]
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]
