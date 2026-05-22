@@ -54,3 +54,8 @@ node_modules/
 
 ### Claude skill workspaces (eval runs, benchmark outputs)
 .claude/skills/*-workspace/
+
+### graphify
+graphify-out/manifest.json
+graphify-out/cost.json
+graphify-out/cache/
