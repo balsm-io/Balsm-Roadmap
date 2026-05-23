@@ -1,0 +1,14 @@
+# graphify ignore — platform mirror directories (same rules duplicated for each AI tool)
+.windsurf/
+.github/prompts/
+.github/agents/
+.specify/
+.cursor/
+.vitepress/
+
+# Low-signal individual files
+EMAIL_ADDRESSES.md
+legal/cla.md
+
+# graphify own output
+graphify-out/
