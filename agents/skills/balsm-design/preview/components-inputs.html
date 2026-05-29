@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Form Inputs</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  html,body{margin:0;background:#fff;color:var(--fg1);font-family:var(--font-body)}
+  .card{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .lab{font-size:12px;font-weight:600;color:var(--balsm-ink-700)}
+  .lab .req{color:var(--balsm-danger)}
+  .inp{height:40px;border:1px solid var(--balsm-border);border-radius:10px;padding:0 12px;font-family:inherit;font-size:14px;color:var(--fg1);background:#fff;outline:none;transition:border-color 160ms,box-shadow 160ms}
+  .inp:focus{border-color:var(--balsm-primary);box-shadow:0 0 0 3px rgba(18,131,255,.18)}
+  .inp::placeholder{color:var(--fg4)}
+  .hint{font-size:11px;color:var(--fg3)}
+  .err{font-size:11px;color:var(--balsm-danger);display:flex;align-items:center;gap:4px}
+  .with-icon{position:relative}
+  .with-icon i{position:absolute;left:12px;top:12px;width:16px;height:16px;color:var(--fg3)}
+  .with-icon .inp{padding-left:34px}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--balsm-ink-700)}
+  .check input{accent-color:var(--balsm-primary);width:16px;height:16px}
+  .toggle{width:34px;height:20px;border-radius:999px;background:var(--balsm-primary);position:relative;cursor:pointer}
+  .toggle::after{content:"";position:absolute;width:16px;height:16px;border-radius:999px;background:#fff;top:2px;right:2px;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+</style></head>
+<body>
+<div class="card">
+  <div class="field">
+    <div class="lab">Patient name <span class="req">*</span></div>
+    <input class="inp" value="Mona Hassan"/>
+    <div class="hint">As it appears on national ID</div>
+  </div>
+  <div class="field">
+    <div class="lab">Medication search</div>
+    <div class="with-icon"><i data-lucide="search"></i><input class="inp" placeholder="Search by name or scan barcode"/></div>
+    <div class="hint">Use Ctrl+K to focus</div>
+  </div>
+  <div class="field">
+    <div class="lab">National ID</div>
+    <input class="inp" style="border-color:var(--balsm-danger);box-shadow:0 0 0 3px rgba(212,74,60,.14)" value="2 9912 22 1234"/>
+    <div class="err"><i data-lucide="alert-circle" style="width:12px;height:12px"></i>Must be 14 digits</div>
+  </div>
+  <div class="field">
+    <div class="lab">Stock threshold</div>
+    <input class="inp" disabled value="50 units" style="background:var(--balsm-surface-muted);color:var(--fg3)"/>
+    <div class="hint">Set by branch admin</div>
+  </div>
+  <div class="field" style="grid-column:1/3;display:flex;flex-direction:row;gap:24px;align-items:center;padding-top:4px">
+    <label class="check"><input type="checkbox" checked/>Require prescription attachment</label>
+    <label class="check"><input type="checkbox"/>Allow returns after 30 days</label>
+    <label class="check" style="margin-left:auto">Offline mode <span class="toggle"></span></label>
+  </div>
+</div>
+<script>lucide.createIcons();</script>
+</body></html>

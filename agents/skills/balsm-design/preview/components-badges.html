@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Badges & Status Pills</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  html,body{margin:0;background:#fff;color:var(--fg1);font-family:var(--font-body)}
+  .card{padding:22px;display:flex;flex-direction:column;gap:14px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;width:110px}
+  .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;line-height:1.4}
+  .dot{width:6px;height:6px;border-radius:999px}
+  i[data-lucide]{width:12px;height:12px}
+  .pill.success{background:#E8F9EE;color:#1F6A36}
+  .pill.success .dot{background:#55D77F}
+  .pill.warning{background:#FDF5DC;color:#7A5A0F}
+  .pill.warning .dot{background:#E5B428}
+  .pill.danger{background:#FBEBE7;color:#7A2A20}
+  .pill.danger .dot{background:#D44A3C}
+  .pill.info{background:#E4F0FF;color:#08407A}
+  .pill.info .dot{background:#1283FF}
+  .pill.controlled{background:#ECE6FA;color:#3D2872}
+  .pill.controlled .dot{background:#724DD0}
+  .pill.expiring{background:#FBEEDC;color:#7A4310}
+  .pill.expiring .dot{background:#D97A20}
+  .pill.neutral{background:#EEEEE8;color:#56564C}
+  .pill.neutral .dot{background:#8C8C82}
+  .pill.solid-brand{background:var(--balsm-primary);color:#fff}
+  .pill.outline{background:#fff;border:1px solid var(--balsm-border);color:var(--balsm-ink-700)}
+</style></head>
+<body>
+<div class="card">
+  <div class="row"><div class="label">Clinical state</div>
+    <span class="pill success"><span class="dot"></span>Dispensed</span>
+    <span class="pill info"><span class="dot"></span>Synced</span>
+    <span class="pill warning"><span class="dot"></span>Low stock · 12 left</span>
+    <span class="pill danger"><span class="dot"></span>Expired</span>
+    <span class="pill expiring"><span class="dot"></span>Expires in 14 d</span>
+  </div>
+  <div class="row"><div class="label">Regulatory</div>
+    <span class="pill controlled"><i data-lucide="shield-alert"></i>Controlled — Schedule II</span>
+    <span class="pill controlled"><span class="dot"></span>Pharmacist sign-off required</span>
+    <span class="pill warning"><i data-lucide="file-warning"></i>Prescription needed</span>
+  </div>
+  <div class="row"><div class="label">Channel · roles</div>
+    <span class="pill solid-brand">Active</span>
+    <span class="pill outline">Pharmacist</span>
+    <span class="pill outline">Assistant</span>
+    <span class="pill outline">Admin</span>
+    <span class="pill neutral"><span class="dot"></span>Offline · 3 queued</span>
+  </div>
+</div>
+<script>lucide.createIcons();</script>
+</body></html>
