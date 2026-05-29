@@ -7,6 +7,18 @@
 
 ---
 
+## Clarifications
+
+### Session 2026-05-30
+
+- Q: Admin password recovery path when single admin is locked out? → A: CLI `balsm admin reset-password` as primary recovery + one-time offline recovery code generated during first-run wizard as secondary fallback.
+- Q: Automated backup schedule and retention policy? → A: Configurable interval (default daily at 02:00 local) and configurable retention count (default 30); both admin-editable from admin panel.
+- Q: Database restore behavior and surface? → A: Restore available from both admin panel and CLI; during restore the server refuses all non-health API requests (per FR-010 pattern) and automatically restarts on completion.
+- Q: Audit log retention and storage? → A: Append-only SQLite table with configurable retention (default 2 years); on prune, expired rows MUST be auto-exported to a dated JSONL archive in the backup directory before deletion.
+- Q: Backup file destination? → A: Local filesystem path only (configurable). Remote replication / cloud sync is out of scope for Phase 0 and remains an OS-level admin responsibility.
+
+---
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 — First-Run Server Installation & Setup (Priority: P1)
@@ -31,7 +43,9 @@ complete the first-run wizard, and confirm the dashboard loads with no errors.
 
 2. **Given** the server is freshly installed, **When** the admin visits the admin panel for the
    first time, **Then** a first-run setup wizard is presented requiring admin account creation and
-   workspace name confirmation before any other screen is accessible.
+   workspace name confirmation before any other screen is accessible; on completion the wizard
+   MUST display a one-time recovery code (per FR-018a) with explicit instructions to store it
+   offline before the admin can leave the wizard.
 
 3. **Given** the first-run wizard has been completed, **When** the admin logs into the admin panel,
    **Then** the dashboard shows server status (running / uptime / version), the workspace name, and
@@ -119,8 +133,9 @@ database, run the restore command, restart the server, and confirm all prior dat
    backup directory within 30 seconds.
 
 2. **Given** a backup file exists and the database is empty or corrupt, **When** the admin runs the
-   restore command referencing the backup file, **Then** all data from the backup is restored and the
-   server becomes fully operational.
+   restore command (CLI) or selects the backup in the admin panel and confirms, **Then** the server
+   refuses non-health requests during restore, all data from the backup is restored, and the server
+   automatically resumes full operation without an OS-level service restart.
 
 3. **Given** multiple backup files exist, **When** the admin views the backup list, **Then** files
    are listed in reverse chronological order with file size and creation timestamp.
@@ -198,6 +213,28 @@ database, run the restore command, restart the server, and confirm all prior dat
 - **FR-011**: Admin MUST be able to trigger a full database backup via the admin panel and via a
   CLI command using SQLite's online backup API (never a raw file copy of a live database);
   backup MUST complete within 30 seconds for databases up to 1 GB on minimum-spec hardware.
+  Backup files MUST be written to a configurable local filesystem directory (default
+  `<install-dir>/backups/`). Remote replication, cloud storage targets, and off-site sync are
+  out of scope for Phase 0; admins MAY use OS-level tooling (rsync, file-sync agents) against
+  the backup directory.
+
+- **FR-011a** (scheduled backups + retention): Server MUST run an automatic full backup on a
+  configurable interval, defaulting to daily at 02:00 server-local time. Both the schedule
+  (cron-style expression or simple interval selector) and the retention count MUST be editable
+  from the admin panel. Retention defaults to the most recent 30 successful backup files; older
+  files MUST be deleted automatically after a new successful backup brings the count above the
+  configured retention. A scheduled backup failure (disk full, permission error, etc.) MUST be
+  surfaced in the admin dashboard, written to the audit log (FR-016), and MUST NOT cause
+  retention pruning to delete the most recent known-good backup.
+
+- **FR-011b** (restore): Admin MUST be able to restore from a backup file via both the admin panel
+  (selecting a file from the backup list) and the CLI (`balsm db restore <path>`). Both surfaces
+  MUST require an explicit confirmation step. While a restore is in progress the server MUST
+  refuse all non-health/non-server-info requests with HTTP 503, mirroring the migration-pending
+  behavior in FR-010. On successful completion the server MUST restart its application-level
+  state automatically (no OS-level service restart required) and emit an audit log entry
+  (FR-016) including the backup file fingerprint and the admin actor. A failed restore MUST
+  leave the previous database untouched (atomic swap) and surface the failure on the dashboard.
 
 - **FR-012**: Server MUST start and be ready to accept connections within 10 seconds on a machine
   meeting minimum hardware specifications.
@@ -214,9 +251,20 @@ database, run the restore command, restart the server, and confirm all prior dat
 - **FR-015**: Deletion operations on all domain tables MUST be implemented as soft-delete
   (marking a row inactive); hard `DELETE` is forbidden in production code paths.
 
-- **FR-016**: Every create, update, soft-delete, mode change, backup, and restore operation MUST
-  emit a structured audit log entry containing actor (admin user or `system`), action verb, target
-  entity type and id, timestamp (UTC, ISO 8601), and originating module.
+- **FR-016**: Every create, update, soft-delete, mode change, backup, restore, recovery, and
+  authentication-state-change operation MUST emit a structured audit log entry containing actor
+  (admin user id or `system`), action verb, target entity type and id, timestamp (UTC, ISO 8601),
+  originating module, and source IP / interface. Entries MUST be stored in an append-only SQLite
+  table — no UPDATE or DELETE statements are permitted by application code outside the retention
+  pruning job defined in FR-016a.
+
+- **FR-016a** (audit retention + export): Audit log retention MUST be configurable from the
+  admin panel; default is 2 years. A daily prune job MUST identify rows older than the retention
+  threshold, export them to a dated JSONL archive file (e.g.,
+  `audit-YYYYMM.jsonl`) in the configured backup directory, verify the archive is written and
+  fsync-flushed, and only then delete the pruned rows from the table. Archive files MUST follow
+  the same retention semantics as backup files for storage planning but are NEVER auto-deleted
+  by this job.
 
 - **FR-017** (security baseline): TLS MUST be 1.2 minimum with modern cipher suites only; admin
   passwords MUST be hashed with a memory-hard algorithm (Argon2id or equivalent); the first-run
@@ -226,6 +274,15 @@ database, run the restore command, restart the server, and confirm all prior dat
 
 - **FR-018**: Exactly one admin user MAY exist during Phase 0; the API MUST reject attempts to
   create a second admin until a future phase introduces multi-admin support.
+
+- **FR-018a** (admin recovery): System MUST provide two independent recovery paths for a
+  locked-out or password-lost admin: (1) a CLI command `balsm admin reset-password` runnable by a
+  user with local OS administrator / root privileges on the host machine, which sets a new
+  password and clears any active lockout; and (2) a one-time recovery code generated during the
+  first-run wizard, displayed to the admin exactly once, stored only as a salted hash, and usable
+  through the admin panel to reset the password. Successful use of either path MUST invalidate
+  all existing admin sessions and emit an audit log entry (FR-016). Using the recovery code MUST
+  immediately retire it and prompt generation of a fresh code on next login.
 
 - **FR-019** (localization): Admin panel UI MUST support English and Arabic, with right-to-left
   layout for Arabic; locale MUST be selectable in the first-run wizard and persisted per admin user.
