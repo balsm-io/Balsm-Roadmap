@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Data Table Row</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  html,body{margin:0;background:#fff;color:var(--fg1);font-family:var(--font-body)}
+  .wrap{padding:22px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--balsm-ink-200);background:#fff}
+  td{padding:12px 14px;border-bottom:1px solid var(--balsm-ink-100);color:var(--balsm-ink-800);vertical-align:middle}
+  tr:hover td{background:var(--balsm-surface-muted)}
+  .name{font-weight:600;color:var(--balsm-ink-900)}
+  .meta{font-size:11px;color:var(--fg3)}
+  .mono{font-family:var(--font-mono);font-size:12px}
+  .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:600}
+  .pill .dot{width:6px;height:6px;border-radius:999px}
+  .pill.ok{background:#E8F9EE;color:#1F6A36}.pill.ok .dot{background:#55D77F}
+  .pill.low{background:#FDF5DC;color:#7A5A0F}.pill.low .dot{background:#E5B428}
+  .pill.bad{background:#FBEBE7;color:#7A2A20}.pill.bad .dot{background:#D44A3C}
+  .pill.ctl{background:#ECE6FA;color:#3D2872}.pill.ctl .dot{background:#724DD0}
+  .actions{display:flex;gap:6px;color:var(--fg3)}
+  .actions i{width:16px;height:16px;cursor:pointer}
+  .actions i:hover{color:var(--balsm-teal-600)}
+</style></head>
+<body>
+<div class="wrap">
+<table>
+  <thead><tr><th>Medication</th><th>SKU</th><th>Stock</th><th>Expiry</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    <tr><td><div class="name">Paracetamol 500 mg</div><div class="meta">Pain relief · Tablet</div></td>
+        <td class="mono">BLM-PAR-500</td><td class="mono">142</td><td class="mono">11/2027</td>
+        <td><span class="pill ok"><span class="dot"></span>In stock</span></td>
+        <td class="actions"><i data-lucide="pencil"></i><i data-lucide="more-horizontal"></i></td></tr>
+    <tr><td><div class="name">Amoxicillin 250 mg</div><div class="meta">Antibiotic · Capsule</div></td>
+        <td class="mono">BLM-AMX-250</td><td class="mono">12</td><td class="mono">08/2026</td>
+        <td><span class="pill low"><span class="dot"></span>Low — reorder</span></td>
+        <td class="actions"><i data-lucide="pencil"></i><i data-lucide="more-horizontal"></i></td></tr>
+    <tr><td><div class="name">Tramadol 100 mg</div><div class="meta">Schedule II · Tablet</div></td>
+        <td class="mono">BLM-TRM-100</td><td class="mono">38</td><td class="mono">03/2027</td>
+        <td><span class="pill ctl"><span class="dot"></span>Controlled</span></td>
+        <td class="actions"><i data-lucide="shield-alert"></i><i data-lucide="more-horizontal"></i></td></tr>
+    <tr><td><div class="name">Insulin Glargine</div><div class="meta">Diabetes · Vial · Cold chain</div></td>
+        <td class="mono">BLM-INS-GLG</td><td class="mono">0</td><td class="mono">06/2026</td>
+        <td><span class="pill bad"><span class="dot"></span>Out of stock</span></td>
+        <td class="actions"><i data-lucide="pencil"></i><i data-lucide="more-horizontal"></i></td></tr>
+  </tbody>
+</table>
+</div>
+<script>lucide.createIcons();</script>
+</body></html>

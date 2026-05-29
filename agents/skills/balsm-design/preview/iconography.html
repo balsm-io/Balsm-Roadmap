@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Iconography · Lucide</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  html,body{margin:0;background:#fff;font-family:var(--font-body);color:var(--fg1)}
+  .card{padding:20px;display:flex;flex-direction:column;gap:14px}
+  .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;width:110px}
+  .ico{width:40px;height:40px;border-radius:10px;background:var(--balsm-surface-muted);display:flex;align-items:center;justify-content:center;color:var(--balsm-ink-700);position:relative}
+  .ico i{width:20px;height:20px;stroke-width:1.75}
+  .ico .name{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:10px;color:var(--fg3);font-family:var(--font-mono)}
+  .ico.brand{background:var(--petal-blue-50);color:var(--balsm-primary)}
+  .swatch{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:1px solid var(--balsm-border);font-size:12px;color:var(--fg2)}
+  .swatch i{width:16px;height:16px;color:var(--balsm-primary)}
+</style></head>
+<body>
+<div class="card">
+  <div class="row">
+    <div class="label">Clinical</div>
+    <div class="ico brand"><i data-lucide="pill"></i><div class="name">pill</div></div>
+    <div class="ico brand"><i data-lucide="stethoscope"></i><div class="name">stethoscope</div></div>
+    <div class="ico brand"><i data-lucide="syringe"></i><div class="name">syringe</div></div>
+    <div class="ico brand"><i data-lucide="activity"></i><div class="name">activity</div></div>
+    <div class="ico brand"><i data-lucide="heart-pulse"></i><div class="name">heart-pulse</div></div>
+    <div class="ico brand"><i data-lucide="cross"></i><div class="name">cross</div></div>
+    <div class="ico brand"><i data-lucide="thermometer"></i><div class="name">thermometer</div></div>
+  </div>
+  <div class="row" style="margin-top:6px">
+    <div class="label">Commerce</div>
+    <div class="ico"><i data-lucide="scan-barcode"></i><div class="name">scan</div></div>
+    <div class="ico"><i data-lucide="package"></i><div class="name">package</div></div>
+    <div class="ico"><i data-lucide="receipt"></i><div class="name">receipt</div></div>
+    <div class="ico"><i data-lucide="banknote"></i><div class="name">cash</div></div>
+    <div class="ico"><i data-lucide="credit-card"></i><div class="name">card</div></div>
+    <div class="ico"><i data-lucide="shopping-basket"></i><div class="name">basket</div></div>
+    <div class="ico"><i data-lucide="qr-code"></i><div class="name">qr</div></div>
+  </div>
+  <div class="row" style="margin-top:6px;gap:8px">
+    <div class="label">Loaded via</div>
+    <div class="swatch"><i data-lucide="link"></i>lucide.dev · CDN · stroke 1.75</div>
+    <div class="swatch"><i data-lucide="info"></i>16 / 20 / 24 px · inherit currentColor</div>
+  </div>
+</div>
+<script>lucide.createIcons();</script>
+</body></html>

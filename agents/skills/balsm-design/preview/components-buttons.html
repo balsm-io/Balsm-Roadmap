@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Buttons</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  html,body{margin:0;background:#fff;color:var(--fg1);font-family:var(--font-body)}
+  .card{padding:24px;display:flex;flex-direction:column;gap:14px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;width:84px}
+  .btn{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:0 16px;height:38px;font-family:var(--font-body);font-weight:600;font-size:14px;cursor:pointer;border:1px solid transparent;transition:all 200ms cubic-bezier(0.16,1,0.3,1)}
+  .btn-primary{background:var(--balsm-primary);color:#fff;box-shadow:var(--shadow-brand)}
+  .btn-primary:hover{background:var(--balsm-primary-hover)}
+  .btn-secondary{background:#fff;color:var(--balsm-ink-900);border-color:var(--balsm-border)}
+  .btn-secondary:hover{background:var(--balsm-surface-muted)}
+  .btn-ghost{background:transparent;color:var(--balsm-ink-700)}
+  .btn-ghost:hover{background:var(--balsm-surface-muted)}
+  .btn-danger{background:var(--balsm-danger);color:#fff}
+  .btn-link{background:transparent;color:var(--balsm-primary);padding:0}
+  .btn-sm{height:30px;padding:0 12px;font-size:13px;border-radius:8px}
+  .btn-lg{height:46px;padding:0 22px;font-size:15px;border-radius:12px}
+  .btn:disabled,.btn.is-disabled{opacity:.45;pointer-events:none}
+  i[data-lucide]{width:16px;height:16px}
+</style></head>
+<body>
+<div class="card">
+  <div class="row"><div class="label">Primary</div>
+    <button class="btn btn-primary"><i data-lucide="plus"></i>New sale</button>
+    <button class="btn btn-primary btn-sm">Confirm</button>
+    <button class="btn btn-primary btn-lg">Complete sale · LE 245.00</button>
+  </div>
+  <div class="row"><div class="label">Secondary</div>
+    <button class="btn btn-secondary"><i data-lucide="search"></i>Find customer</button>
+    <button class="btn btn-secondary"><i data-lucide="scan-barcode"></i>Scan</button>
+    <button class="btn btn-secondary is-disabled">Disabled</button>
+  </div>
+  <div class="row"><div class="label">Tertiary</div>
+    <button class="btn btn-ghost">Cancel</button>
+    <button class="btn btn-link">View receipt →</button>
+    <button class="btn btn-danger"><i data-lucide="trash-2"></i>Void sale</button>
+  </div>
+</div>
+<script>lucide.createIcons();</script>
+</body></html>

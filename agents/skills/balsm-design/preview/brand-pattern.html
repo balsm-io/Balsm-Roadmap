@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Brand · Pattern</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;background:#fff;font-family:var(--font-body);color:var(--fg1)}
+  .card{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;padding:18px;height:200px;box-sizing:border-box}
+  .panel{border-radius:14px;border:1px solid var(--balsm-border);overflow:hidden;position:relative;display:flex;align-items:center;padding:18px}
+  .pattern{background-image:url("../brand/balsm-background.png");background-size:cover;background-position:right center;background-repeat:no-repeat}
+  .copy{position:relative;z-index:2;max-width:60%}
+  .h{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--balsm-ink-900);letter-spacing:-.01em;line-height:1.1;margin:0 0 6px}
+  .p{font-size:13px;color:var(--fg2);line-height:1.5;margin:0}
+  .tag{position:absolute;left:14px;bottom:10px;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg3);font-weight:600;z-index:3}
+  .right{display:flex;flex-direction:column;gap:10px}
+  .swatch{flex:1;border-radius:12px;display:flex;align-items:flex-end;padding:10px;font-family:var(--font-mono);font-size:10px;color:#fff;position:relative;overflow:hidden}
+  .swatch.full{background:url("../brand/balsm-background.png") center/cover;color:var(--balsm-ink-700);align-items:flex-end;justify-content:flex-end}
+  .swatch.flower{background:var(--balsm-cream-100) center/contain no-repeat;background-image:url("../brand/logo-vertical.svg");background-size:80% 80%;background-position:center}
+</style></head>
+<body>
+<div class="card">
+  <div class="panel pattern">
+    <div class="copy">
+      <p class="h">Healing, locally.</p>
+      <p class="p">The signature watercolor petal pattern. Used as a hero backdrop on landing, marketing, and the local-server welcome screen.</p>
+    </div>
+    <div class="tag">balsm-background.png</div>
+  </div>
+  <div class="right">
+    <div class="swatch full"><span>watercolor wash</span></div>
+    <div class="swatch flower"></div>
+  </div>
+</div>
+</body></html>
