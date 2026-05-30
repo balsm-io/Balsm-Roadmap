@@ -165,17 +165,19 @@ database, run the restore command, restart the server, and confirm all prior dat
 
 ### Functional Requirements
 
-- **FR-001**: System MUST install as a self-contained package on Windows (`.msi`), macOS (`.dmg`),
-  and Linux (`.deb`) without requiring any separate runtime installation by the user. Packages
-  MUST integrate with the host service manager (see FR-002); installer formats that cannot register
-  a system service are out of scope for this phase.
+- **FR-001**: System MUST install as a self-contained package on Windows (`.msi`), macOS (`.pkg`,
+  packaged from a `.dmg` distribution image), and Linux (`.deb`) without requiring any separate
+  runtime installation by the user. Packages MUST integrate with the host service manager (see
+  FR-002); installer formats that cannot register a system service are out of scope for this phase.
 
 - **FR-002**: Server process MUST register as a system service (Windows Service on Windows,
   `launchd` LaunchDaemon on macOS, `systemd` unit on Linux) and auto-start on OS boot without
   user intervention.
 
-- **FR-003**: Admin panel MUST be served at a well-known local URL on a configurable port
-  (default `https://localhost:8443/admin`) using a locally-issued self-signed certificate after
+- **FR-003**: Admin panel MUST be served at a well-known local URL on a configurable port.
+  Default binding is HTTP `:5050` and HTTPS `:5051` (matching the existing
+  `Balsm-API-DotNet` Kestrel configuration), with the admin panel exposed at
+  `https://localhost:5051/admin` using a locally-issued self-signed certificate after
   installation. Server MUST NOT bind to privileged ports (<1024) by default.
 
 - **FR-004**: On first launch (no admin account present), the server MUST redirect all admin panel
@@ -242,8 +244,10 @@ database, run the restore command, restart the server, and confirm all prior dat
 - **FR-013**: Server MUST support three operating modes — Standalone (localhost-only), Network
   (LAN-accessible), and Public (internet-exposed via an outbound reverse tunnel provider; specific
   provider selection is a planning-phase decision). Mode MUST be configurable from the admin panel.
-  Mode changes MAY require a brief in-process reload of network listeners but MUST NOT require
-  the operator to restart the OS service or re-run installation.
+  Mode changes MAY trigger an automatic in-process restart orchestrated by the host's service
+  manager (Windows Service / launchd / systemd), but MUST NOT require the operator to manually
+  restart the OS service, log in to a shell, or re-run installation; the restart MUST complete
+  within 10 seconds and the admin panel MUST reload without the admin re-authenticating.
 
 - **FR-014**: A status indicator (system tray icon or CLI `status` command) MUST allow the admin
   to see whether the server is running and open the admin panel from the OS taskbar or terminal.
