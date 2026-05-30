@@ -1,0 +1,717 @@
+openapi: 3.1.0
+info:
+  title: Balsm Local Server — Admin API (Phase 0)
+  version: 1.0.0
+  description: |
+    Admin-facing HTTP contract for the local Balsm server. Covers the subset of
+    `/api/v1/*` introduced by Phase 0 (Local Server Foundation). All endpoints
+    require JWT bearer auth EXCEPT `/health`, `/server-info`, the first-run
+    wizard endpoints, and the recovery endpoints (which are gated by their own
+    one-time-secret challenges).
+  contact:
+    name: Balsm
+servers:
+  - url: https://localhost:8443/api/v1
+    description: Default Standalone mode binding
+tags:
+  - name: Lifecycle
+  - name: FirstRun
+  - name: Workspace
+  - name: Entity
+  - name: Branch
+  - name: Backup
+  - name: Restore
+  - name: Mode
+  - name: Audit
+  - name: Auth
+  - name: Recovery
+
+paths:
+  /health:
+    get:
+      tags: [Lifecycle]
+      summary: Liveness + readiness probe (FR-009)
+      security: []
+      responses:
+        '200':
+          description: Server is up; payload reports whether it is also ready to serve domain endpoints.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '503':
+          description: Up but not ready (migrations pending / restore in progress per FR-010 / FR-011b)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+
+  /server-info:
+    get:
+      tags: [Lifecycle]
+      summary: Server identity + version + cert fingerprint (FR-009)
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerInfo'
+
+  /first-run/state:
+    get:
+      tags: [FirstRun]
+      summary: Whether the first-run wizard is required (FR-004)
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirstRunState'
+
+  /first-run/complete:
+    post:
+      tags: [FirstRun]
+      summary: Create the single admin + workspace, return one-time recovery code (FR-004 + FR-018a)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirstRunRequest'
+      responses:
+        '201':
+          description: Wizard completed; recovery code returned exactly once
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirstRunResponse'
+        '409':
+          description: Wizard already completed
+        '422':
+          description: Validation failure
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Admin login with rate-limit + lockout (FR-017)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Token issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Bad credentials
+        '423':
+          description: Locked (15-minute window — FR-017 / Constitution §II)
+
+  /recovery/code/use:
+    post:
+      tags: [Recovery]
+      summary: Use a one-time recovery code to set a new password and clear lockout (FR-018a)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoveryUseRequest'
+      responses:
+        '200':
+          description: Password reset; recovery code retired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Invalid or already-used code
+
+  /recovery/code/regenerate:
+    post:
+      tags: [Recovery]
+      summary: Generate a fresh recovery code after a Used one (FR-018a)
+      responses:
+        '200':
+          description: Fresh code returned exactly once
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryCode'
+
+  /workspace:
+    get:
+      tags: [Workspace]
+      summary: Read the single workspace (FR-005)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+    post:
+      tags: [Workspace]
+      summary: Reject creation of a second workspace (FR-005)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceCreate'
+      responses:
+        '409':
+          description: A workspace already exists — only one is allowed per server installation.
+    patch:
+      tags: [Workspace]
+      summary: Rename / update the workspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceUpdate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+
+  /entities:
+    get:
+      tags: [Entity]
+      summary: List entities (paginated, filterable by active state)
+      parameters:
+        - { in: query, name: include_inactive, schema: { type: boolean, default: false } }
+        - { in: query, name: page, schema: { type: integer, default: 1, minimum: 1 } }
+        - { in: query, name: page_size, schema: { type: integer, default: 25, minimum: 1, maximum: 100 } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityPage'
+    post:
+      tags: [Entity]
+      summary: Create entity (FR-006)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+
+  /entities/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer } }
+    get:
+      tags: [Entity]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+    patch:
+      tags: [Entity]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityUpdate'
+      responses:
+        '200':
+          description: OK
+
+  /entities/{id}/deactivate:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer } }
+    post:
+      tags: [Entity]
+      summary: Soft-delete (FR-015)
+      responses:
+        '204':
+          description: Deactivated
+
+  /entities/{id}/branches:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer } }
+    get:
+      tags: [Branch]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchPage'
+    post:
+      tags: [Branch]
+      summary: Create branch (FR-007)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchCreate'
+      responses:
+        '201':
+          description: Created
+
+  /branches/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer } }
+    patch:
+      tags: [Branch]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchUpdate'
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags: [Branch]
+      summary: Reject hard delete (FR-015)
+      responses:
+        '405':
+          description: Use `/branches/{id}/deactivate` instead.
+
+  /branches/{id}/deactivate:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer } }
+    post:
+      tags: [Branch]
+      responses:
+        '204':
+          description: Deactivated
+
+  /mode:
+    get:
+      tags: [Mode]
+      summary: Current operating mode (FR-013)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeState'
+    put:
+      tags: [Mode]
+      summary: Switch mode without OS-service restart (FR-013)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModeChange'
+      responses:
+        '200':
+          description: New mode applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeState'
+
+  /backups:
+    get:
+      tags: [Backup]
+      summary: List backups, reverse chronological (US4 AS#3, FR-011a)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupPage'
+    post:
+      tags: [Backup]
+      summary: Trigger an on-demand backup (FR-011)
+      responses:
+        '202':
+          description: Backup started; client polls `GET /backups` until status flips
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupFile'
+
+  /backups/schedule:
+    get:
+      tags: [Backup]
+      summary: Current schedule + retention (FR-011a)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupSchedule'
+    put:
+      tags: [Backup]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BackupSchedule'
+      responses:
+        '200':
+          description: Updated
+
+  /backups/{id}/restore:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer } }
+    post:
+      tags: [Restore]
+      summary: Restore from a backup (FR-011b)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreConfirm'
+      responses:
+        '202':
+          description: Restore started; non-health requests return 503 until completion
+        '409':
+          description: Another restore already in progress
+
+  /audit/logs:
+    get:
+      tags: [Audit]
+      summary: Query audit log (FR-016)
+      parameters:
+        - { in: query, name: from, schema: { type: string, format: date-time } }
+        - { in: query, name: to, schema: { type: string, format: date-time } }
+        - { in: query, name: module, schema: { type: string } }
+        - { in: query, name: page, schema: { type: integer, default: 1 } }
+        - { in: query, name: page_size, schema: { type: integer, default: 50, maximum: 500 } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditPage'
+
+  /audit/retention:
+    get:
+      tags: [Audit]
+      responses:
+        '200':
+          description: Current retention setting (FR-016a)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditRetention'
+    put:
+      tags: [Audit]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditRetention'
+      responses:
+        '200':
+          description: Updated
+
+  /audit/archives:
+    get:
+      tags: [Audit]
+      summary: List exported JSONL archives (FR-016a)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditArchivePage'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  security:
+    - bearerAuth: []
+  schemas:
+    Health:
+      type: object
+      required: [status, ready]
+      properties:
+        status: { type: string, enum: [up, down] }
+        ready: { type: boolean, description: True only when migrations applied and no restore in progress }
+        version: { type: string }
+        uptime_seconds: { type: integer }
+
+    ServerInfo:
+      type: object
+      required: [version, mode, workspace_name, certificate_sha256, uptime_seconds]
+      properties:
+        version: { type: string }
+        mode: { type: string, enum: [Standalone, Network, Public] }
+        workspace_name: { type: string }
+        certificate_sha256: { type: string, description: SHA-256 fingerprint of the serving TLS cert }
+        uptime_seconds: { type: integer }
+
+    FirstRunState:
+      type: object
+      properties:
+        required: { type: boolean }
+
+    FirstRunRequest:
+      type: object
+      required: [admin_email, admin_password, admin_display_name, workspace_name, workspace_slug, locale]
+      properties:
+        admin_email: { type: string, format: email }
+        admin_password: { type: string, minLength: 12 }
+        admin_display_name: { type: string }
+        workspace_name: { type: string }
+        workspace_slug: { type: string, pattern: '^[a-z0-9-]{3,40}$' }
+        locale: { type: string, enum: [en, ar] }
+
+    FirstRunResponse:
+      type: object
+      required: [admin_id, workspace_id, recovery_code]
+      properties:
+        admin_id: { type: integer }
+        workspace_id: { type: integer }
+        recovery_code: { type: string, description: Displayed exactly once; not recoverable from the server }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+
+    Token:
+      type: object
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, enum: [Bearer] }
+        expires_in: { type: integer, description: Seconds; default 1800 (30 min) per FR-017 }
+
+    RecoveryUseRequest:
+      type: object
+      required: [email, recovery_code, new_password]
+      properties:
+        email: { type: string }
+        recovery_code: { type: string }
+        new_password: { type: string, minLength: 12 }
+
+    RecoveryCode:
+      type: object
+      properties:
+        recovery_code: { type: string }
+
+    Workspace:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        status: { type: string, enum: [Active, Suspended] }
+        locale_default: { type: string }
+
+    WorkspaceCreate:
+      type: object
+      properties:
+        name: { type: string }
+        slug: { type: string }
+
+    WorkspaceUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        locale_default: { type: string, enum: [en, ar] }
+
+    Entity:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        type: { type: string }
+        registration_number: { type: string, nullable: true }
+        is_active: { type: boolean }
+
+    EntityCreate:
+      type: object
+      required: [name, type]
+      properties:
+        name: { type: string }
+        type: { type: string }
+        registration_number: { type: string }
+
+    EntityUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        type: { type: string }
+        registration_number: { type: string }
+
+    EntityPage:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Entity' } }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+
+    Branch:
+      type: object
+      properties:
+        id: { type: integer }
+        entity_id: { type: integer }
+        name: { type: string }
+        address_line: { type: string, nullable: true }
+        city: { type: string, nullable: true }
+        governorate: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        is_active: { type: boolean }
+
+    BranchCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        address_line: { type: string }
+        city: { type: string }
+        governorate: { type: string }
+        phone: { type: string }
+
+    BranchUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        address_line: { type: string }
+        city: { type: string }
+        governorate: { type: string }
+        phone: { type: string }
+
+    BranchPage:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Branch' } }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+
+    ModeState:
+      type: object
+      properties:
+        mode: { type: string, enum: [Standalone, Network, Public] }
+        mdns_active: { type: boolean }
+        tunnel_provider: { type: string, nullable: true }
+
+    ModeChange:
+      type: object
+      required: [mode]
+      properties:
+        mode: { type: string, enum: [Standalone, Network, Public] }
+        tunnel_provider: { type: string, description: Required when mode = Public }
+
+    BackupFile:
+      type: object
+      properties:
+        id: { type: integer }
+        filename: { type: string }
+        size_bytes: { type: integer }
+        sha256: { type: string }
+        created_at: { type: string, format: date-time }
+        trigger: { type: string, enum: [Manual, Scheduled, PreRestore] }
+        status: { type: string, enum: [OK, Failed, Pruned] }
+
+    BackupPage:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/BackupFile' } }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+
+    BackupSchedule:
+      type: object
+      properties:
+        cron: { type: string, description: Standard 5-field cron expression }
+        retention_count: { type: integer, minimum: 1 }
+
+    RestoreConfirm:
+      type: object
+      required: [confirm_phrase]
+      properties:
+        confirm_phrase: { type: string, description: 'Client must echo "RESTORE" to proceed' }
+
+    AuditEntry:
+      type: object
+      properties:
+        id: { type: integer }
+        occurred_at: { type: string, format: date-time }
+        actor: { type: string }
+        source_ip: { type: string, nullable: true }
+        module: { type: string }
+        action: { type: string }
+        target_type: { type: string, nullable: true }
+        target_id: { type: string, nullable: true }
+        details: { type: object }
+
+    AuditPage:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/AuditEntry' } }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+
+    AuditRetention:
+      type: object
+      properties:
+        retention_years: { type: integer, minimum: 1, maximum: 10 }
+
+    AuditArchive:
+      type: object
+      properties:
+        id: { type: integer }
+        filename: { type: string }
+        rows_exported: { type: integer }
+        earliest_row_at: { type: string, format: date-time }
+        latest_row_at: { type: string, format: date-time }
+        sha256: { type: string }
+        created_at: { type: string, format: date-time }
+
+    AuditArchivePage:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/AuditArchive' } }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
