@@ -3,6 +3,8 @@
 Read and follow the agent instructions in [AGENTS.md](./agents/rules/AGENTS.md).
 
 ## Active Technologies
+- .NET 10.0 (C#) for backend; TypeScript 5.8 + React 19 for admin UI; Bash / PowerShell for installer hooks + ASP.NET Core 10, Entity Framework Core 10.0.5 (SQLite provider with `Microsoft.Data.Sqlite` online backup API), `Tmds.MDns` or `Zeroconf` for mDNS, `Konscious.Security.Cryptography.Argon2` (or libsodium binding) for password hashing, FluentValidation, Serilog (structured logging), Vite + React + React Router 7 admin SPA (main)
+- SQLite (`balsm.db`) embedded; backups + audit JSONL archives under configurable backup directory (default `<install-dir>/backups/`) (main)
 
 * C# / .NET 10.0 (SDK 10.0.101, `net10.0` TFM) + ASP.NET Core, EF Core 10.0.5, SQLite, MediatR 14.1, FluentValidation 12.1, Serilog 10.0, Sentry SDK, React/Vite (admin UI) (001-server-foundation)
 * SQLite (embedded, WAL mode) — file: `balsm.db` (001-server-foundation)
