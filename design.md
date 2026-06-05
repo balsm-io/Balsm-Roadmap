@@ -16,7 +16,7 @@ Source bundle: `claude.ai/design` handoff `2cciG9JbwwrxjgwScIChKA`, ingested 202
 | [agents/skills/balsm-design/README.md](agents/skills/balsm-design/README.md) | Full design-system manual (long-form). |
 | [agents/skills/balsm-design/HANDOFF.md](agents/skills/balsm-design/HANDOFF.md) | Original `claude.ai/design` handoff note. |
 | [agents/skills/balsm-design/colors_and_type.css](agents/skills/balsm-design/colors_and_type.css) | Single source of truth — every CSS token. |
-| [agents/skills/balsm-design/brand/](agents/skills/balsm-design/brand/) | Logo (color / reverse / PNG), watercolor pattern. Bundled copy; **canonical brand pack lives in [/Volumes/Dev/Balsm/assets/brand/](../assets/brand/)**. |
+| [agents/skills/balsm-design/brand/](agents/skills/balsm-design/brand/) | Logo (color / reverse / PNG), watercolor pattern. Bundled copy; **canonical brand pack lives in-repo at [brand/](brand/)**. |
 | [agents/skills/balsm-design/preview/](agents/skills/balsm-design/preview/) | Reference cards for colors, type, spacing, components, brand. |
 | [agents/skills/balsm-design/ui_kits/balsm_pharmacy/](agents/skills/balsm-design/ui_kits/balsm_pharmacy/) | Slice 1 — Pharmacy POS / Inventory / Customers / Admin (modular JSX + working `index.html`). |
 | [agents/skills/balsm-design/patient_app/](agents/skills/balsm-design/patient_app/) | Slice 2 — Patient app prototype (iOS frame, auth + self-report flow, EN/AR/RTL). |
@@ -178,7 +178,7 @@ Calm · professional · human · second-person. Balsm is the patient's quiet all
 1. **Drop the tokens** into any new artifact:
    ```html
    <link rel="stylesheet" href="agents/skills/balsm-design/colors_and_type.css">
-   <link rel="icon" type="image/svg+xml" href="../assets/brand/logo-vertical.svg">
+   <link rel="icon" type="image/svg+xml" href="brand/logo-vertical.svg">
    ```
 2. **Use semantic tokens** (`var(--fg1)`, `var(--balsm-primary)`, `var(--balsm-success)`) in component code, not raw petal hex. Petals are the palette; semantic tokens are the contract.
 3. **Headings:** `.h1`–`.h5`. Body inherits from `<body>`.
