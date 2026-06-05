@@ -240,7 +240,7 @@ database schemas, documentation, and UI.
 - Use "entity" for healthcare organizations (clinic, hospital, pharmacy, lab)
 - Use "encounter" for clinical interactions between provider and patient
 - Naming MUST be consistent across all repositories: Balsm-API-DotNet,
-  balsm_app_flutter, website, Balsm-Roadmap, and docs
+  balsm_app_flutter, website, Balsm-Core, and docs
 - .NET naming follows: `Create{Entity}Command`, `Get{Entity}ByIdQuery`,
   `{Entity}{Action}Event`, `I{Entity}Repository`, `{Entity}Dto`
 - Flutter naming follows: `{Feature}{Purpose}Widget`, `{Feature}Screen`,

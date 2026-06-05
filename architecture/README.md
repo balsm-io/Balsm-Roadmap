@@ -429,7 +429,7 @@ Events that require architectural review:
 For questions about architectural decisions:
 - **Technical Lead**: [Contact info]
 - **Architecture Review Board**: [Meeting schedule]
-- **Discussion**: Create an issue in `Balsm-Roadmap` repo with `architecture` label
+- **Discussion**: Create an issue in `Balsm-Core` repo with `architecture` label
 
 ---
 

@@ -36,9 +36,9 @@ You do **not** need an explicit mention of "STRIDE" or "threat model" — the sk
 
 The workflow is research → enumerate → mitigate → write. Don't rush to enumerate threats before you understand the system; a threat catalog written without research is generic and adds little value.
 
-### 0. Read project context first (when working inside Balsm-Roadmap)
+### 0. Read project context first (when working inside Balsm-Core)
 
-If this skill is being used inside the Balsm-Roadmap repo, read these documents **before** drafting threats — they are the canonical source of architecture, security NFRs, compliance, and existing threat-model patterns. Treat them as required reading, not optional:
+If this skill is being used inside the Balsm-Core repo, read these documents **before** drafting threats — they are the canonical source of architecture, security NFRs, compliance, and existing threat-model patterns. Treat them as required reading, not optional:
 
 - [`SYSTEM_THREAT_MODEL.md`](../../../SYSTEM_THREAT_MODEL.md) — the platform-wide threat model. Cite its threat IDs (`S01`, `T02`, `AI11`, etc.) when a phase-specific threat is a specialisation of one already catalogued. Don't redefine; reference and narrow.
 - [`NON_FUNCTIONAL_REQUIREMENTS.md`](../../../NON_FUNCTIONAL_REQUIREMENTS.md) — encryption suites, rate limits, RTO/RPO, audit retention. Mitigations should align, not contradict.

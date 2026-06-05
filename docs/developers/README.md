@@ -24,7 +24,7 @@ This section contains technical documentation for developers working on or integ
 - [Balsm-API-DotNet](https://github.com/Balsm-IO/Balsm-API-DotNet) - Backend API (.NET)
 - [balsm_app_flutter](https://github.com/Balsm-IO/balsm_app_flutter) - Mobile app (Flutter)
 - [website](https://github.com/Balsm-IO/website) - Marketing website
-- [Balsm-Roadmap](https://github.com/Balsm-IO/Balsm-Roadmap) - Product roadmap
+- [Balsm-Core](https://github.com/Balsm-IO/Balsm-Core) - Product roadmap
 
 ### Setup Guides
 

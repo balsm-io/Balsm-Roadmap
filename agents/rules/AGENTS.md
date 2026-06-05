@@ -10,7 +10,7 @@ Balsm is a healthcare platform consisting of multiple repositories:
 
 | Repo | Stack | Description |
 |------|-------|-------------|
-| `Balsm-Roadmap` | Markdown | Product roadmap, phased delivery plans, business features, and AI governance docs |
+| `Balsm-Core` | Markdown | Product roadmap, phased delivery plans, business features, and AI governance docs |
 | `Balsm-API-DotNet` | .NET (C#) | Backend API — modular monolith with clean architecture and DDD |
 | `balsm_app_flutter` | Flutter (Dart) | Cross-platform mobile/desktop client application |
 | `website` | Web | Marketing and public-facing website |
