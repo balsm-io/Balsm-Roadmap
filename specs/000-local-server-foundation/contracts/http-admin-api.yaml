@@ -246,6 +246,15 @@ paths:
       responses:
         '204': { description: Deactivated }
 
+  /admin/entities/{id}/reactivate:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+    post:
+      tags: [Entity]
+      summary: Restore a soft-deleted entity (inverse of deactivate, FR-015)
+      responses:
+        '200': { description: Reactivated }
+
   /admin/entities/{id}/branches:
     parameters:
       - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
@@ -294,6 +303,15 @@ paths:
       tags: [Branch]
       responses:
         '204': { description: Deactivated }
+
+  /admin/branches/{id}/reactivate:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string, format: uuid } }
+    post:
+      tags: [Branch]
+      summary: Restore a soft-deleted branch (inverse of deactivate, FR-015)
+      responses:
+        '200': { description: Reactivated }
 
   /admin/entity-types:
     get:
