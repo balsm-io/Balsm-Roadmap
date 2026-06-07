@@ -10,7 +10,7 @@ This document lists the official social media URLs and handles for Balsm.
 - YouTube: https://www.youtube.com/@balsm.health
 - TikTok: https://tiktok.com/@balsm.health
 - Patreon: https://patreon.com/balsm_health
-- GitHub Organization: https://github.com/balsm-io
+- GitHub Organization: https://github.com/balsm-health
 - Qabilah: https://qabilah.com/profile/balsm-health
 - Threads: https://threads.com/@balsm.health
 - Email: contact@balsm.health

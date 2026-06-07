@@ -138,7 +138,7 @@ docs/
 
 ## Questions?
 
-- Create a [GitHub Discussion](https://github.com/Balsm-IO/docs/discussions)
+- Create a [GitHub Discussion](https://github.com/balsm-health/docs/discussions)
 - Email: docs@balsm.io
 - Developer Discord: https://discord.gg/balsm-dev
 

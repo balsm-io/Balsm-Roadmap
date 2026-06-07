@@ -89,7 +89,7 @@ Full token list: [colors_and_type.css](agents/skills/balsm-design/colors_and_typ
 - Wordmark default: Montserrat 700 (closest free analog to the custom-set SVG wordmark). Swap `--font-display` if a custom wordmark face is later commissioned.
 
 **Substitution flags (open with product team):**
-- Fonts loaded from Google Fonts CDN. Offline installer (Slice 1) needs the 20 MB TTF bundle unzipped into `assets/fonts/`. See [Balsm-Draft](https://github.com/balsm-io/Balsm-Draft).
+- Fonts loaded from Google Fonts CDN. Offline installer (Slice 1) needs the 20 MB TTF bundle unzipped into `assets/fonts/`. See [Balsm-Draft](https://github.com/balsm-health/Balsm-Draft).
 - **Lucide** is a deliberate icon substitute — Balsm ships no own icon set.
 
 ---
@@ -192,7 +192,7 @@ For the Figma MCP HTML-to-Design capture workflow (mockup → Figma → Flutter)
 
 ## 11. Open questions / caveats
 
-- **Fonts.** Substituted to Google Fonts CDN. For the offline installer, drop the 20 MB TTF bundle from [Balsm-Draft](https://github.com/balsm-io/Balsm-Draft) into `assets/fonts/`.
+- **Fonts.** Substituted to Google Fonts CDN. For the offline installer, drop the 20 MB TTF bundle from [Balsm-Draft](https://github.com/balsm-health/Balsm-Draft) into `assets/fonts/`.
 - **Icons.** Lucide is a substitute; no Balsm-bespoke set exists.
 - **Wordmark face.** Montserrat is the closest free analog to the official SVG-set wordmark. Swap `--font-display` if a custom wordmark is commissioned.
 - **Doctor encounter UI** is unbuilt — no source UI exists. Net-new design, not recreation.
@@ -205,8 +205,8 @@ For the Figma MCP HTML-to-Design capture workflow (mockup → Figma → Flutter)
 
 | Repo | Why |
 |---|---|
-| [balsm-io/assets](https://github.com/balsm-io/assets) | Canonical brand pack (logo, watercolor pattern). |
-| [balsm-io/Balsm-Draft](https://github.com/balsm-io/Balsm-Draft) | Roadmap, market research, business-feature spec, controlled-substance + RTL requirements. |
+| [balsm-io/assets](https://github.com/balsm-health/assets) | Canonical brand pack (logo, watercolor pattern). |
+| [balsm-io/Balsm-Draft](https://github.com/balsm-health/Balsm-Draft) | Roadmap, market research, business-feature spec, controlled-substance + RTL requirements. |
 | [AppFlowy-IO/AppFlowy](https://github.com/AppFlowy-IO/AppFlowy) | Offline-first / local-first reference. |
 | [ClickUp](https://clickup.com) | Ops-dashboard density, sidebars, module switchers. |
 | [OHC Care Core](https://ohc.network/product/care-core) | Clinical data model + open-source healthcare patterns. |

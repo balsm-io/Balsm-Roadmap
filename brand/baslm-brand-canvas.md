@@ -1,7 +1,7 @@
 # Baslm Brand Model Canvas
 > **بلسم — لوحة نموذج العلامة التجارية**
 > Version: 1.0 | Status: Locked | Language: Bilingual (EN/AR)
-> Domain: balsm.health | GitHub: github.com/Balsm-IO
+> Domain: balsm.health | GitHub: github.com/balsm-health
 
 ---
 
@@ -284,4 +284,4 @@ Baslm makes healthcare feel like it finally belongs to you.
 
 ---
 
-*Last updated: June 2026 | Maintained by: Hossam Eldin | Repo: github.com/Balsm-IO/ai-context*
+*Last updated: June 2026 | Maintained by: Hossam Eldin | Repo: github.com/balsm-health/ai-context*

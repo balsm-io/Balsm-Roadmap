@@ -31,8 +31,8 @@ We welcome contributions to improve our documentation! Please see our [Contribut
 
 ## 📞 Support
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/Balsm-IO/docs/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/Balsm-IO/docs/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/balsm-health/docs/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/balsm-health/docs/discussions)
 - 📧 **Contact**: support@balsm.io
 
 ## 📄 License

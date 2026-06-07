@@ -175,11 +175,11 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/balsm-io/Balsm-Core' },
+      { icon: 'github', link: 'https://github.com/balsm-health/Balsm-Core' },
     ],
 
     editLink: {
-      pattern: 'https://github.com/balsm-io/Balsm-Core/edit/main/:path',
+      pattern: 'https://github.com/balsm-health/Balsm-Core/edit/main/:path',
       text: 'Edit this page on GitHub',
     },
 
