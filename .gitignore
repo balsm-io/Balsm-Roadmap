@@ -56,6 +56,6 @@ node_modules/
 .claude/skills/*-workspace/
 
 ### graphify
-graphify-out/manifest.json
-graphify-out/cost.json
-graphify-out/cache/
+# Rebuildable knowledge-graph artifact. Caches hold absolute, machine-local
+# paths and churn every run. Rebuild with `/graphify` or `graphify extract`.
+graphify-out/
