@@ -111,7 +111,9 @@
 | ICD-10 | Yes / No | [Which diagnosis codes? Billing context?] |
 | RxNorm | Yes / No | [Which medications require RxCUI?] |
 | DPG Standard | Yes / No | [Any new personal data collected? Data exportable as FHIR Bundle?] |
-| Egypt PDPL | Yes / No | [New personal data collected? Consent captured?] |
+| Egypt PDPL (Law 151/2020) | Yes / No | [New personal data collected? Consent captured? Cross-border transfer?] |
+| KSA PDPL (Royal Decree M/19) | Yes / No | [SDAIA controller obligations? Data residency in KSA?] |
+| UAE PDPL (Fed. Decree-Law 45/2021) + Health Data Law (Fed. Law 2/2019) | Yes / No | [UAE residency satisfied? MOHAP / DHA / DOH ADHICS controls met? Riayati / Malaffi integration?] |
 
 **New compliance obligations this feature introduces**: [Describe or write "None"]
 

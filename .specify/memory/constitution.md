@@ -1,19 +1,18 @@
 <!--
   SYNC IMPACT REPORT
-  Version change: 1.1.0 → 1.2.0
-  Bump rationale: MINOR — added Principle XI (Certifications & Standards Compliance);
-  updated Principle I, Principle III, Technology Stack, and Development Workflow
-  to reference CERTIFICATIONS.md as the authoritative compliance document
+  Version change: 1.3.0 → 1.4.0
+  Bump rationale: MINOR — Principle I (Patient Safety First) marked LOCKED;
+  Governance materially expanded with new "Locked principles" clause that
+  raises the amendment bar for locked principles to MAJOR (backward-
+  incompatible) regardless of edit type.
 
   Modified principles:
-    - I. Patient Safety First: added CERTIFICATIONS.md as authority for coding standards
-    - III. Regulatory Compliance: added DPG Standard, FHIR CapabilityStatement,
-      LOINC, SNOMED CT, RxNorm, ICD-10 as explicit compliance requirements
-    - Technology Stack: added CERTIFICATIONS.md reference
-    - Development Workflow: added CERTIFICATIONS.md to mandatory doc update list
+    - I. Patient Safety First: LOCKED marker added; body unchanged
+    - Governance: new "Locked principles" clause; amendment process
+      cross-reference added
 
   Added sections:
-    - XI. Certifications & Standards Compliance (new principle)
+    - Governance → "Locked principles" sub-clause
 
   Removed sections: N/A
 
@@ -22,6 +21,12 @@
     - .specify/templates/spec-template.md         ✅ Aligned
     - .specify/templates/tasks-template.md        ✅ Aligned
 
+  Prior amendment (1.2.0 → 1.3.0):
+    - Added Principle XII (Open-Source Ecosystem & Community Stewardship)
+    - Expanded Principle III to Egypt + KSA + UAE + MENA scope
+    - Templates patched: plan-template (MENA + open-source gates),
+      spec-template (KSA + UAE PDPL rows)
+
   Follow-up TODOs: None
 -->
 
@@ -29,7 +34,13 @@
 
 ## Core Principles
 
-### I. Patient Safety First (NON-NEGOTIABLE)
+### I. Patient Safety First (NON-NEGOTIABLE, LOCKED)
+
+> **🔒 LOCKED PRINCIPLE** — Amendments to this principle (including weakening,
+> narrowing, or removing any bullet) require a **MAJOR** version bump and
+> explicit board-level approval per the Governance "Locked principles" clause.
+> Strengthening additions (new safety guarantees) follow the normal MINOR /
+> PATCH process but MUST be reviewed by the Patient Safety Officer.
 
 Clinical data integrity and patient safety override all other concerns — velocity,
 deadlines, and convenience MUST never compromise safety-critical workflows.
@@ -73,18 +84,33 @@ Patient health information (PHI) MUST be protected at every layer.
 - OWASP Top 10 vulnerabilities MUST be prevented — every code change MUST be
   evaluated against this list
 
-### III. Regulatory Compliance
+### III. Regulatory Compliance (Egypt, KSA, UAE, MENA)
 
-The platform MUST comply with healthcare regulations in Egypt and GCC markets.
-When regulation conflicts with a feature request, regulation wins.
+The platform MUST comply with healthcare regulations across the MENA target
+markets — Egypt, Kingdom of Saudi Arabia, and United Arab Emirates as primary
+jurisdictions, with extensibility to the broader MENA region. When regulation
+conflicts with a feature request, regulation wins.
 
 - **Egypt**: PDPL (Law 151/2020), Medical Practice Law, Law 182/1960 (narcotics),
-  EDA medical device regulations, Telecommunications Law
-- **Saudi Arabia**: PDPL (Royal Decree M/19), SFDA Medical Device Regulations
-  (including SaMD classification), MOH Telemedicine Regulations,
-  Anti-Corruption Commission regulations, Anti-Cyber Crime Law
-- **GCC**: WHO Ethical Criteria for Medicinal Drug Promotion, data residency
-  requirements per jurisdiction
+  Egyptian Drug Authority (EDA) medical device regulations, Telecommunications
+  Law, Egyptian Healthcare Authority (EHA) eHealth requirements
+- **Saudi Arabia (KSA)**: PDPL (Royal Decree M/19 of 2021) and its Implementing
+  Regulations, SDAIA controller registration, SFDA Medical Device Regulations
+  (including SaMD classification under MDS-G010), MOH Telemedicine Regulations,
+  Anti-Corruption Commission regulations, Anti-Cyber Crime Law, NPHIES/SEHA
+  national health exchange standards
+- **United Arab Emirates (UAE)**: PDPL — Federal Decree-Law No. 45/2021 and
+  the UAE Data Office regulations; Federal Law No. 2/2019 on the Use of
+  Information and Communications Technology in Health Fields (the "Health Data
+  Law") including its data residency requirement; MOHAP Telehealth Standard
+  and federal practitioner licensing; Dubai Health Authority (DHA) Health Data
+  Protection Regulation and Riayati national EMR integration requirements;
+  Abu Dhabi DOH Healthcare Information and Cyber Security Standard (ADHICS v2)
+  and Malaffi integration requirements; Emirates Drug Establishment narcotics
+  and controlled substance controls
+- **MENA-wide**: WHO Ethical Criteria for Medicinal Drug Promotion, data
+  residency requirements per jurisdiction, Arabic-language clinical content
+  accuracy, country-specific national ID formats and validation rules
 - **International standards** (enforced in all code, specs, and ideas):
   - HL7 FHIR R4 — all externally exchanged resources MUST use standard R4 types;
     the API MUST expose a `/metadata` CapabilityStatement endpoint
@@ -102,19 +128,23 @@ When regulation conflicts with a feature request, regulation wins.
   - Full code-level rules for all standards are in `CERTIFICATIONS.md` —
     read that file before writing any spec, plan, or code touching clinical data
 - Controlled substance tracking MUST be implemented before pharmacy module
-  launch — deferring it is not acceptable (CR-01)
+  launch in any market — deferring it is not acceptable (CR-01)
 - Prescription attachment for controlled substances MUST default to **required**
   (opt-out, not opt-in) (DR-02)
 - Pharmaceutical analytics MUST NOT expose individual prescriber patterns that
   could facilitate kickback schemes — minimum aggregation thresholds and explicit
   anti-kickback prohibitions MUST be enforced (CR-02)
 - Any AI feature that provides clinical decision support MUST undergo SaMD
-  classification assessment with SFDA and EDA before deployment (CR-03)
+  classification assessment with the relevant regulator (SFDA in KSA, EDA in
+  Egypt, MOHAP / DHA / DOH in UAE) before deployment in that market (CR-03)
 - Cross-border telemedicine MUST verify that the provider is licensed in the
   patient's jurisdiction — unlicensed cross-border consultations MUST be blocked
-- Consent MUST be collected and verified before any data sharing operation
-- Data residency requirements MUST be respected — patient data MUST remain in
-  the jurisdiction specified by applicable law
+- Consent MUST be collected and verified before any data sharing operation; the
+  consent record MUST capture jurisdiction, purpose, and revocation channel
+- Data residency MUST be respected per jurisdiction — UAE PHI MUST remain in the
+  UAE unless an explicit federal exemption applies; KSA PHI MUST remain in KSA
+  per PDPL Art. 29; Egypt PHI residency follows PDPL Art. 14 cross-border
+  transfer rules
 
 ### IV. Modular Monolith with Domain-Driven Design
 
@@ -132,7 +162,7 @@ Module boundaries are inviolable.
 - Each bounded context owns its database schema — no shared tables between
   contexts
 - Anti-corruption layers MUST be used when integrating with external systems
-  (HL7/FHIR, DICOM, insurance APIs)
+  (HL7/FHIR, DICOM, insurance APIs, national health exchanges)
 - Tactical DDD patterns (aggregates, domain events, value objects, repositories,
   domain services) MUST be applied in complex contexts: Clinical Records,
   Prescriptions, Billing, Labs, Radiology
@@ -216,12 +246,18 @@ across platforms is mandatory.
   templates, offline sync, messaging
 - A single user account MUST access multiple apps based on roles — no separate
   accounts
-- Full RTL/LTR support MUST be implemented — Arabic (ar-EG) is the default
-  language, English (en) is secondary
-- Egypt-specific formats MUST be supported: EGP currency (LE prefix), DD/MM/YYYY
-  dates, 12-hour AM/PM (ص/م), week starts Saturday, Egyptian phone validation
-  (+20, 10-digit), National ID validation (14-digit with birth date, governorate,
-  and gender extraction)
+- Full RTL/LTR support MUST be implemented — Arabic (ar) is the default
+  language with locale variants (ar-EG, ar-SA, ar-AE) selectable per
+  deployment; English (en) is secondary
+- Locale-specific formats MUST be supported per jurisdiction:
+  - **Egypt**: EGP currency (LE/ج.م prefix), DD/MM/YYYY dates, 12-hour AM/PM
+    (ص/م), week starts Saturday, +20 phone (10-digit), National ID (14-digit
+    with birth date, governorate, gender extraction)
+  - **KSA**: SAR currency (ر.س/SR), Hijri calendar option alongside Gregorian,
+    +966 phone (9-digit), Iqama / National ID (10-digit) with Luhn check
+  - **UAE**: AED currency (د.إ/AED), Gregorian dates, +971 phone (9-digit),
+    Emirates ID (15-digit, hyphenated `784-YYYY-NNNNNNN-C`) with checksum
+    validation
 - Patient-facing content MUST support internationalization — no hardcoded strings
 - File names in Flutter MUST be `snake_case.dart` — never camelCase or PascalCase
 - Every UI screen or component MUST have a Figma design before implementation
@@ -276,8 +312,9 @@ certifications and standards defined in `CERTIFICATIONS.md`.
   resources, or patient records, read `CERTIFICATIONS.md` and identify which
   standards apply
 - **Specs MUST include a Certification Compliance section** identifying applicable
-  standards (FHIR R4, LOINC, SNOMED CT, ICD-10, RxNorm, DPG, PDPL) and any
-  new compliance obligations introduced by the feature
+  standards (FHIR R4, LOINC, SNOMED CT, ICD-10, RxNorm, DPG, Egypt PDPL,
+  KSA PDPL, UAE PDPL) and any new compliance obligations introduced by the
+  feature
 - **Plans MUST gate on certifications** — the Constitution Check in every
   `plan.md` MUST verify that the design satisfies all applicable code-level
   compliance rules from `CERTIFICATIONS.md Section 3`
@@ -289,8 +326,45 @@ certifications and standards defined in `CERTIFICATIONS.md`.
 - Refer to `CERTIFICATIONS.md` for the sequenced application roadmap, code-level
   compliance rules, per-phase checklist, and evidence artifact registry
 
+### XII. Open-Source Ecosystem & Community Stewardship
+
+Balsm is an open-source health-tech ecosystem. Open-source is a foundational
+commitment — not a marketing badge.
+
+- **License**: All core repositories (Balsm-Core, Balsm-API-DotNet,
+  balsm_app_flutter, website, docs) MUST be released under AGPL-3.0-or-later.
+  License downgrades, re-licensing, or proprietary forks are forbidden without
+  a constitutional amendment
+- **Public-by-default**: The default visibility for new repositories and
+  documentation MUST be public. Private repositories require an explicit
+  documented justification (e.g., active security disclosure embargo)
+- **No PHI in public artifacts**: Issues, pull requests, commits, public
+  Discussions, screenshots, and demo data MUST NOT contain real PHI. Synthetic
+  test data MUST be used for all public examples
+- **Contribution discipline**: All external contributions MUST go through a
+  signed-off (DCO `Signed-off-by:`) pull request. Maintainer review is required;
+  agent-authored commits MUST be reviewed by a human before merge
+- **No vendor lock-in**: Data export MUST be available in open standards (FHIR
+  Bundle, CSV, JSON) for every patient and every entity — exit cost from Balsm
+  MUST be zero
+- **Transparent roadmap**: The phased delivery plan, milestones, and known
+  limitations MUST be published. Roadmap changes MUST be reflected in
+  `PHASED_DELIVERY_STEPS.md` within 7 days
+- **Reproducible builds**: Every released installer (.msi, .dmg, .deb,
+  .AppImage) MUST be reproducible from a tagged commit using documented build
+  instructions. Build inputs (dependency versions, SDK versions) MUST be
+  pinned
+- **Upstream-first**: Bugs and improvements discovered in third-party
+  open-source dependencies MUST be reported upstream before being patched
+  locally — local patches are temporary, upstream contribution is the durable
+  fix
+- **Security disclosure**: A documented coordinated vulnerability disclosure
+  process MUST exist (`SECURITY.md`) with a maximum 90-day embargo from
+  acknowledged report to public patch
+
 ## Technology Stack & Constraints
 
+- **License**: AGPL-3.0-or-later for all core repositories (see Principle XII)
 - **Backend**: .NET 10.0 modular monolith, C#, Entity Framework Core 10.0.5, SQLite
   (local/embedded), PostgreSQL (cloud)
 - **Frontend Apps**: Flutter (Dart) — iOS, Android, Web, macOS, Windows, Linux
@@ -305,6 +379,9 @@ certifications and standards defined in `CERTIFICATIONS.md`.
   Action, Module — never log PHI
 - **Medical Standards**: ICD-10, CPT, HCPCS, SNOMED CT, LOINC, RxNorm, HL7
   FHIR R4, DICOM — code-level compliance rules in `CERTIFICATIONS.md`
+- **MENA Localization**: ar-EG, ar-SA, ar-AE, en — per Principle VIII; no
+  hardcoded strings; jurisdiction-specific currency, calendar, ID, and phone
+  validators
 - **Dependency Injection**: Constructor injection only — never instantiate
   dependencies with `new` inside business logic
 - **SOLID Principles**: Enforced — Single Responsibility, Open/Closed, Liskov
@@ -317,19 +394,25 @@ certifications and standards defined in `CERTIFICATIONS.md`.
 - Commit after completing every task — do not batch multiple tasks into a single
   commit
 - Commits MUST be focused (one logical change) with clear, descriptive messages
+- All commits MUST carry a `Signed-off-by:` trailer (DCO) per Principle XII
 - `--force`, `--no-verify`, and destructive git operations require explicit
   approval
 - Do not commit generated files, build artifacts, or environment-specific config
 - When a business requirement changes, ALL affected documentation MUST be updated
   alongside code: BUSINESS_FEATURES.md, PHASED_DELIVERY_STEPS.md, GLOSSARY.md,
   NON_FUNCTIONAL_REQUIREMENTS.md, CERTIFICATIONS.md (if standards or certification
-  status changes), and relevant agent rules
+  status changes), SECURITY.md (if threat surface changes), and relevant agent
+  rules
 - Code changes without corresponding documentation updates are incomplete
 - All list API endpoints MUST support pagination, filtering, and sorting
 - API responses MUST use a consistent error response structure with correlation
   IDs
 - The phased delivery model (20 phases, 4 tiers) MUST be followed — each phase
   has explicit exit criteria that MUST pass before the next phase begins
+- MENA regulatory tracking: a documented owner MUST monitor Egypt (PDPC),
+  KSA (SDAIA, SFDA, MOH), and UAE (UAE Data Office, MOHAP, DHA, DOH)
+  regulatory bulletins; material changes trigger a constitution amendment per
+  the Governance "Regulatory updates" clause
 
 ## Governance
 
@@ -348,14 +431,35 @@ Platform. It supersedes all other practices, conventions, and ad-hoc decisions.
 - **Versioning policy**: MAJOR for backward-incompatible governance changes or
   principle removals; MINOR for new principles or materially expanded guidance;
   PATCH for clarifications, wording, and non-semantic refinements
+- **Locked principles**: Principles tagged `🔒 LOCKED` (currently Principle I —
+  Patient Safety First) have a raised amendment bar:
+  - Any weakening, narrowing, removal, or rewording that changes meaning of a
+    locked principle's bullets MUST be treated as backward-incompatible and
+    requires a **MAJOR** version bump regardless of edit size
+  - MAJOR bump on a locked principle additionally requires (a) written rationale
+    referencing the safety incident, regulatory change, or evidence motivating
+    the change, (b) sign-off from the project Patient Safety Officer and at
+    least one external clinical reviewer, (c) a published 14-day public review
+    window on the open-source repository per Principle XII, and (d) updated
+    `CERTIFICATIONS.md` impact analysis
+  - Pure strengthening additions to a locked principle (new safety guarantees
+    that do not remove or relax any existing rule) follow normal MINOR / PATCH
+    rules but still require Patient Safety Officer review
+  - A locked principle MUST NOT be silently re-tagged as unlocked — removing the
+    🔒 marker itself is a MAJOR change under this clause
 - **Compliance review**: Quarterly review of constitution compliance across all
   repositories — findings documented and tracked to resolution
 - **Runtime guidance**: Refer to `agents/rules/AGENTS.md` for detailed agent
   instructions and `agents/rules/CODING_STANDARDS.md` for technical patterns
-- **Regulatory updates**: When Egyptian or GCC regulations change, this
-  constitution MUST be updated within 30 days to reflect new requirements
+- **Regulatory updates**: When Egypt, KSA, UAE, or other MENA jurisdiction
+  regulations change, this constitution MUST be updated within 30 days to
+  reflect new requirements
+- **Open-source stewardship**: License changes, repository visibility downgrades,
+  and any restriction on data export formats require a MAJOR version bump and
+  an explicit amendment proposal — these touch Principle XII's non-negotiable
+  guarantees
 - **Complexity justification**: Any deviation from simplicity (Principle IV
   tactical patterns exception, new abstractions) MUST be justified in the PR
   description with measurable benefit
 
-**Version**: 1.2.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-05-21
+**Version**: 1.4.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-06-14

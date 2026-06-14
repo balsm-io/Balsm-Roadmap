@@ -43,6 +43,21 @@
 - [ ] New personal data collected? Consent mechanism planned? [Yes / No]
 - [ ] All new data exportable as FHIR Bundle on patient request? [Yes / No]
 
+**MENA jurisdiction gate** *(required for any feature handling personal data, telemedicine, prescriptions, or clinical workflows)*:
+- [ ] Target jurisdictions identified: [Egypt / KSA / UAE / multi]
+- [ ] Data residency satisfied per jurisdiction (UAE PHI in UAE per Fed. Law 2/2019; KSA PHI in KSA per PDPL Art. 29; Egypt cross-border per PDPL Art. 14)
+- [ ] Telemedicine licensing check applied if cross-border (MOH KSA / MOHAP UAE / EHA Egypt)
+- [ ] National exchange integration impact assessed (NPHIES KSA / Riayati UAE-MOHAP / Malaffi Abu Dhabi / EHA Egypt)
+- [ ] DHA / DOH ADHICS controls satisfied if feature deploys in UAE
+
+**Open-source ecosystem gate** *(Principle XII)*:
+- [ ] All new repositories or modules licensed AGPL-3.0-or-later
+- [ ] No PHI, secrets, or proprietary data in public artifacts (issues, PRs, commits, docs, screenshots)
+- [ ] Data export path (FHIR Bundle / CSV / JSON) preserved for any new entity introduced
+- [ ] Third-party dependencies pinned and license-audited (no GPL-incompat or non-OSS additions)
+- [ ] Reproducible build inputs documented if feature changes packaging
+- [ ] DCO `Signed-off-by:` commit policy reaffirmed for contributors
+
 ## Project Structure
 
 ### Documentation (this feature)
