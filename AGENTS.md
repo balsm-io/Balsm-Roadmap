@@ -86,3 +86,8 @@ Reusable prompt workflows (native slash commands in Claude Code; reference the f
 
 ---
 <sub>Generated from 49 skills + 1 commands. Update: edit `Balsm-AI/canonical/` or `Balsm-AI/plugin/`, run `node Balsm-AI/sync.mjs --distribute`.</sub>
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
