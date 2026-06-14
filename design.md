@@ -2,25 +2,27 @@
 
 > **Balsm.health · بَلسَم** — open-source healthcare for Egypt and the Arabic-speaking world. Five petals · five colors · one promise: healing, locally.
 
-This file is the **design contract** for every Balsm surface (Pharmacy, Patient app, Doctor encounter, marketing, print). It synthesizes the canonical design system that lives under [agents/skills/balsm-design/](agents/skills/balsm-design/) — point any designer or agent there for full assets, preview cards, and UI kits.
+This file is the **design contract** for every Balsm surface (Pharmacy, Patient app, Doctor encounter, marketing, print). The canonical brand primitives — design tokens, logos, watercolor pattern, brand canvas — live flat in [brand/](brand/) in this repo. The full design *system* (long-form manual, UI kits, preview cards, patient-app prototype) is shipped as the **`balsm-design` skill** in the shared `balsm-ai` plugin, so any agent in any Balsm repo can invoke `/balsm-design`. Core is the canonical source; the plugin mirrors it.
 
-Source bundle: `claude.ai/design` handoff `2cciG9JbwwrxjgwScIChKA`, ingested 2026-05-30.
+**Companion:** [brand/baslm-brand-canvas.md](brand/baslm-brand-canvas.md) is the **brand model canvas** — purpose, vision, audience, promise, personality, voice & tone, positioning, core values, experience. design.md says how Balsm *looks*; the canvas says what it *stands for* and how it *speaks*. Pin the canvas for any copy, UX-writing, or marketing work.
+
+Source bundle: `claude.ai/design` handoff `brCe2JFarDeEQRmN0pgOJA`, ingested 2026-06-05. Re-export there → re-copy `project/` into the `balsm-design` plugin skill to refresh.
 
 ---
 
-## 1. Skill manifest
+## 1. Where the design system lives
+
+**Canonical brand primitives — in this repo, flat in [brand/](brand/):**
 
 | Path | Role |
 |---|---|
-| [agents/skills/balsm-design/SKILL.md](agents/skills/balsm-design/SKILL.md) | Agent-Skill entrypoint. Read first if you are an LLM. |
-| [agents/skills/balsm-design/README.md](agents/skills/balsm-design/README.md) | Full design-system manual (long-form). |
-| [agents/skills/balsm-design/HANDOFF.md](agents/skills/balsm-design/HANDOFF.md) | Original `claude.ai/design` handoff note. |
-| [agents/skills/balsm-design/colors_and_type.css](agents/skills/balsm-design/colors_and_type.css) | Single source of truth — every CSS token. |
-| [agents/skills/balsm-design/brand/](agents/skills/balsm-design/brand/) | Logo (color / reverse / PNG), watercolor pattern. Bundled copy; **canonical brand pack lives in-repo at [brand/](brand/)**. |
-| [agents/skills/balsm-design/preview/](agents/skills/balsm-design/preview/) | Reference cards for colors, type, spacing, components, brand. |
-| [agents/skills/balsm-design/ui_kits/balsm_pharmacy/](agents/skills/balsm-design/ui_kits/balsm_pharmacy/) | Slice 1 — Pharmacy POS / Inventory / Customers / Admin (modular JSX + working `index.html`). |
-| [agents/skills/balsm-design/patient_app/](agents/skills/balsm-design/patient_app/) | Slice 2 — Patient app prototype (iOS frame, auth + self-report flow, EN/AR/RTL). |
-| [agents/skills/balsm-design/chats/](agents/skills/balsm-design/chats/) | Original design conversations — intent, rationale, font + logo decisions. |
+| [brand/colors_and_type.css](brand/colors_and_type.css) | **Single source of truth** — every CSS token (petals, neutrals, type, spacing, radii, shadows, motion). Import this. |
+| [brand/baslm-brand-canvas.md](brand/baslm-brand-canvas.md) | Brand canvas — mission, voice, values, positioning, experience. Source of truth for tone. |
+| [brand/logo-vertical.svg](brand/logo-vertical.svg) | Official five-petal flower + bilingual wordmark. Use as-is. |
+| [brand/logo-vertical-white.png](brand/logo-vertical-white.png) | Reverse lockup for dark surfaces. |
+| [brand/balsm-background.png](brand/balsm-background.png) | Watercolor petal pattern — hero/welcome backdrops only. |
+
+**Full design system — in the shared `balsm-ai` plugin, skill `balsm-design`** (invoke `/balsm-design` in any Balsm repo). Holds the long-form `README.md` manual, the Pharmacy POS UI kit (`ui_kits/balsm_pharmacy/`), the patient-app prototype (`patient_app/`), and per-token preview cards (`preview/`). Not duplicated in-repo — Core's `brand/` is the source the plugin is built from.
 
 ---
 
@@ -70,7 +72,7 @@ Each petal has `-600` (hover/pressed) and `-50` (soft wash background) siblings.
 - Controlled substance = `--petal-violet`
 - Expiring soon = `#D97A20`
 
-Full token list: [colors_and_type.css](agents/skills/balsm-design/colors_and_type.css).
+Full token list: [brand/colors_and_type.css](brand/colors_and_type.css).
 
 ---
 
@@ -154,6 +156,8 @@ Flower mark usage: app icon (squircle-clipped, ink or cream bg) · loading spinn
 
 Calm · professional · human · second-person. Balsm is the patient's quiet ally, the pharmacist's reliable counter, the doctor's tidy notebook. Never salesy, never clinical-cold.
 
+> Full voice spec — 14 brand words, two registers (clinical/technical · product/community), what Balsm never sounds like — lives in [brand/baslm-brand-canvas.md §6](brand/baslm-brand-canvas.md). This section is the design-surface summary; the canvas is the source of truth for tone.
+
 **Casing.** Sentence case for all UI (buttons, menu items, headings, page titles). Title Case only on marketing landing-page heroes. ALL CAPS only for eyebrow labels at `letter-spacing: 0.16em`.
 
 **Address.** EN: "you". AR: **`أنت`** for direct affordances (`سجّل الدخول`); **`نحن / "we"`** sparingly when Balsm itself is speaking (`نحن نحفظ بياناتك محلياً`). Avoid corporate `the system` / `النظام`.
@@ -177,14 +181,14 @@ Calm · professional · human · second-person. Balsm is the patient's quiet all
 
 1. **Drop the tokens** into any new artifact:
    ```html
-   <link rel="stylesheet" href="agents/skills/balsm-design/colors_and_type.css">
+   <link rel="stylesheet" href="brand/colors_and_type.css">
    <link rel="icon" type="image/svg+xml" href="brand/logo-vertical.svg">
    ```
 2. **Use semantic tokens** (`var(--fg1)`, `var(--balsm-primary)`, `var(--balsm-success)`) in component code, not raw petal hex. Petals are the palette; semantic tokens are the contract.
 3. **Headings:** `.h1`–`.h5`. Body inherits from `<body>`.
 4. **Arabic / RTL:** set `dir="rtl"` on the root; font swap happens via `[dir="rtl"]`.
-5. **Lift components** from `ui_kits/balsm_pharmacy/` for any pharmacy / inventory / admin surface. Lift from `patient_app/` for patient-side mobile.
-6. **Sources:** every new component should cite a preview card in [preview/](agents/skills/balsm-design/preview/) and a UI-kit element it derives from.
+5. **Lift components** from the `balsm-design` plugin skill (`/balsm-design`): `ui_kits/balsm_pharmacy/` for pharmacy / inventory / admin surfaces, `patient_app/` for patient-side mobile.
+6. **Sources:** every new component should cite a preview card from the skill's `preview/` and a UI-kit element it derives from.
 
 For the Figma MCP HTML-to-Design capture workflow (mockup → Figma → Flutter), see [agents/rules/UI_DESIGN.md](agents/rules/UI_DESIGN.md).
 
