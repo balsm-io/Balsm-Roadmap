@@ -1,5 +1,7 @@
 # Contract: `balsm` CLI (Phase 0 surface)
 
+**Routing conventions**: The HTTP endpoints this CLI calls follow [`architecture/routing-best-practices.md`](../../architecture/routing-best-practices.md) — all responses include `X-Request-ID` for tracing, use the standard response envelope, and return status codes consistent with the routing conventions.
+
 The `balsm` CLI ships in the same self-contained installer as the single Standalone process (`Balsm.API` with `Balsm.Supervisor` loaded as a library). It is the **secondary** management surface (admin panel is primary). All write commands MUST emit an audit log entry (FR-016) with `actor = cli:<command-name>`.
 
 The CLI is implemented as a thin command-router that:

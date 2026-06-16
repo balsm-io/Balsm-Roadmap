@@ -52,6 +52,15 @@ The delta required by the spec is therefore: (1) fill the empty Entity + Identit
 
 **Scale/Scope**: 1 workspace × 1 entity × 1..N branches × 1 admin per server install.
 
+**Routing Conventions**: All endpoints follow [`architecture/routing-best-practices.md`](../architecture/routing-best-practices.md):
+- Standard response envelope (`data`/`error` + `meta.requestId`)
+- Pagination via `page`/`pageSize` query params with `links.first/prev/self/next/last`
+- Status codes: 200/201 for success, 400/404/409/412/422 for client errors, 429 for rate limits, 503 for service unavailable
+- Error codes follow `{DOMAIN}_{ERROR_TYPE}` pattern (e.g., `WORKSPACE_ALREADY_EXISTS`)
+- `Idempotency-Key` header on backup/restore endpoints to prevent double-triggers
+- `X-Request-ID` on all responses for traceability
+- **API subdomains**: `local.balsm.health` for the local server, `api.balsm.health` for future cloud SaaS. Development uses `localhost:5051`. See [`architecture/api-routing-strategy.md`](../architecture/api-routing-strategy.md) §Subdomain Strategy.
+
 ## Constitution Check
 
 | Principle | Status | Evidence / Notes |

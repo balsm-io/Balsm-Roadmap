@@ -57,6 +57,24 @@ Covers:
 
 ### Routing & URL Design
 
+#### [routing-best-practices.md](./routing-best-practices.md) ★
+**Cross-Cutting Routing Standards & Conventions**
+
+Comprehensive routing standards that apply across all API, website, and portal routes:
+- Idempotency patterns for safe retries (Idempotency-Key header)
+- ETag-based caching and optimistic concurrency (If-Match, If-None-Match)
+- Bulk operations through batch endpoints
+- API deprecation lifecycle (Sunset headers, migration policy)
+- Request tracing with correlation IDs
+- CORS configuration per environment
+- Standardized query parameter conventions (pagination, sorting, filtering, fields)
+- HTTP status code quick reference
+- Response envelope format (success + error)
+
+The companion reference for all other routing documents in this directory.
+
+---
+
 #### [api-routing-strategy.md](./api-routing-strategy.md)
 **API Endpoint Routing by Bounded Context**
 
@@ -257,6 +275,18 @@ Enables users to shape the product through feedback, vote on features, report is
 - Immutable audit trails
 - Never log PHI
 
+### 6. Routing Principles
+- **Resource-oriented URLs**: Nouns for resources, HTTP verbs for actions
+- **Versioned APIs**: `/v1/` prefix for all API versions, n-1 support for 12 months
+- **Idempotent mutations**: Idempotency-Key header for retry-safe operations
+- **Optimistic concurrency**: ETag/If-Match for conflict detection
+- **Conditional responses**: ETag/If-None-Match for bandwidth efficiency
+- **Traceable requests**: Correlation IDs across all services
+- **Consistent pagination**: Page-based (default) + cursor-based (high-volume) with standardized parameters
+- **Self-describing responses**: Links (HATEOAS-style) and metadata in all responses
+- **Graceful deprecation**: Sunset headers with 12-month migration window
+- **API-first**: All portal features have corresponding API endpoints
+
 ---
 
 ## Key Architectural Patterns
@@ -289,6 +319,18 @@ Enables users to shape the product through feedback, vote on features, report is
 | **Optimistic Concurrency** | Concurrent edits | Version tokens, conflict detection |
 | **Event Sourcing** | Full audit trail | Clinical Records (for Entry timeline) |
 | **Cache-Aside** | Performance optimization | Prescription drug database, Appointment slots |
+
+### Routing Patterns
+
+| Pattern | When to Use | Specification |
+|---------|-------------|---------------|
+| **Idempotency Key** | Retry-safe mutations (payments, prescriptions) | `Idempotency-Key` header, 24h dedup window |
+| **ETag Concurrency** | Collaborative editing, conflict prevention | `ETag` → `If-Match` → `412 Precondition Failed` |
+| **Cursor Pagination** | High-volume lists (entries, notifications) | Base64-encoded cursor, `?cursor=` + `?limit=` |
+| **Sunset Deprecation** | API version retirement | `Deprecation` + `Sunset` headers, 12-month migration |
+| **Correlation Tracing** | Debugging across services | `X-Request-ID` + `X-Correlation-ID` in all logs |
+| **Batch Processing** | Bulk mutations | `POST /v1/batch` with ordered operations array |
+| **Sparse Fieldsets** | Bandwidth-sensitive clients | `?fields=id,firstName` for partial responses |
 
 ---
 
@@ -414,6 +456,7 @@ Events that require architectural review:
 - [CODING_STANDARDS.md](../agents/rules/CODING_STANDARDS.md) — Technical patterns
 - [BUSINESS_FEATURES.md](../BUSINESS_FEATURES.md) — Feature specifications
 - [NON_FUNCTIONAL_REQUIREMENTS.md](../NON_FUNCTIONAL_REQUIREMENTS.md) — Performance, scalability, compliance
+- [routing-best-practices.md](./routing-best-practices.md) — Cross-cutting routing standards
 
 ### External Resources
 - Eric Evans, *Domain-Driven Design* (2003)

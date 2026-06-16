@@ -1,0 +1,46 @@
+{
+  "us1_signup_to_home": {
+    "label": "US1 — Signup to Home",
+    "screens": ["auth-country", "auth-email", "auth-otp", "disclosure", "home"]
+  },
+  "us1_social": {
+    "label": "US1 — Social sign-in",
+    "screens": ["auth-social", "disclosure", "home"]
+  },
+  "us1a_handle_profile": {
+    "label": "US1a — Handle + profile",
+    "screens": ["home", "account-handle", "profile-editor", "home"]
+  },
+  "us2_emergency": {
+    "label": "US2 — Emergency QR roundtrip",
+    "screens": ["home", "emergency-card", "emergency-qr", "emergency-public"]
+  },
+  "us3_meds": {
+    "label": "US3 — Add medication, today",
+    "screens": ["meds-list", "meds-add", "meds-today"]
+  },
+  "us4_delete": {
+    "label": "US4 — Delete account (in-app)",
+    "screens": ["deletion-preconfirm", "deletion-confirm"]
+  },
+  "us4_delete_web": {
+    "label": "US4 — Delete account (web)",
+    "screens": ["deletion-public", "deletion-confirm"]
+  },
+  "us5_lockout": {
+    "label": "US5 — Lockout edge case",
+    "screens": ["auth-email", "auth-otp", "auth-lockout"]
+  },
+  "us6_language": {
+    "label": "US6 — Language change",
+    "screens": ["home", "account-language"]
+  },
+  "edge_blocked": {
+    "label": "Edge — Geofence-blocked country",
+    "screens": ["auth-country", "auth-blocked"]
+  },
+  "edge_404": {
+    "label": "Edge — 404 NotFound",
+    "screens": ["not-found"]
+  }
+}

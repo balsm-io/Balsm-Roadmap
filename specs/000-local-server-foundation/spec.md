@@ -163,6 +163,19 @@ database, run the restore command, restart the server, and confirm all prior dat
 
 ## Requirements *(mandatory)*
 
+### Routing Conventions
+
+All API endpoints defined in this spec follow the conventions documented in [`architecture/routing-best-practices.md`](../architecture/routing-best-practices.md):
+- Response envelope format with `data`/`error` + `meta` (requestId, timestamp)
+- Error codes follow the `{DOMAIN}_{ERROR_TYPE}` naming pattern
+- HTTP status codes per the quick-reference table (200, 201, 400, 401, 403, 404, 409, 412, 422, 429, 503)
+- Query parameters use the standard names (`page`, `pageSize`, `sort`, `fields`)
+- All mutation endpoints (`POST`, `PATCH`) on payment/checkout paths require `Idempotency-Key`
+- All responses include `X-Request-ID` for request tracing
+- Deprecation uses `Deprecation: true` + `Sunset` headers with 12-month migration window
+
+**API subdomains**: The local server corresponds to `local.balsm.health` (`https://local.balsm.health/v1/...`) for network-accessible deployments. The cloud API subdomain `api.balsm.health` is reserved for future SaaS-hosted Balsm services. All endpoint paths (`/api/v1/...`) relative to localhost (`https://localhost:5051/api/v1/...`) are the development binding; production and LAN deployments use the `local.balsm.health` subdomain. See [`architecture/api-routing-strategy.md`](../architecture/api-routing-strategy.md) and [`architecture/subdomain-route-mapping.md`](../architecture/subdomain-route-mapping.md) for the full mapping.
+
 ### Functional Requirements
 
 - **FR-001**: System MUST install as a self-contained package on Windows (`.msi`), macOS (`.pkg`,

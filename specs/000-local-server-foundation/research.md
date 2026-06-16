@@ -95,6 +95,8 @@ Grounded in a fresh scan of `Balsm-API-DotNet`. Each decision states (a) the liv
   - `/api/v1/admin/mode` — cookie-auth (extended; existing in `ControlController`)
   - `/api/v1/admin/status` — cookie-auth (existing in `StatusController`; payload extended)
 - **Rationale**: Adopting the existing prefix means all new endpoints inherit `AdminAuthMiddleware` cookie auth for free; no JWT introduction at Phase 0.
+- **Routing best practices alignment**: Endpoints follow [`architecture/routing-best-practices.md`](../architecture/routing-best-practices.md) conventions: response envelope (`data`/`error` + `meta`), standard query params (`page`, `pageSize`, `sort`), `X-Request-ID` tracing, `Idempotency-Key` on mutation endpoints, and `{DOMAIN}_{ERROR_TYPE}` error codes.
+- **API subdomain mapping**: The local server endpoints listed above map to `local.balsm.health` in LAN/Public mode (e.g., `https://local.balsm.health/v1/admin/...`). In Standalone mode they are reachable only at `localhost:5051`. The cloud subdomain `api.balsm.health` is reserved for future SaaS phases. See [`architecture/subdomain-route-mapping.md`](../architecture/subdomain-route-mapping.md).
 - **Conflict resolution**: spec contract earlier proposed JWT bearer auth and a `/first-run/*` namespace; that was inconsistent with the live code. Updated.
 
 ## R13. CQRS pattern for new module work

@@ -19,6 +19,17 @@ description: "Phase 0 task list — Local Server Foundation"
 
 All `.NET` paths are under `../Balsm-API-DotNet/`. All SPA paths are under `../Balsm-API-DotNet/admin-ui/`.
 
+## Routing conventions
+
+Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../../architecture/routing-best-practices.md):
+- Response envelope with `data`/`error` + `meta.requestId`
+- Pagination via `page`/`pageSize` query params
+- `Idempotency-Key` on mutation endpoints that could be retried
+- `X-Request-ID` on all responses
+- Error codes use `{DOMAIN}_{ERROR_TYPE}` pattern
+
+**API subdomains**: The local server resolves to `local.balsm.health` in LAN/Public mode; `api.balsm.health` is reserved for future cloud phases. All task-cited endpoints under `/api/v1/...` are relative to the active base URL depending on deployment mode. See [`architecture/subdomain-route-mapping.md`](../../architecture/subdomain-route-mapping.md).
+
 ---
 
 ## Phase 1: Setup (Shared Infrastructure)

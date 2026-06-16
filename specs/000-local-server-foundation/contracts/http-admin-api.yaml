@@ -16,9 +16,15 @@ info:
     open by design.
 
     Default bind: HTTP `:5050`, HTTPS `:5051` (per `Balsm.API/Program.cs`).
+
+    API subdomains: `local.balsm.health` resolves to the local server in LAN/Public mode;
+    `api.balsm.health` is reserved for future cloud SaaS.
+    See `architecture/subdomain-route-mapping.md` for the full bounded-context-to-base-path mapping.
 servers:
   - url: https://localhost:5051/api/v1
-    description: Default Standalone-mode binding
+    description: Standalone development binding
+  - url: https://local.balsm.health/v1
+    description: Network/Public mode production binding
 tags:
   - { name: Lifecycle, description: "Balsm.API.Controllers.HealthController + new ServerInfoController" }
   - { name: FirstRun, description: "Balsm.Supervisor.Controllers.AuthController.Setup" }

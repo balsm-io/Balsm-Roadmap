@@ -2,6 +2,10 @@
 
 **Spec**: [spec.md](./spec.md) | **Plan**: [plan.md](./plan.md) | **Date**: 2026-05-30
 
+**Routing conventions**: All HTTP endpoints referenced below follow [`architecture/routing-best-practices.md`](../../architecture/routing-best-practices.md): standard response envelope, `X-Request-ID` tracing, and status codes from the reference table (200/201/400/404/409/412/422/429/503).
+
+**API subdomains**: The local server maps to `local.balsm.health` (`https://local.balsm.health/v1/...`) when reachable on the LAN or via Public mode. In Standalone development mode all endpoints are at `https://localhost:5051/api/v1/...`. The cloud API subdomain `api.balsm.health` is reserved for future SaaS phases. See [`architecture/subdomain-route-mapping.md`](../../architecture/subdomain-route-mapping.md).
+
 End-to-end "fresh OS → working admin panel" walkthrough used as the Phase 0 manual smoke-test and as the script the Playwright e2e test automates. Ports / paths reflect the actual `Balsm-API-DotNet` runtime: single `Balsm.API` Standalone process on HTTP `:5050` + HTTPS `:5051`, with `Balsm.Supervisor` loaded in-process.
 
 ---

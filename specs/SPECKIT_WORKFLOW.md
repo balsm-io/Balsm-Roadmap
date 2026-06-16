@@ -37,7 +37,7 @@ Reads the current `spec.md` and asks up to 5 targeted questions about underspeci
 The main design step. Reads `spec.md` and the constitution, then generates:
 - `research.md` — resolves every "NEEDS CLARIFICATION" with researched decisions and rationale
 - `data-model.md` — entities, fields, relationships, validation rules
-- `contracts/` — API endpoint contracts or interface definitions
+- `contracts/` — API endpoint contracts or interface definitions (follows routing conventions from `architecture/routing-best-practices.md`)
 - `plan.md` — full implementation plan with technical context and phase breakdown
 
 Gate: errors out if any NEEDS CLARIFICATION items remain unresolved.

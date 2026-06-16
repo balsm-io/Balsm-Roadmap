@@ -1,0 +1,70 @@
+{
+  "$schema": "./crash-allowlist.schema.json",
+  "purpose": "FR-043 + SC-006 + SC-016 — Sentry beforeSend allowlist. Every field NOT in this list is replaced with the literal \"[redacted]\" before transport. CI fuzz corpus exercises ≥50 synthetic PHI payloads and asserts the wire body contains zero non-allowlisted field names.",
+  "top_level_keys": [
+    "event_id",
+    "timestamp",
+    "platform",
+    "sdk",
+    "release",
+    "environment",
+    "level",
+    "logger",
+    "transaction"
+  ],
+  "tags_keys": [
+    "app_version",
+    "os_version",
+    "device_model",
+    "locale",
+    "anon_session_id",
+    "country_code",
+    "preferred_language"
+  ],
+  "exception_value_keys": [
+    "type",
+    "value",
+    "stacktrace"
+  ],
+  "stack_frame_keys": [
+    "abs_path",
+    "function",
+    "lineno",
+    "colno",
+    "in_app",
+    "module"
+  ],
+  "breadcrumb_keys": [
+    "timestamp",
+    "category",
+    "level",
+    "type"
+  ],
+  "denylist_regex_against_exception_value": [
+    "\\d{11}",
+    "\\d{14}",
+    "\\+20\\d{10}",
+    "\\+966\\d{9}",
+    "\\+971\\d{9}",
+    "\\d{4}-\\d{2}-\\d{2}",
+    "(?i)allerg",
+    "(?i)diabetes|hypertension|asthma|cancer|epilepsy",
+    "(?i)dose|tablet|capsule|mg|ml",
+    "(?i)blood.{0,3}type"
+  ],
+  "ci_fuzz_corpus_minimum_payloads": 50,
+  "ci_fuzz_corpus_includes": [
+    "synthetic Egyptian names (Arabic + Latin transliterations)",
+    "synthetic Saudi + UAE names",
+    "synthetic +20 / +966 / +971 phone numbers",
+    "synthetic Egyptian 14-digit National IDs (deterministic non-real seeds)",
+    "synthetic KSA Luhn-valid 10-digit IDs",
+    "synthetic UAE Emirates IDs",
+    "synthetic ISO DOB strings",
+    "synthetic free-text allergy / condition / medication names in ar-EG + ar-SA + ar-AE + en",
+    "synthetic emergency-contact phones (international formats)"
+  ],
+  "vendor": "sentry_flutter ^9.0 on Flutter 3.41 / Dart 3.10 (self-hosted Sentry server, AGPL-compatible deployment per Constitution Principle XII)",
+  "applies_via": "Sentry beforeSend + beforeBreadcrumb hooks installed at app boot in lib/core/crash/sentry_init.dart",
+  "alarm_path": "Any non-allowlisted field observed on the wire fails the build via CI guard test test/phi_leak_fuzz_test/sentry_allowlist_test.dart"
+}
