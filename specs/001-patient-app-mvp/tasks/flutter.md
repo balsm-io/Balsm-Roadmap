@@ -4,7 +4,7 @@ description: "P001 tasks — Flutter track"
 
 # P001 Tasks — Flutter Track
 
-Filtered from `../tasks.md`. Phase + section headers preserved. Only `[Flutter]` rows kept (includes Phase 2.5 design tasks D001-D027 — see also `./design.md` for design-only dispatch).
+Filtered from `../tasks.md`. Phase + section headers preserved. Only `[Flutter]` rows kept.
 
 Format: `[ID] [P?] [Story?] [Project] Description with absolute file path`
 
@@ -45,6 +45,26 @@ Format: `[ID] [P?] [Story?] [Project] Description with absolute file path`
 - [ ] T035 [P] [Flutter] Create `../balsm_app_flutter/app/web/.well-known/assetlinks.json` — Android Digital Asset Links JSON: `relation: ["delegate_permission/common.handle_all_urls"]`, `target.namespace: android_app`, `package_name: health.balsm.app`, `sha256_cert_fingerprints: [...]` (filled by CI from signing config)
 - [ ] T035a [P] [Flutter] Create `../balsm_app_flutter/app/ios/Runner/Runner.entitlements` — add `com.apple.developer.associated-domains` with `applinks:{BASE_URL}` (build-time substituted per FR-216)
 - [ ] T035b [P] [Flutter] Update `../balsm_app_flutter/app/android/app/src/main/AndroidManifest.xml` — add `<intent-filter android:autoVerify="true">` for `https://{BASE_URL}/emergency/*` and `https://{BASE_URL}/account/delete`, `DEFAULT` + `BROWSABLE` categories, `VIEW` action
+### 1.5 Build flavors (dev / staging / prod) + multi-server selector
+
+- [ ] T035c [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/config/flavor.dart` — `enum Flavor { dev, staging, prod }`; `class FlavorConfig { final Flavor flavor; final String supabaseUrl; final String supabaseAnonKey; final String? sentryDsn; final String appNameSuffix; final bool serverSelectorEnabled; }`; `FlavorConfig.current` getter reading from `--dart-define` keys `FLAVOR`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SENTRY_DSN`
+- [ ] T035d [P] [Flutter] Create `../balsm_app_flutter/app/lib/main_dev.dart` — entry point: `FlavorConfig.init(Flavor.dev)`, calls `bootstrap()` then `runApp(BalsmApp())`; dev flavor sets `serverSelectorEnabled = true`
+- [ ] T035e [P] [Flutter] Create `../balsm_app_flutter/app/lib/main_staging.dart` — entry point: `FlavorConfig.init(Flavor.staging)`, locks `serverSelectorEnabled = false`
+- [ ] T035f [P] [Flutter] Create `../balsm_app_flutter/app/lib/main_prod.dart` — entry point: `FlavorConfig.init(Flavor.prod)`, locks `serverSelectorEnabled = false`
+- [ ] T035g [P] [Flutter] Update `../balsm_app_flutter/app/lib/main.dart` to delegate to `main_dev.dart` (default for `flutter run` without `-t`); add comment: "Use `flutter run -t lib/main_<flavor>.dart --flavor <flavor>`"
+- [ ] T035h [P] [Flutter] Update `../balsm_app_flutter/app/android/app/build.gradle` — add `productFlavors { dev { applicationIdSuffix ".dev"; manifestPlaceholders = [appNameSuffix: " Dev"] }; staging { applicationIdSuffix ".staging"; manifestPlaceholders = [appNameSuffix: " Staging"] }; prod { applicationIdSuffix ""; manifestPlaceholders = [appNameSuffix: ""] } }`; `flavorDimensions "default"`
+- [ ] T035i [P] [Flutter] Create `../balsm_app_flutter/app/android/app/src/dev/`, `src/staging/`, `src/prod/` resource dirs each with `res/mipmap-*/ic_launcher.png` + `res/values/strings.xml` (`app_name="Balsm Dev/Staging/Balsm"`); dev icon has red corner badge, staging amber, prod clean
+- [ ] T035j [P] [Flutter] Create iOS xcconfig per flavor at `../balsm_app_flutter/app/ios/Flutter/`: `Dev.xcconfig`, `Staging.xcconfig`, `Prod.xcconfig` — each sets `BUNDLE_ID_SUFFIX=.dev/.staging/(empty)`, `APP_NAME_SUFFIX= Dev/ Staging/(empty)`, `ASSETS_PATH=ios/Runner/Assets.xcassets/AppIconDev` etc.
+- [ ] T035k [P] [Flutter] Update `../balsm_app_flutter/app/ios/Runner.xcodeproj/project.pbxproj` to add 3 schemes (`Runner-Dev`, `Runner-Staging`, `Runner-Prod`) each pointing to its xcconfig + entry-point Dart file via `FLUTTER_TARGET`; 3 configurations Debug/Profile/Release × 3 flavors = 9 build configs total
+- [ ] T035l [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/config/server_preset.dart` — `class ServerPreset { final String label; final String url; final String anonKey; const ServerPreset({...}); }`; const list `kServerPresets = [ServerPreset(label: "Local", url: "http://localhost:54321", anonKey: "..."), ServerPreset(label: "Staging", url: "https://<staging>.supabase.co", anonKey: "..."), ServerPreset(label: "Prod", url: "https://<prod>.supabase.co", anonKey: "...")]`
+- [ ] T035m [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/config/active_server.dart` — `class ActiveServerStore` wraps `SecureStorage`; methods `read() async → ServerPreset?`, `write(ServerPreset preset) async`, `clear() async`; key `balsm.active_server_preset`; default = `FlavorConfig.current.supabaseUrl`+`AnonKey` if no override
+- [ ] T035n [P] [Flutter] Update `../balsm_app_flutter/packages/core/lib/src/network/supabase_client_wrapper.dart` (T050) to read URL+anonKey from `ActiveServerStore.read()` at init; expose `Future<void> reconfigure(ServerPreset preset)` that calls `ActiveServerStore.write()` then re-initializes Supabase client; broadcast `SupabaseReconfigured(preset)` AppEvent on the bus
+- [ ] T035o [P] [Flutter] Create dev-only screen at `../balsm_app_flutter/packages/core/lib/src/dev/server_selector_screen.dart` — `if (!FlavorConfig.current.serverSelectorEnabled) Navigator.pop()` guard; lists `kServerPresets` + custom URL/anonKey form; on select calls `SupabaseClientWrapper.reconfigure()`; shows current preset + warning banner "Changing server signs you out"; persisted via `ActiveServerStore`
+- [ ] T035p [P] [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to conditionally export `dev/server_selector_screen.dart` only when `FlavorConfig.current.flavor == Flavor.dev`; in staging/prod the symbol does not exist (compile-time guarantee via `--dart-define-from-file`)
+- [ ] T035q [P] [Flutter] Update Sentry init at `../balsm_app_flutter/packages/core/lib/src/crash/sentry_init.dart` (T057) to read DSN from `FlavorConfig.current.sentryDsn`; if null (dev flavor) → no `SentryFlutter.init` call, log to stdout instead; release name = `balsm@<version>+<build>-<flavor>`; environment = `flavor.name`
+- [ ] T035r [P] [Flutter] Create `../balsm_app_flutter/.vscode/launch.json` — 3 configurations (Dev, Staging, Prod) each with `args: ["--flavor", "<flavor>", "-t", "lib/main_<flavor>.dart", "--dart-define-from-file=env/<flavor>.json"]`
+- [ ] T035s [P] [Flutter] Create env files at `../balsm_app_flutter/app/env/dev.json`, `env/staging.json`, `env/prod.json` — `{ "FLAVOR": "dev", "SUPABASE_URL": "...", "SUPABASE_ANON_KEY": "...", "SENTRY_DSN": "" }`; `env/*.json` gitignored except `env/example.json` checked in
+- [ ] T035t [P] [Flutter] Update `../balsm_app_flutter/melos.yaml` — add scripts: `run:dev` = `flutter run -t lib/main_dev.dart --flavor dev --dart-define-from-file=env/dev.json`; same for `run:staging`, `run:prod`; `build:android:<flavor>` = `flutter build apk --flavor <flavor> -t lib/main_<flavor>.dart --dart-define-from-file=env/<flavor>.json`; same for iOS, web
 
 ## Phase 2: Foundational — Core Shared Kernel (Blocking Prerequisites)
 
@@ -311,7 +331,8 @@ Format: `[ID] [P?] [Story?] [Project] Description with absolute file path`
 
 - [ ] T170 [P] [Flutter] [US6] Create `account` use cases at `../balsm_app_flutter/packages/account/lib/src/application/use_cases/` — `ChangeCountryUseCase`, `ChangeLanguageUseCase`
 - [ ] T171 [P] [Flutter] [US6] Create `account` screens at `../balsm_app_flutter/packages/account/lib/src/presentation/screens/` — `CountrySettingsScreen` (selectable country list, calls country-change flow = re-auth + re-disclosure), `LanguageSettingsScreen` (selectable `ar-EG`, `ar-SA`, `ar-AE`, `en`)
-- [ ] T172 [P] [Flutter] [US6] Create `account` routes at `../balsm_app_flutter/packages/account/lib/src/presentation/routes.dart` — `account.settings`, `account.country`, `account.language`
+- [ ] T172 [P] [Flutter] [US6] Create `account` routes at `../balsm_app_flutter/packages/account/lib/src/presentation/routes.dart` — `account.settings`, `account.country`, `account.language`, `account.developer` (route only registered when `FlavorConfig.current.serverSelectorEnabled` is true)
+- [ ] T172a [P] [Flutter] [US6] Update `account` settings root screen at `../balsm_app_flutter/packages/account/lib/src/presentation/screens/settings_screen.dart` to conditionally render a "Developer" section showing tile "Switch server" + active preset label — visible only when `FlavorConfig.current.flavor == Flavor.dev`; tap opens `core` `ServerSelectorScreen` (T035o); section spatially separated below regular settings with `--space-8` margin and warning icon
 ### 9.3 Flutter: home country-change integration
 
 - [ ] T173 [Flutter] [US6] Update `home` screen at `../balsm_app_flutter/packages/home/lib/src/presentation/screens/home_screen.dart` to react to `CountryChanged` event — reload locale, update RTL, re-fetch country-specific data
