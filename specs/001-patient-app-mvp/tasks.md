@@ -1,80 +1,78 @@
 ---
-description: "P001 task list — Patient App MVP"
+description: "P001 task list — Patient App MVP (.NET backend)"
 ---
 
 # Tasks: Patient App MVP (P001)
 
 **Input**: Design documents from `/specs/001-patient-app-mvp/`
-**Prerequisites**: [data-model.md](./data-model.md), [quickstart.md](./quickstart.md), [contracts/](./contracts/)
+**Prerequisites**: [plan.md](./plan.md), [data-model.md](./data-model.md), [research.md](./research.md), [contracts/](./contracts/)
+
+> **Backend pivot 2026-06-17**: Cloud backend is **.NET 10.0 ASP.NET Core** (NOT Supabase Edge Functions + Supabase Auth). PostgreSQL accessed via **EF Core 10 + Npgsql**. Auth is custom JWT + OTP + Google/Apple OIDC validation. Authorization is ASP.NET Core policies (no PostgreSQL RLS). DOB encrypted at the .NET application layer (AES-256-GCM, not pgcrypto). Flutter client calls the .NET API via `dio` (the `supabase_flutter` SDK is removed). See `research.md §26–§33` + `contracts/dotnet-api-endpoints.md`.
 
 ## Per-project split (for cheap-model dispatch)
 
 This file is the canonical, phase-ordered master list. For agents focused on one repo, use the filtered per-project files — same task IDs, same `[P]` markers, fewer distractions:
 
 - **Design** (27 tasks, Phase 2.5, BLOCKING GATE) — [`tasks/design.md`](./tasks/design.md) → `design/` (UI-SPEC, mocks, prototype, sign-off)
-- **Flutter** (215 tasks: 27 design + 188 implementation incl. 18 flavors + multi-server) — [`tasks/flutter.md`](./tasks/flutter.md) → `balsm_app_flutter/` (mobile + web targets; 3 flavors dev/staging/prod; dev-only server selector; public routes via Flutter Web; deeplinks via Universal/App Links)
-- **Supabase** (25 tasks) — [`tasks/supabase.md`](./tasks/supabase.md) → `supabase/`
-- **Cross-cutting** (2 tasks) — [`tasks/cross-cutting.md`](./tasks/cross-cutting.md) → walkthrough + AGENTS.md
+- **Flutter** (client) — [`tasks/flutter.md`](./tasks/flutter.md) → `balsm_app_flutter/` (mobile + web targets; 3 flavors; public routes via Flutter Web; deeplinks; BalsmKit widgets). Calls the .NET API via `dio`.
+- **DotNet** (backend) — [`tasks/dotnet.md`](./tasks/dotnet.md) → `Balsm-Core/src/` + `Balsm-Core/tests/` (ASP.NET Core API, EF Core, modules). **Replaces the former `tasks/supabase.md`.**
+- **Cross-cutting** — [`tasks/cross-cutting.md`](./tasks/cross-cutting.md) (walkthrough + AGENTS.md + runbook + compliance-risks register)
 
-> Phase 2.5 design tasks (D001-D027) are ALSO labeled `[Flutter]` and re-emitted into `tasks/flutter.md`, so the Flutter agent track sees them in execution order. The `tasks/design.md` file is the focused dispatch file when working only on design.
+> Phase 2.5 design tasks (D001-D027) are ALSO labeled `[Flutter]` and re-emitted into `tasks/flutter.md`.
 
-> Decision 2026-06-16: dropped Next.js `balsm-web` repo. Flutter Web hosts public routes (`/emergency/{token}`, `/account/delete`). Universal Links (iOS) + App Links (Android) deep-link to installed app when present, fallback to Flutter Web when not.
+> Decision 2026-06-16: Flutter Web hosts public routes (`/emergency/{token}`, `/account/delete`, `/status`). Universal Links (iOS) + App Links (Android) deep-link to the installed app when present, fallback to Flutter Web when not.
 
-Phase boundaries + `[P]` parallelism rules from the master file still apply. A task's ID is globally unique — pull dependencies across files by ID.
+Phase boundaries + `[P]` parallelism rules apply. A task's ID is globally unique — pull dependencies across files by ID.
 
-
-**Repo layout** (two repos — all paths below are relative from `Balsm-Core/specs/001-patient-app-mvp/tasks.md`):
+**Repo layout** (two repos — `..` resolves to the `/Volumes/Dev/Balsm/` dev root):
 
 ```
-balsm_app_flutter/        # Flutter melos monorepo — mobile + web targets
+Balsm-Core/                 # .NET backend (this repo)
+  global.json               # pins .NET SDK 10.0.300
+  Balsm.sln
+  src/
+    Balsm.API/              # ASP.NET Core host: controllers, middleware, Program.cs
+    Balsm.Infrastructure/   # EF Core + Npgsql, JWT, OTP, OIDC, DOB encryption, rate limiting
+    Balsm.SharedKernel/     # Result<T>, domain exceptions, value objects, BaseDbContext
+    Modules/
+      Auth/                 # AuthSession, OTP, lockout, OIDC token exchange
+      Account/              # user_account, handle, country/language, DOB
+      EmergencyQr/          # mint, resolve, revoke
+      Sessions/             # active sessions, revoke
+      Deletion/             # deletion FSM + purge job
+      Disclosure/           # cloud mirror of disclosure_acceptance
+      Geofence/             # denied_country_blocklist read-side
+  tests/
+    Balsm.API.IntegrationTests/   # WebApplicationFactory + Testcontainers PostgreSQL
+    Modules/                       # per-module xUnit tests
+  supabase/supabase/migrations/    # SQL migration files (EF migrations are authoritative; SQL kept as reference)
+
+balsm_app_flutter/          # Flutter melos monorepo — mobile + web targets
   melos.yaml
   packages/
-    core/                 # unified core layer (domain, event_bus, db, network, localization, crash, secure_storage, notifications, kit, deeplink, test_kit)
-    balsm_boundary_lint/  # custom_lint rules
-    auth/
-    disclosure/
-    home/
-    profile/
-    emergency_card/       # incl. public route /emergency/{token}
-    medications/
-    sessions/
-    account/
-    deletion/             # incl. public route /account/delete
-    geofence_block/
-  app/                    # runnable shell — builds for iOS, Android, Web
-    ios/
-      Runner/
-        Runner.entitlements           # com.apple.developer.associated-domains
-    android/
-      app/src/main/AndroidManifest.xml # autoVerify=true intent filters
-    web/
-      index.html
-      .well-known/
-        apple-app-site-association
-        assetlinks.json
-
-supabase/                 # Supabase migrations + Edge Functions
-  supabase/
-    migrations/
-    functions/            # 20+ Edge Functions
+    core/                   # core layer (domain, event_bus, db, network[dio], localization, crash, secure_storage, notifications, kit, deeplink, backup, test_kit)
+    balsm_boundary_lint/
+    auth/ disclosure/ home/ profile/ emergency_card/ medications/ sessions/ account/ deletion/ geofence_block/
+  app/                      # runnable shell — iOS, Android, Web
+    ios/ android/ web/.well-known/
 ```
 
-**Optimization target**: tasks are sized for execution by cheap / fast models (Haiku-class). Each task names a single file and a single change. When extension of existing code is needed, the task cites the exact file path. The task ID order is also the recommended execution order; `[P]` marks tasks safe to run in parallel.
+**Optimization target**: tasks are sized for execution by cheap / fast models (Haiku-class). Each task names a single file and a single change. The task ID order is the recommended execution order; `[P]` marks tasks safe to run in parallel.
 
 ## Format
 
-`[ID] [P?] [Story?] [Flutter|Supabase] Description with absolute file path`
+`[ID] [P?] [Story?] [Flutter|DotNet] Description with file path`
 
 ## Project labels
 
-- `[Flutter]` — `balsm_app_flutter/` (mobile + web targets)
-- `[Supabase]` — `supabase/`
+- `[Flutter]` — `balsm_app_flutter/` (client; mobile + web)
+- `[DotNet]` — `Balsm-Core/src/` + `Balsm-Core/tests/` (backend)
 - No label — applies to multiple repos
 
 ## Path conventions
 
 - Flutter: `../balsm_app_flutter/`
-- Supabase: `../supabase/`
+- DotNet: `../Balsm-Core/`
 
 ---
 
@@ -82,27 +80,31 @@ supabase/                 # Supabase migrations + Edge Functions
 
 **Purpose**: Scaffold both repos with directory structure, dependency declarations, build tool config, Flutter Web target, and deeplink manifests. No business logic.
 
-### 1.1 Supabase project init
+### 1.1 .NET solution init
 
-- [ ] T001 [P] [Supabase] Create `../supabase/supabase/config.toml` with project name `balsm-p001`, region `eu-west-1`, auth settings (email OTP enabled, code length 6, expiry 600s, Google + Apple providers enabled, Phone disabled)
-- [ ] T002 [P] [Supabase] Create `../supabase/supabase/migrations/00001_initial_schema.sql` — paste the full content from `contracts/supabase-schema.sql` (all 10 tables + indexes + triggers + seeds)
-- [ ] T003 [P] [Supabase] Create `../supabase/supabase/seed.sql` — insert denied-country seed rows (CU, IR, KP, SY) and reserved-handle blocklist seed rows (admin, balsm, support, api, help, null, health)
-- [ ] T004 [P] [Supabase] Create RLS policy file at `../supabase/supabase/migrations/00002_rls_policies.sql` — `user_account` SELECT own row only, UPDATE own row only when `deletion_state = 'ACTIVE'`, INSERT for signup flow, DELETE forbidden
+- [ ] T001 [P] [DotNet] Create `../Balsm-Core/global.json` pinning `"sdk": { "version": "10.0.300", "rollForward": "latestPatch" }` (latest installed .NET SDK), and `../Balsm-Core/Balsm.sln` (empty solution). Add a `Directory.Build.props` at `../Balsm-Core/` setting `<TargetFramework>net10.0</TargetFramework>`, `<Nullable>enable</Nullable>`, `<ImplicitUsings>enable</ImplicitUsings>`, `<LangVersion>latest</LangVersion>`.
+- [ ] T002 [P] [DotNet] Create EF Core schema. Create `../Balsm-Core/src/Balsm.Infrastructure/Data/BalsmDbContext.cs` — a `DbContext` with `DbSet<>` for every cloud table from `data-model.md §1` (`UserAccount`, `UserIdentity`, `UserRefreshToken`, `ActiveSession`, `AccountLockout`, `UsernameReservation`, `EmergencyQrToken`, `DeletionLog`, `ReservedHandleBlocklist`, `DisclosureAcceptance`, `DeniedCountryBlocklist`, `UserAccountAuditLog`, `OtpAttempt`). One `IEntityTypeConfiguration<T>` per entity under `../Balsm-Core/src/Balsm.Infrastructure/Data/Configurations/` mapping the exact columns + constraints + indexes from `data-model.md`. Then run `dotnet ef migrations add InitialSchema` to generate `../Balsm-Core/src/Balsm.Infrastructure/Data/Migrations/`.
+- [ ] T003 [P] [DotNet] Create `../Balsm-Core/src/Balsm.Infrastructure/Data/SeedData.cs` — `HasData` seed for `DeniedCountryBlocklist` rows (CU, IR, KP, SY with `source='ofac'`) and `ReservedHandleBlocklist` rows (admin, balsm, support, api, help, null, health with `added_by='system'`). Wire it into the entity configurations so it lands in the InitialSchema migration.
+- [ ] T004 [P] [DotNet] Create authorization policies at `../Balsm-Core/src/Balsm.API/Authorization/` — `SelfOnlyPolicy.cs` (`userId == resource.UserId`), `ActiveAccountPolicy.cs` (`deletion_state == 'ACTIVE'` for mutating writes), `NotLockedOutPolicy.cs` (checked at OTP request/verify, returns 423), `AgeGatePolicy.cs` (placeholder; filled in T035bc). Register all four in `Program.cs` via `AddAuthorization(options => options.AddPolicy(...))`. Replaces Supabase RLS per research §28.
 
-### 1.2 Edge Functions scaffolding
+### 1.2 .NET host + module project scaffolding
 
-- [ ] T005 [P] [Supabase] Create Edge Function directory structure at `../supabase/supabase/functions/` with empty `deno.json` and `import_map.json` — all 20 functions listed below get their own subdirectory in later phases:
-  - `auth-gate`, `auth-attempt-record`, `geofence-check`, `handle-claim`, `handle-suggest`, `emergency-token-mint`, `emergency-token-revoke`, `emergency-token-resolve`, `account-delete-intake`, `account-delete-confirm`, `account-delete-cancel`, `account-delete-purge`, `apple-revoke`, `country-change`, `language-change`, `set-dob`, `age-gate-check`, `get-self`, `reserved-handle-check`
-- [ ] T006 [P] [Supabase] Create Edge Function shared library at `../supabase/supabase/functions/_shared/supabase-client.ts` — re-exports `createClient` from `npm:@supabase/supabase-js` with service-role key
-- [ ] T007 [P] [Supabase] Create Edge Function shared library at `../supabase/supabase/functions/_shared/cors.ts` — exports `corsHeaders` object with `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Headers: authorization, x-client-info, apikey, content-type`
-- [ ] T008 [P] [Supabase] Create Edge Function shared library at `../supabase/supabase/functions/_shared/response.ts` — exports `json(data, status)` and `error(message, status)` helpers wrapping `new Response`
+- [ ] T005 [P] [DotNet] Create the project files and add them to `Balsm.sln`:
+  - `../Balsm-Core/src/Balsm.API/Balsm.API.csproj` (`Microsoft.NET.Sdk.Web`)
+  - `../Balsm-Core/src/Balsm.Infrastructure/Balsm.Infrastructure.csproj`
+  - `../Balsm-Core/src/Balsm.SharedKernel/Balsm.SharedKernel.csproj`
+  - `../Balsm-Core/src/Modules/{Auth,Account,EmergencyQr,Sessions,Deletion,Disclosure,Geofence}/Balsm.Modules.<Name>.csproj`
+  Each module csproj references `Balsm.SharedKernel` + `Balsm.Infrastructure`. `Balsm.API` references all module projects. Add NuGet packages to the relevant csproj: `Microsoft.EntityFrameworkCore 10.0.8`, `Npgsql.EntityFrameworkCore.PostgreSQL 10.0.*`, `MediatR 14.1`, `FluentValidation 12.1`, `FluentValidation.AspNetCore`, `Serilog.AspNetCore 10.*`, `Microsoft.AspNetCore.Authentication.JwtBearer`, `Google.Apis.Auth 1.68.*`, `Microsoft.IdentityModel.Tokens`. (EF Core tools 10.0.8 installed — match `dotnet ef`.)
+- [ ] T006 [P] [DotNet] Create `../Balsm-Core/src/Balsm.API/Program.cs` — minimal host: `AddDbContext<BalsmDbContext>(UseNpgsql(connStr))`, `AddControllers()`, MediatR registration scanning all module assemblies, FluentValidation auto-validation, Serilog (`UseSerilog`, structured, no PHI), JWT bearer auth (`AddAuthentication().AddJwtBearer`), CORS policy `balsm-public` (allow `*` for `/emergency/*` + `/status`, restricted origins for the rest), `AddRateLimiter()` (policies filled in T035az), `app.UseAuthentication()`, `app.UseAuthorization()`, `app.MapControllers()`.
+- [ ] T007 [P] [DotNet] Create `../Balsm-Core/src/Balsm.API/Middleware/CorrelationIdMiddleware.cs` — reads/creates `X-Correlation-Id`, pushes to Serilog `LogContext`, echoes on the response. Register first in the pipeline in `Program.cs`.
+- [ ] T008 [P] [DotNet] Create the API response envelope at `../Balsm-Core/src/Balsm.SharedKernel/Api/ApiResponse.cs` — `ApiResponse<T> { T? Data; ApiError? Error; }` + `ApiError { string Code; string Message; string CorrelationId; }` + static helpers `Ok(data)` and `Fail(code, message, correlationId)`. Create `../Balsm-Core/src/Balsm.SharedKernel/Result/Result.cs` — `Result<T>` with `IsSuccess`, `Value`, `Failure` (maps to `AppFailure`) for expected-failure handling per Constitution §Error Handling.
 
 ### 1.3 Flutter repo init
 
 - [ ] T009 [P] [Flutter] Create `../balsm_app_flutter/melos.yaml` — workspace config with packages `['packages/*', 'app']`, scripts for `gen` (parallel build_runner), `analyze` (parallel dart analyze), `test` (parallel flutter test), `e2e` (integration_test)
 - [ ] T010 [P] [Flutter] Create `../balsm_app_flutter/pubspec.yaml` — workspace root pubspec with `name: balsm_app`, `publish_to: none`, dev_dependencies `melos: ^7.0.0`
-- [ ] T011 [P] [Flutter] Create `../balsm_app_flutter/.fvmrc` — pinning Flutter `3.41.0-stable`
-- [ ] T012 [P] [Flutter] Create `../balsm_app_flutter/packages/core/pubspec.yaml` — `name: core`, dependencies: `flutter`, `drift: ^2.29`, `sqlite3_flutter_libs`, `sqlcipher_flutter_libs`, `dio: ^5.8`, `supabase_flutter: ^2.10`, `sentry_flutter: ^9.0`, `flutter_riverpod: ^2.6`, `flutter_local_notifications: ^18.0`, `flutter_secure_storage: ^9.2`, `freezed_annotation`, `json_annotation`, `intl: ^0.20`
+- [ ] T011 [P] [Flutter] Create `../balsm_app_flutter/.fvmrc` — pinning Flutter `3.41.9` (latest installed stable; Dart 3.11.5)
+- [ ] T012 [P] [Flutter] Create `../balsm_app_flutter/packages/core/pubspec.yaml` — `name: core`, dependencies: `flutter`, `drift: ^2.29`, `sqlite3_flutter_libs`, `sqlcipher_flutter_libs`, `dio: ^5.8`, `sentry_flutter: ^9.0`, `flutter_riverpod: ^2.6`, `flutter_local_notifications: ^18.0`, `flutter_secure_storage: ^9.2`, `google_sign_in: ^6.2`, `sign_in_with_apple: ^6.1`, `freezed_annotation`, `json_annotation`, `intl: ^0.20`. **No `supabase_flutter`** (removed — client talks to the .NET API via `dio` per research §32).
 - [ ] T013 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/core.dart` — empty public barrel file with comment `// Re-export all public APIs from src/subdirs`
 - [ ] T014 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/domain/` — scaffold directory with empty `.gitkeep` files for `aggregates/`, `value_objects/`, `events/`
 - [ ] T015 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/event_bus/` — scaffold directory with `.gitkeep`
@@ -121,7 +123,7 @@ supabase/                 # Supabase migrations + Edge Functions
   - `lib/<name>.dart` (empty barrel)
   - `lib/src/domain/aggregates/`, `lib/src/domain/entities/`, `lib/src/domain/value_objects/`, `lib/src/domain/events/`, `lib/src/domain/repositories/`
   - `lib/src/application/use_cases/`, `lib/src/application/dtos/`
-  - `lib/src/infrastructure/drift/`, `lib/src/infrastructure/supabase/`, `lib/src/infrastructure/adapters/`
+  - `lib/src/infrastructure/drift/`, `lib/src/infrastructure/api/` (was `supabase/` — now holds .NET API adapters), `lib/src/infrastructure/adapters/`
   - `lib/src/presentation/screens/`, `lib/src/presentation/widgets/`, `lib/src/presentation/providers/`, `lib/src/presentation/routes.dart`
 - [ ] T027 [P] [Flutter] Create `../balsm_app_flutter/app/pubspec.yaml` — `name: app`, dependencies: `core`, `auth`, `disclosure`, `home`, `profile`, `emergency_card`, `medications`, `sessions`, `account`, `deletion`, `geofence_block`, `flutter_riverpod`, `go_router`
 - [ ] T028 [P] [Flutter] Create `../balsm_app_flutter/app/lib/main.dart` — calls `bootstrap()` then `runApp(BalsmApp())`
@@ -140,162 +142,238 @@ supabase/                 # Supabase migrations + Edge Functions
 
 ### 1.5 Build flavors (dev / staging / prod) + multi-server selector
 
-**Purpose**: 3 build flavors with isolated bundle IDs, icons, Supabase backends, Sentry DSNs. Dev flavor exposes a runtime server selector to switch between local / staging / prod backends during development without rebuilding. Staging + prod flavors lock to their respective backends — no selector visible.
+**Purpose**: 3 build flavors with isolated bundle IDs, icons, **.NET API base URLs**, Sentry DSNs. Dev flavor exposes a runtime server selector to switch between local / staging / prod API backends during development without rebuilding. Staging + prod flavors lock to their respective backends.
 
-- [ ] T035c [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/config/flavor.dart` — `enum Flavor { dev, staging, prod }`; `class FlavorConfig { final Flavor flavor; final String supabaseUrl; final String supabaseAnonKey; final String? sentryDsn; final String appNameSuffix; final bool serverSelectorEnabled; }`; `FlavorConfig.current` getter reading from `--dart-define` keys `FLAVOR`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SENTRY_DSN`
+- [ ] T035c [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/config/flavor.dart` — `enum Flavor { dev, staging, prod }`; `class FlavorConfig { final Flavor flavor; final String apiBaseUrl; final String? sentryDsn; final String appNameSuffix; final bool serverSelectorEnabled; }`; `FlavorConfig.current` getter reading `--dart-define` keys `FLAVOR`, `API_BASE_URL`, `SENTRY_DSN`. (Renamed from `supabaseUrl`/`supabaseAnonKey` → single `apiBaseUrl` — the .NET API needs no anon key.)
 - [ ] T035d [P] [Flutter] Create `../balsm_app_flutter/app/lib/main_dev.dart` — entry point: `FlavorConfig.init(Flavor.dev)`, calls `bootstrap()` then `runApp(BalsmApp())`; dev flavor sets `serverSelectorEnabled = true`
 - [ ] T035e [P] [Flutter] Create `../balsm_app_flutter/app/lib/main_staging.dart` — entry point: `FlavorConfig.init(Flavor.staging)`, locks `serverSelectorEnabled = false`
 - [ ] T035f [P] [Flutter] Create `../balsm_app_flutter/app/lib/main_prod.dart` — entry point: `FlavorConfig.init(Flavor.prod)`, locks `serverSelectorEnabled = false`
 - [ ] T035g [P] [Flutter] Update `../balsm_app_flutter/app/lib/main.dart` to delegate to `main_dev.dart` (default for `flutter run` without `-t`); add comment: "Use `flutter run -t lib/main_<flavor>.dart --flavor <flavor>`"
 - [ ] T035h [P] [Flutter] Update `../balsm_app_flutter/app/android/app/build.gradle` — add `productFlavors { dev { applicationIdSuffix ".dev"; manifestPlaceholders = [appNameSuffix: " Dev"] }; staging { applicationIdSuffix ".staging"; manifestPlaceholders = [appNameSuffix: " Staging"] }; prod { applicationIdSuffix ""; manifestPlaceholders = [appNameSuffix: ""] } }`; `flavorDimensions "default"`
 - [ ] T035i [P] [Flutter] Create `../balsm_app_flutter/app/android/app/src/dev/`, `src/staging/`, `src/prod/` resource dirs each with `res/mipmap-*/ic_launcher.png` + `res/values/strings.xml` (`app_name="Balsm Dev/Staging/Balsm"`); dev icon has red corner badge, staging amber, prod clean
-- [ ] T035j [P] [Flutter] Create iOS xcconfig per flavor at `../balsm_app_flutter/app/ios/Flutter/`: `Dev.xcconfig`, `Staging.xcconfig`, `Prod.xcconfig` — each sets `BUNDLE_ID_SUFFIX=.dev/.staging/(empty)`, `APP_NAME_SUFFIX= Dev/ Staging/(empty)`, `ASSETS_PATH=ios/Runner/Assets.xcassets/AppIconDev` etc.
-- [ ] T035k [P] [Flutter] Update `../balsm_app_flutter/app/ios/Runner.xcodeproj/project.pbxproj` to add 3 schemes (`Runner-Dev`, `Runner-Staging`, `Runner-Prod`) each pointing to its xcconfig + entry-point Dart file via `FLUTTER_TARGET`; 3 configurations Debug/Profile/Release × 3 flavors = 9 build configs total
-- [ ] T035l [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/config/server_preset.dart` — `class ServerPreset { final String label; final String url; final String anonKey; const ServerPreset({...}); }`; const list `kServerPresets = [ServerPreset(label: "Local", url: "http://localhost:54321", anonKey: "..."), ServerPreset(label: "Staging", url: "https://<staging>.supabase.co", anonKey: "..."), ServerPreset(label: "Prod", url: "https://<prod>.supabase.co", anonKey: "...")]`
-- [ ] T035m [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/config/active_server.dart` — `class ActiveServerStore` wraps `SecureStorage`; methods `read() async → ServerPreset?`, `write(ServerPreset preset) async`, `clear() async`; key `balsm.active_server_preset`; default = `FlavorConfig.current.supabaseUrl`+`AnonKey` if no override
-- [ ] T035n [P] [Flutter] Update `../balsm_app_flutter/packages/core/lib/src/network/supabase_client_wrapper.dart` (T050) to read URL+anonKey from `ActiveServerStore.read()` at init; expose `Future<void> reconfigure(ServerPreset preset)` that calls `ActiveServerStore.write()` then re-initializes Supabase client; broadcast `SupabaseReconfigured(preset)` AppEvent on the bus
-- [ ] T035o [P] [Flutter] Create dev-only screen at `../balsm_app_flutter/packages/core/lib/src/dev/server_selector_screen.dart` — `if (!FlavorConfig.current.serverSelectorEnabled) Navigator.pop()` guard; lists `kServerPresets` + custom URL/anonKey form; on select calls `SupabaseClientWrapper.reconfigure()`; shows current preset + warning banner "Changing server signs you out"; persisted via `ActiveServerStore`
-- [ ] T035p [P] [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to conditionally export `dev/server_selector_screen.dart` only when `FlavorConfig.current.flavor == Flavor.dev`; in staging/prod the symbol does not exist (compile-time guarantee via `--dart-define-from-file`)
-- [ ] T035q [P] [Flutter] Update Sentry init at `../balsm_app_flutter/packages/core/lib/src/crash/sentry_init.dart` (T057) to read DSN from `FlavorConfig.current.sentryDsn`; if null (dev flavor) → no `SentryFlutter.init` call, log to stdout instead; release name = `balsm@<version>+<build>-<flavor>`; environment = `flavor.name`
-- [ ] T035r [P] [Flutter] Create `../balsm_app_flutter/.vscode/launch.json` — 3 configurations (Dev, Staging, Prod) each with `args: ["--flavor", "<flavor>", "-t", "lib/main_<flavor>.dart", "--dart-define-from-file=env/<flavor>.json"]`
-- [ ] T035s [P] [Flutter] Create env files at `../balsm_app_flutter/app/env/dev.json`, `env/staging.json`, `env/prod.json` — `{ "FLAVOR": "dev", "SUPABASE_URL": "...", "SUPABASE_ANON_KEY": "...", "SENTRY_DSN": "" }`; `env/*.json` gitignored except `env/example.json` checked in
-- [ ] T035t [P] [Flutter] Update `../balsm_app_flutter/melos.yaml` — add scripts: `run:dev` = `flutter run -t lib/main_dev.dart --flavor dev --dart-define-from-file=env/dev.json`; same for `run:staging`, `run:prod`; `build:android:<flavor>` = `flutter build apk --flavor <flavor> -t lib/main_<flavor>.dart --dart-define-from-file=env/<flavor>.json`; same for iOS, web
+- [ ] T035j [P] [Flutter] Create iOS xcconfig per flavor at `../balsm_app_flutter/app/ios/Flutter/`: `Dev.xcconfig`, `Staging.xcconfig`, `Prod.xcconfig` — each sets `BUNDLE_ID_SUFFIX=.dev/.staging/(empty)`, `APP_NAME_SUFFIX= Dev/ Staging/(empty)`, `ASSETS_PATH=...`
+- [ ] T035k [P] [Flutter] Update `../balsm_app_flutter/app/ios/Runner.xcodeproj/project.pbxproj` to add 3 schemes (`Runner-Dev`, `Runner-Staging`, `Runner-Prod`) each pointing to its xcconfig + entry-point Dart file via `FLUTTER_TARGET`
+- [ ] T035l [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/config/server_preset.dart` — `class ServerPreset { final String label; final String apiBaseUrl; const ServerPreset({...}); }`; const list `kServerPresets = [ServerPreset(label: "Local", apiBaseUrl: "http://localhost:5000"), ServerPreset(label: "Staging", apiBaseUrl: "https://staging-api.balsm.health"), ServerPreset(label: "Prod", apiBaseUrl: "https://api.balsm.health")]`
+- [ ] T035m [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/config/active_server.dart` — `class ActiveServerStore` wraps `SecureStorage`; methods `read() async → ServerPreset?`, `write(ServerPreset preset) async`, `clear() async`; key `balsm.active_server_preset`; default = `FlavorConfig.current.apiBaseUrl` if no override
+- [ ] T035n [P] [Flutter] Update `../balsm_app_flutter/packages/core/lib/src/network/balsm_api_client.dart` (T050) to read base URL from `ActiveServerStore.read()` at init; expose `Future<void> reconfigure(ServerPreset preset)` that calls `ActiveServerStore.write()` then re-initializes the `Dio` base URL; broadcast `ServerReconfigured(preset)` AppEvent on the bus
+- [ ] T035o [P] [Flutter] Create dev-only screen at `../balsm_app_flutter/packages/core/lib/src/dev/server_selector_screen.dart` — `if (!FlavorConfig.current.serverSelectorEnabled) Navigator.pop()` guard; lists `kServerPresets` + custom URL form; on select calls `BalsmApiClient.reconfigure()`; shows current preset + warning banner "Changing server signs you out"; persisted via `ActiveServerStore`
+- [ ] T035p [P] [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to conditionally export `dev/server_selector_screen.dart` only when `FlavorConfig.current.flavor == Flavor.dev`
+- [ ] T035q [P] [Flutter] Update Sentry init at `../balsm_app_flutter/packages/core/lib/src/crash/sentry_init.dart` (T057) to read DSN from `FlavorConfig.current.sentryDsn`; if null (dev) → no `SentryFlutter.init`, log to stdout; release name = `balsm@<version>+<build>-<flavor>`; environment = `flavor.name`
+- [ ] T035r [P] [Flutter] Create `../balsm_app_flutter/.vscode/launch.json` — 3 configs (Dev, Staging, Prod) each with `args: ["--flavor", "<flavor>", "-t", "lib/main_<flavor>.dart", "--dart-define-from-file=env/<flavor>.json"]`
+- [ ] T035s [P] [Flutter] Create env files at `../balsm_app_flutter/app/env/dev.json`, `env/staging.json`, `env/prod.json` — `{ "FLAVOR": "dev", "API_BASE_URL": "http://localhost:5000", "SENTRY_DSN": "" }`; `env/*.json` gitignored except `env/example.json`
+- [ ] T035t [P] [Flutter] Update `../balsm_app_flutter/melos.yaml` — add scripts `run:dev/staging/prod` and `build:android/ios/web:<flavor>` using `-t lib/main_<flavor>.dart --flavor <flavor> --dart-define-from-file=env/<flavor>.json`
+
+### 1.6 Patient App prototype port — BalsmKit Flutter widgets
+
+**Purpose**: Port proven design patterns from `Balsm-AI/plugin/skills/balsm-design/patient_app/` (React prototype) into Flutter widgets in `core/lib/src/kit/`. Design-system implementation, NOT visual design work (gated by Phase 2.5 sign-off).
+
+**Spec-divergence notes**:
+- Prototype phone-OTP → adapt to email OTP per FR-001
+- Prototype bottom-nav `[Home, Trends, FAB+, Meds, Profile]` → P001 `[Home, Card, Meds, Sessions, Settings]`
+- Prototype daily check-in (BP/glucose/mood/pain) → OUT OF P001 SCOPE
+- Prototype DOB DD/MM/YYYY → matches Q1 age-gate (FR-301a/b)
+
+- [ ] T035u [P] [Flutter] Create `BalsmAppBar` at `core/lib/src/kit/widgets/balsm_app_bar.dart` — ports prototype `.appbar` (56pt, avatar slot, grow title, action slot). Variants: with-avatar, title-only, with-back-button
+- [ ] T035v [P] [Flutter] Create `BalsmRoundButton` at `core/lib/src/kit/widgets/balsm_round_button.dart` — ports `.round-btn` (40pt circular, hover ink-50, press scale 0.97)
+- [ ] T035w [P] [Flutter] Create `BalsmCard` at `core/lib/src/kit/widgets/balsm_card.dart` — ports `.card`. Variants: standard, accent, danger, cream
+- [ ] T035x [P] [Flutter] Create `BalsmHeroCard` at `core/lib/src/kit/widgets/balsm_hero_card.dart` — ports `.hero-card`. Variants: prompt (CTA), done (checkmark + chevron)
+- [ ] T035y [P] [Flutter] Create `BalsmPill` at `core/lib/src/kit/widgets/balsm_pill.dart` — variants success/warn/danger/neutral/info, optional leading dot
+- [ ] T035z [P] [Flutter] Create `BalsmListRow` at `core/lib/src/kit/widgets/balsm_list_row.dart` — icon + grow text + chevron; RTL flips chevron
+- [ ] T035aa [P] [Flutter] Create `BalsmListCard` at `core/lib/src/kit/widgets/balsm_list_card.dart` — stacked list-rows with dividers
+- [ ] T035ab [P] [Flutter] Create `BalsmSegmented` at `core/lib/src/kit/widgets/balsm_segmented.dart` — generic over T; used for language/gender/range toggles
+- [ ] T035ac [P] [Flutter] Create `BalsmStepDots` at `core/lib/src/kit/widgets/balsm_step_dots.dart` — 3-dot step indicator for auth flow
+- [ ] T035ad [P] [Flutter] Create `BalsmOtpRow` at `core/lib/src/kit/widgets/balsm_otp_row.dart` — 6 boxes, mono, auto-advance, paste-fill, auto-submit on 6th digit
+- [ ] T035ae [P] [Flutter] Create `BalsmField` at `core/lib/src/kit/widgets/balsm_field.dart` — label + input + error state. Variants: text/email/numeric/date(DD/MM/YYYY)/dropdown
+- [ ] T035af [P] [Flutter] Create `BalsmMetricGrid` at `core/lib/src/kit/widgets/balsm_metric_grid.dart` — 2×2 metric tiles. P001 use: home today-summary (next dose, taken, missed)
+- [ ] T035ag [P] [Flutter] Create `BalsmMedRow` at `core/lib/src/kit/widgets/balsm_med_row.dart` — icon + name + dose + status pill/action. Tone enum: info/controlled(violet FR-020)/success
+- [ ] T035ah [P] [Flutter] Create `BalsmAvatar` at `core/lib/src/kit/widgets/balsm_avatar.dart` — circle with initials (no photo avatars per 2026-06-14)
+- [ ] T035ai [P] [Flutter] Create `BalsmTrustStrip` at `core/lib/src/kit/widgets/balsm_trust_strip.dart` — 3 trust icons: shield-check (on-device), user-check (private), wifi-off (offline-ready)
+- [ ] T035aj [P] [Flutter] Create `BalsmWelcomeBackground` at `core/lib/src/kit/widgets/balsm_welcome_background.dart` — watercolor petal; copy `Balsm-Core/brand/balsm-background.png` → `core/assets/brand/`
+- [ ] T035ak [P] [Flutter] Create `BalsmBottomNav` at `core/lib/src/kit/widgets/balsm_bottom_nav.dart` — P001 5-slot `[Home, Card, Meds, Sessions, Settings]`; active state icon + primary color + 3pt indicator
+- [ ] T035al [P] [Flutter] Create `BalsmIcon` at `core/lib/src/kit/widgets/balsm_icon.dart` — wraps `lucide_icons` (outline 1.75pt default). Add `lucide_icons ^0.x` to core/pubspec
+- [ ] T035am [P] [Flutter] Create `BalsmMoodFace` at `core/lib/src/kit/widgets/balsm_mood_face.dart` — SVG arcs. Not used in P001 (comment "Not wired in P001")
+- [ ] T035an [P] [Flutter] Create `BalsmLogoMark` at `core/lib/src/kit/widgets/balsm_logo_mark.dart` — 5-petal flower via `flutter_svg ^2.0`. Variants small/medium/large/spinner. Add `flutter_svg ^2.0`
+- [ ] T035ao [Flutter] Update `core/lib/core.dart` to re-export all BalsmKit widgets (T035u..T035an) under barrel `balsm_kit.dart`
+- [ ] T035ap [P] [Flutter] Create golden test per BalsmKit widget at `core/test/kit/<widget>_golden_test.dart` — RTL+LTR × light+dark × en+ar-EG = 8 goldens each (uses `golden_toolkit` from T067)
+
+**Checkpoint**: BalsmKit ready. Phase 3+ tasks compose these widgets.
+
+### 1.7 Clarification absorption — Q1-Q5 (Session 2026-06-17)
+
+**Purpose**: Implementation hooks for the 5 clarifications. Each task cites the affected FR/SC + parent task.
+
+- [ ] T035aq [P] [Flutter] Create `core/lib/src/config/recaptcha_adapter.dart` — wraps `flutter_recaptcha_enterprise`. `Future<String?> getToken(String action)`. Lazy-loaded. Per Q2 FR-045c.
+- [ ] T035ar [P] [Flutter] Add `permission_handler ^11.x` to `core/pubspec.yaml`. Per Q3 FR-017a.
+- [ ] T035as [P] [Flutter] Create `core/lib/src/notifications/permission_state.dart` — `enum NotificationPermissionState { granted, denied, provisional, notRequested }`; Riverpod `notificationPermissionStateProvider` reads `Permission.notification.status` on foreground. Per Q3 FR-017a.
+- [ ] T035at [P] [Flutter] Create `core/lib/src/notifications/permission_change_event.dart` — `class NotificationPermissionChanged extends AppEvent` with `previousState` + `newState`. Per Q3 FR-017a.
+- [ ] T035au [P] [Flutter] Create `core/lib/src/backup/backup_adapter.dart` — abstract `BackupAdapter { Future<void> upload(Uint8List blob, String key); Future<Uint8List?> download(String key); Future<bool> hasBackup(String key); }`. Per Q1 FR-009a / Q4 FR-009c.
+- [ ] T035av [P] [Flutter] Create `core/lib/src/backup/icloud_backup_adapter.dart` (iOS, `cloud_kit`) + `core/lib/src/backup/drive_backup_adapter.dart` (Android, `googleapis ^13` + `googleapis_auth ^1.6`). iOS path `iCloud.health.balsm.app/Documents/balsm/backup.blob.aes`; Android AppDataFolder `balsm-backup.blob.aes`. Per Q1 FR-009a.
+- [ ] T035aw [P] [Flutter] Create `core/lib/src/backup/backup_key_derivation.dart` — `Future<Uint8List> deriveKey(String otpToken, String deviceSecret)` → 32-byte Argon2id (`cryptography ^2.7`, memoryCost 65536, iterations 3, parallelism 1). Per Q1 FR-009a.
+- [ ] T035ax [P] [Flutter] Create `core/lib/src/backup/backup_debouncer.dart` — Riverpod keepAlive listening to mutation events; 1-hour debounce; force-upload on app background, sign-out, `DoseTaken`/`MedicationAdded`/`DeletionRequested`. Per Q4 FR-009c.
+- [ ] T035ay [P] [Flutter] Create `core/lib/src/backup/concurrent_conflict_resolver.dart` — `mergeAggregate({existing, incoming})` LWW on `updated_at`; DoseEvent union with dup-detect on `(medication_id, scheduled_at, outcome)` within ±5min. Per Q4 FR-009d/e.
+- [ ] T035az [P] [DotNet] Configure OTP rate limiting. Create `../Balsm-Core/src/Balsm.Infrastructure/RateLimit/OtpRateLimitPolicies.cs` — three `Microsoft.AspNetCore.RateLimiting` policies: `OtpPerEmail` (sliding window 3/10min, keyed on SHA-256(email)), `OtpPerIp` (sliding 10/60min, keyed on `X-Forwarded-For`), `OtpGlobal` (fixed window 10000/60min; on breach pause + fire alert webhook). Register in `Program.cs`. Per Q2 FR-045a/b. Replaces `_shared/throttle.ts`.
+- [ ] T035ba [P] [DotNet] In `../Balsm-Core/src/Modules/Auth/Commands/RequestOtpCommand.cs` handler, apply the three rate-limit policies before minting an OTP; read optional `CaptchaToken` from the request — if per-email or per-IP rate was exceeded within the previous 24h (tracked in `OtpAttempt`), require a valid token verified against the Google reCAPTCHA Enterprise REST API (call via `IHttpClientFactory`). Per Q2 FR-045a/b/c.
+- [ ] T035bb [P] [DotNet] In `../Balsm-Core/src/Modules/Auth/Commands/VerifyOtpCommand.cs` handler, on first successful verify of a new account read the `dob` field from the signup payload, compute age, and if <18 return `403 ageGateRejected` with empty body (capture no PHI). Otherwise call `DobEncryptionService.Encrypt` (T035bw/§30) and store `date_of_birth_ciphertext`. Per Q1 FR-301a.
+- [ ] T035bc [P] [DotNet] Fill `../Balsm-Core/src/Balsm.API/Authorization/AgeGatePolicy.cs` — an `IAuthorizationHandler` that calls `DobEncryptionService.Decrypt`, computes age, succeeds only when ≥18; on failure returns `{ allowed:false, reasonCode }`. Apply `[Authorize(Policy="AgeGate")]` to `EmergencyQrController.Mint`, medication-add endpoint (if any), and `DeletionController.Intake`. Per Q1 FR-301b.
+- [ ] T035bd [P] [DotNet] Create `../Balsm-Core/src/Balsm.API/Controllers/AuthController.cs` action `RecoveryClaim` (`POST /auth/recovery/claim`, no auth) backed by `../Balsm-Core/src/Modules/Auth/Commands/RecoveryClaimCommand.cs` — validates a support-issued recovery token (signed JWT custom claim `recovery_v1`); on success (i) sets the original identity's `quarantine_until = now()+30d`, (ii) re-keys `date_of_birth_ciphertext` to the new email's key derivation via `DobEncryptionService.RotateKey`, (iii) issues a new JWT pair. Per Q5 FR-046c/d/e. Replaces `account-recover-claim` Edge Function.
+- [ ] T035be [P] [Flutter] [US1] Create `auth/lib/src/presentation/screens/auth_under_eighteen_screen.dart` — under-18 soft-block screen, localized title + body + "Notify me" CTA + back-to-welcome. Per Q1 FR-301a.
+- [ ] T035bf [P] [Flutter] [US1] Create `auth/lib/src/application/use_cases/age_gate_use_case.dart` — accepts `DateOfBirth` VO; validates ≥18 at signup; on age-gated actions surfaces the .NET `403 ageGateRejected`. Throws `UnderageException`. Per Q1 FR-301a/b.
+- [ ] T035bg [P] [Flutter] [US5] Create `auth/lib/src/presentation/screens/auth_recovery_explainer_screen.dart` — entered from lockout (T166) / 404; explains manual recovery (mailto:support@balsm.health, 2-of-4 facts). Per Q5 FR-046c.
+- [ ] T035bh [P] [Flutter] [US5] Create `auth/lib/src/presentation/screens/auth_recovery_claim_screen.dart` — entered via deep link from support email; reads `?token=`; validates via `POST /auth/recovery/claim`; on success → home, on failure → localized error + mailto. Per Q5 FR-046d.
+- [ ] T035bi [P] [Flutter] [US5] Create `auth/lib/src/application/use_cases/recovery_claim_use_case.dart` — orchestrates recovery claim, surfaces compliance copy ("will not restore on-device data per FR-046e"). Per Q5 FR-046d/e.
+- [ ] T035bj [P] [Flutter] [US3] Update T138 (`medication_scheduler.dart`) — read `notificationPermissionStateProvider` before scheduling; when denied, skip and rely on `meds.today`; on `denied → granted`, reschedule next 30 days. Per Q3 FR-017c.
+- [ ] T035bk [P] [Flutter] [US3] Update T139 (`missed_dose_detector.dart`) — detect more aggressively when permission denied (every foreground). Per Q3 FR-017a.
+- [ ] T035bl [P] [Flutter] [US3] Create `medications/lib/src/presentation/widgets/permission_request_sheet.dart` — non-blocking sheet at most once / 14-day window when permission denied AND ≥1 medication; track `notification_permission_resheet_last_shown_at` in secure storage. Per Q3 FR-017b.
+- [ ] T035bm [P] [Flutter] [US3] Update T145 (notification-tap handler in `app.dart`) — deep-link payload routes to `meds.today?highlightDoseId=<id>`. Per Q2 FR-018a.
+- [ ] T035bn [P] [Flutter] [US3] Create `medications/lib/src/presentation/widgets/dedup_banner.dart` — non-blocking banner on `meds.today` when restore-time dedup detected. Per Q4 FR-009e.
+- [ ] T035bo [P] [DotNet] [US1] Create 4 versioned localized OTP email templates at `../Balsm-Core/src/Balsm.Infrastructure/Auth/Templates/auth-otp/{en,ar-EG,ar-SA,ar-AE}.html` — subject + body + sender in user's preferred language; variables `{{ otp_code }}`, `{{ expires_in_minutes }}`, `{{ user_handle_or_email_local }}`, `{{ support_email }}`. Loaded + sent by `OtpService` via Resend. Per Q5 FR-001a.
+- [ ] T035bp [Flutter] Update `../balsm_app_flutter/packages/auth/lib/auth.dart` public barrel to re-export new use cases + screens (T035be..T035bi)
+- [ ] T035bq [Flutter] Update `../balsm_app_flutter/packages/medications/lib/medications.dart` public barrel to re-export `permission_request_sheet.dart` + `dedup_banner.dart`
+- [ ] T035br [DotNet] Create runbook at `../Balsm-Core/docs/runbooks/account-recovery.md` — support-staff guide: verification floor (2-of-4), token-issuance, 30-day cooling-off template, audit-log + PDPL data-minimization. Per Q5 (research §24).
+- [ ] T035bs [P] Create `../Balsm-Core/docs/compliance-risks.md` with RR-001 (Q3 UAE DOB residency gap) + RR-002 (Q5 manual recovery). Per plan.md.
 
 ---
 
 ## Phase 2: Foundational — Core Shared Kernel (Blocking Prerequisites)
 
-**Purpose**: Cross-cutting infrastructure every user story depends on. **No US task may start until this phase completes.**
+**Purpose**: Cross-cutting infrastructure every user story depends on. **No US task may start until this phase completes.** (Flutter `core` kernel + .NET infrastructure services.)
+
+### 2.0 .NET infrastructure services (blocking for all backend stories)
+
+- [ ] T035bt [P] [DotNet] Create `../Balsm-Core/src/Balsm.Infrastructure/Auth/JwtService.cs` — `IssueAccessToken(userId, claims)` (HS256, 15-min), `IssueRefreshToken(userId, deviceId)` (stores SHA-256 hash in `UserRefreshToken`, 30-day), `ValidateAccessToken`, `RotateRefreshToken`, `Revoke(refreshTokenId)`. Key from config `JWT_SIGNING_KEY`. Per research §26.
+- [ ] T035bu [P] [DotNet] Create `../Balsm-Core/src/Balsm.Infrastructure/Auth/OtpService.cs` — `GenerateAndSend(email, preferredLanguage)` (6-digit code, HMAC-SHA256 hash + 10-min expiry stored in `OtpAttempt`, sends via Resend using the T035bo template), `Verify(email, code)` (constant-time compare, single-use, expiry check). Resend API key from config `RESEND_API_KEY`. Per research §26 + Q5.
+- [ ] T035bv [P] [DotNet] Create `../Balsm-Core/src/Balsm.Infrastructure/Auth/GoogleOidcValidator.cs` (`Google.Apis.Auth.GoogleJsonWebSignature.ValidateAsync`) + `../Balsm-Core/src/Balsm.Infrastructure/Auth/AppleOidcValidator.cs` (fetch + cache Apple JWKS from `appleid.apple.com/auth/keys`, validate `iss`/`aud`/`exp`/`nonce`, accept `hide-my-email` relay). Both return `(providerSubject, emailNormalized, emailVerified)`. Per research §26.
+- [ ] T035bw [P] [DotNet] Create `../Balsm-Core/src/Balsm.Infrastructure/Encryption/DobEncryptionService.cs` — AES-256-GCM via `System.Security.Cryptography.AesGcm`; `Encrypt(date, userId)`, `Decrypt(ciphertext, userId)` (96-bit nonce HKDF-derived from `userId+counter`), `RotateKey(userId, oldKey, newKey)`. Key from `DOB_ENCRYPTION_KEY`. Every `Decrypt` inserts a `UserAccountAuditLog` row (actor, IP, correlationId, ts) in the same transaction. Per research §30 + FR-047/FR-048.
+- [ ] T035bx [P] [DotNet] Create `../Balsm-Core/src/Balsm.API/Middleware/PhiLeakGuardMiddleware.cs` — buffers outbound JSON, blocks any field name not on `contracts/crash-allowlist.json` from Serilog request/response logging (scrubs to `[REDACTED]`). Register in `Program.cs`. Mirrors the Flutter Dio interceptor (T051). Per SC-006/SC-016.
+- [ ] T035by [DotNet] Create `../Balsm-Core/tests/Balsm.API.IntegrationTests/Balsm.API.IntegrationTests.csproj` — xUnit + `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory`) + `Testcontainers.PostgreSql`. Add a `TestWebAppFactory` fixture spinning up a throwaway PostgreSQL container and applying EF migrations. Add to `Balsm.sln`. Per Constitution §VI.
 
 ### 2.1 Core: domain value objects
 
-- [ ] T036 [P] [Flutter] Create `UuidV7` value object at `../balsm_app_flutter/packages/core/lib/src/domain/value_objects/uuid_v7.dart` — 16-byte RFC 9562 UUID v7 with `.timestamp` accessor, `UuidV7.generate()` factory, JSON serialization
-- [ ] T037 [P] [Flutter] Create `CountryCode` value object at `../balsm_app_flutter/packages/core/lib/src/domain/value_objects/country_code.dart` — ISO 3166-1 alpha-2 wrapper with `.isDenied` check against injected denied-list, `.defaultTimezone` IANA zone resolution, `ar-SA` / `ar-EG` / `ar-AE` / `en` locale mapping
-- [ ] T038 [P] [Flutter] Create `Bcp47Tag` value object at `../balsm_app_flutter/packages/core/lib/src/domain/value_objects/bcp47_tag.dart` — language tag with `.isFirstClass` (true for `ar-EG`, `ar-SA`, `ar-AE`, `en`), `.fallback` to `en`, `.isRtl`
-- [ ] T039 [P] [Flutter] Create `Iso8601Timestamp` value object at `../balsm_app_flutter/packages/core/lib/src/domain/value_objects/iso8601_timestamp.dart` — UTC milliseconds wrapper with `.toDateTime`, `.toIso8601String`, `.fromDateTime` factory
-- [ ] T040 [P] [Flutter] Create `AppResult<T>` at `../balsm_app_flutter/packages/core/lib/src/domain/app_result.dart` — `Result<T>` type with `.isSuccess`, `.isFailure`, `.value`, `.error`, static factories `Result.success(T)`, `Result.failure(AppFailure)`
-- [ ] T041 [P] [Flutter] Create `AppFailure` sealed class at `../balsm_app_flutter/packages/core/lib/src/domain/app_failure.dart` — `ValidationFailure(String message)`, `NotFoundFailure`, `ConflictFailure`, `UnauthorizedFailure`, `NetworkFailure`, `StorageFailure`
-- [ ] T042 [P] [Flutter] Create `AppEvent` base sealed class at `../balsm_app_flutter/packages/core/lib/src/domain/events/app_event.dart` — abstract `String get eventName`, `Map<String, dynamic> toJson()`
-- [ ] T043 [P] [Flutter] Create `Money` value object at `../balsm_app_flutter/packages/core/lib/src/domain/value_objects/money.dart` — currency code + minor units, EGP / SAR / AED / default-class factory constructors
-- [ ] T044 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export all 8 value objects + `AppResult` + `AppFailure` + `AppEvent`
+- [ ] T036 [P] [Flutter] Create `UuidV7` at `core/lib/src/domain/value_objects/uuid_v7.dart` — 16-byte RFC 9562 UUID v7 with `.timestamp`, `UuidV7.generate()`, JSON serialization
+- [ ] T037 [P] [Flutter] Create `CountryCode` at `core/lib/src/domain/value_objects/country_code.dart` — ISO 3166-1 alpha-2 with `.isDenied`, `.defaultTimezone`, locale mapping
+- [ ] T038 [P] [Flutter] Create `Bcp47Tag` at `core/lib/src/domain/value_objects/bcp47_tag.dart` — `.isFirstClass`, `.fallback` to `en`, `.isRtl`
+- [ ] T039 [P] [Flutter] Create `Iso8601Timestamp` at `core/lib/src/domain/value_objects/iso8601_timestamp.dart` — UTC ms wrapper
+- [ ] T040 [P] [Flutter] Create `AppResult<T>` at `core/lib/src/domain/app_result.dart` — `.isSuccess`, `.value`, `.error`, factories
+- [ ] T041 [P] [Flutter] Create `AppFailure` sealed class at `core/lib/src/domain/app_failure.dart` — Validation/NotFound/Conflict/Unauthorized/Network/Storage
+- [ ] T042 [P] [Flutter] Create `AppEvent` base at `core/lib/src/domain/events/app_event.dart` — abstract `eventName`, `toJson()`
+- [ ] T043 [P] [Flutter] Create `Money` at `core/lib/src/domain/value_objects/money.dart` — EGP / SAR / AED / default-class
+- [ ] T044 [Flutter] Update `core/lib/core.dart` to re-export the 8 value objects + AppResult + AppFailure + AppEvent
 
 ### 2.2 Core: event bus
 
-- [ ] T045 [P] [Flutter] Create `EventBus` at `../balsm_app_flutter/packages/core/lib/src/event_bus/event_bus.dart` — `Stream<AppEvent>` pub/sub via `StreamController.broadcast()`, `publish(AppEvent event)`, `Stream<AppEvent> get events`, Riverpod provider `eventBusProvider`
-- [ ] T046 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export `EventBus` and `eventBusProvider`
+- [ ] T045 [P] [Flutter] Create `EventBus` at `core/lib/src/event_bus/event_bus.dart` — broadcast `Stream<AppEvent>`, `publish`, provider `eventBusProvider`
+- [ ] T046 [Flutter] Update `core/lib/core.dart` to re-export `EventBus`
 
 ### 2.3 Core: drift database root
 
-- [ ] T047 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/db/app_database.dart` — drift `AppDatabase` class with SQLCipher encryption key from `flutter_secure_storage`, WAL mode PRAGMAs, migration runner, `@Database` annotation including all module table classes as the database grows
-- [ ] T048 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/db/uuid_v7_converter.dart` — `TypeConverter<UuidV7, Uint8List>` for drift BLOB columns
-- [ ] T049 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export `AppDatabase` and `uuidV7Converter`
+- [ ] T047 [P] [Flutter] Create `core/lib/src/db/app_database.dart` — drift `AppDatabase` with SQLCipher key from secure storage, WAL PRAGMAs, migration runner
+- [ ] T048 [P] [Flutter] Create `core/lib/src/db/uuid_v7_converter.dart` — `TypeConverter<UuidV7, Uint8List>`
+- [ ] T049 [Flutter] Update `core/lib/core.dart` to re-export `AppDatabase`
 
-### 2.4 Core: network + Supabase wrapper
+### 2.4 Core: network + .NET API client
 
-- [ ] T050 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/network/supabase_client_wrapper.dart` — anti-corruption layer wrapping `SupabaseClient`, exposes typed methods `signInWithEmail(email)`, `signInWithGoogle()`, `signInWithApple()`, `signOut()`, `onAuthStateChange` stream
-- [ ] T051 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/network/phi_leak_interceptor.dart` — Dio interceptor that scrubs request/response body fields matching the allowlist from `contracts/crash-allowlist.json` before any logging/transport
-- [ ] T052 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/network/dio_client_provider.dart` — Riverpod provider `dioClientProvider` returning a `Dio` instance with `PhiLeakInterceptor`, base URL from `SupabaseClientWrapper`
-- [ ] T053 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export network layer
+- [ ] T050 [P] [Flutter] Create `core/lib/src/network/balsm_api_client.dart` — anti-corruption layer over `Dio`. Base URL from `ActiveServerStore`/`FlavorConfig`. Auth interceptor attaches `Authorization: Bearer <accessToken>`, auto-refreshes via `POST /auth/refresh` on 401 (retry once), persists tokens via secure storage. Typed methods added per module. **Replaces the former `supabase_client_wrapper.dart`.** Per research §32.
+- [ ] T051 [P] [Flutter] Create `core/lib/src/network/phi_leak_interceptor.dart` — Dio interceptor scrubbing request/response fields not on `contracts/crash-allowlist.json` before any logging
+- [ ] T052 [P] [Flutter] Create `core/lib/src/network/dio_client_provider.dart` — provider `dioClientProvider` returning a `Dio` with `PhiLeakInterceptor` + auth interceptor, base URL from `BalsmApiClient`
+- [ ] T053 [Flutter] Update `core/lib/core.dart` to re-export the network layer
 
 ### 2.5 Core: localization + country + translation catalog
 
-- [ ] T054 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/localization/translation_catalog.dart` — `TranslationCatalog` class loading JSON bundles from `assets/i18n/{locale}.json`, `String translate(String key, {String? locale})`, `bool hasTranslation(String key, String locale)`, Riverpod provider `translationCatalogProvider`
-- [ ] T055 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/localization/country_registry.dart` — `CountryRegistry` with country metadata: ISO code, default IANA timezone, first-class BCP 47 tags, Gregorian-only calendar flag, phone format hint, national-ID validator per FR-211, supervisory authority name per FR-219
-- [ ] T056 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export localization layer
+- [ ] T054 [P] [Flutter] Create `core/lib/src/localization/translation_catalog.dart` — loads `assets/i18n/{locale}.json`, `translate`, `hasTranslation`, provider
+- [ ] T055 [P] [Flutter] Create `core/lib/src/localization/country_registry.dart` — country metadata: ISO code, IANA tz, first-class tags, phone hint, national-ID validator (FR-211), supervisory authority (FR-219)
+- [ ] T056 [Flutter] Update `core/lib/core.dart` to re-export localization layer
 
 ### 2.6 Core: crash reporting (Sentry)
 
-- [ ] T057 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/crash/sentry_init.dart` — `initSentry()` function calling `SentryFlutter.init` with `beforeSend` callback that scrubs all non-allowlisted fields per `contracts/crash-allowlist.json`, `beforeBreadcrumb` similar scrub, `environment` from build flavor
-- [ ] T058 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export `initSentry`
+- [ ] T057 [P] [Flutter] Create `core/lib/src/crash/sentry_init.dart` — `initSentry()` with `beforeSend` + `beforeBreadcrumb` scrub per allowlist, environment from flavor
+- [ ] T058 [Flutter] Update `core/lib/core.dart` to re-export `initSentry`
 
 ### 2.7 Core: secure storage wrapper
 
-- [ ] T059 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/secure_storage/secure_storage_wrapper.dart` — wraps `flutter_secure_storage`, typed methods `readToken(String key)`, `writeToken(String key, String value)`, `deleteToken(String key)`, `clearAll()`, Riverpod provider `secureStorageProvider`
-- [ ] T060 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export secure storage wrapper
+- [ ] T059 [P] [Flutter] Create `core/lib/src/secure_storage/secure_storage_wrapper.dart` — typed read/write/delete/clear, provider `secureStorageProvider`
+- [ ] T060 [Flutter] Update `core/lib/core.dart` to re-export secure storage wrapper
 
 ### 2.8 Core: notifications wrapper
 
-- [ ] T061 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/notifications/notification_service.dart` — wraps `FlutterLocalNotificationsPlugin`, `initialize()` with Android + iOS channel config, `zonedSchedule(int id, String title, String body, TZDateTime dateTime, ...)` for medication reminders, `cancel(int id)`, `cancelAll()`, Riverpod provider `notificationServiceProvider`
-- [ ] T062 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export notification service
+- [ ] T061 [P] [Flutter] Create `core/lib/src/notifications/notification_service.dart` — wraps `FlutterLocalNotificationsPlugin`, `initialize`, `zonedSchedule`, `cancel`, `cancelAll`, provider
+- [ ] T062 [Flutter] Update `core/lib/core.dart` to re-export notification service
 
 ### 2.9 Core: shared widgets + theme + RTL
 
-- [ ] T063 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/kit/theme.dart` — `BalsmTheme` with light + dark `ThemeData`, typography scale, color palette, `RtlWrapper` widget that flips `Directionality` based on `Bcp47Tag.isRtl`
-- [ ] T064 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/kit/shared_widgets.dart` — `BalsmButton`, `BalsmTextField` (with Arabic numeral normalization per FR-213), `BalsmCountryPicker`, `BalsmLoadingIndicator`, `BalsmErrorBanner`
-- [ ] T065 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export kit layer
+- [ ] T063 [P] [Flutter] Create `core/lib/src/kit/theme.dart` — `BalsmTheme` light+dark, typography, palette, `RtlWrapper`
+- [ ] T064 [P] [Flutter] Create `core/lib/src/kit/shared_widgets.dart` — `BalsmButton`, `BalsmTextField` (Arabic numeral normalization FR-213), `BalsmCountryPicker`, `BalsmLoadingIndicator`, `BalsmErrorBanner`
+- [ ] T065 [Flutter] Update `core/lib/core.dart` to re-export kit layer
 
 ### 2.10 Core: test kit
 
-- [ ] T066 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/test_kit/fakes.dart` — `FakeEventBus`, `FakeSupabaseClientWrapper`, `FakeSecureStorage`, `FakeNotificationService`, `FakeTranslationCatalog`, `FakeCountryRegistry` — all gated by `bool.fromEnvironment('DEV')`
-- [ ] T067 [P] [Flutter] Create `../balsm_app_flutter/packages/core/lib/src/test_kit/golden_helpers.dart` — `goldenTest(String name, Widget widget)` helper wrapping `golden_toolkit` with RTL + LTR variants
-- [ ] T068 [Flutter] Update `../balsm_app_flutter/packages/core/lib/core.dart` to re-export test_kit gated on `bool.fromEnvironment('DEV')`
+- [ ] T066 [P] [Flutter] Create `core/lib/src/test_kit/fakes.dart` — `FakeEventBus`, `FakeBalsmApiClient`, `FakeSecureStorage`, `FakeNotificationService`, `FakeTranslationCatalog`, `FakeCountryRegistry` (gated by `bool.fromEnvironment('DEV')`)
+- [ ] T067 [P] [Flutter] Create `core/lib/src/test_kit/golden_helpers.dart` — `goldenTest` helper wrapping `golden_toolkit` with RTL+LTR variants
+- [ ] T068 [Flutter] Update `core/lib/core.dart` to re-export test_kit gated on `bool.fromEnvironment('DEV')`
 - [ ] T069 [Flutter] Update `../balsm_app_flutter/app/lib/main.dart` to call `initSentry()` before `bootstrap()`
 
 ### 2.11 Boundary lint rules
 
 - [ ] T070 [P] [Flutter] Create 6 custom_lint rule files at `../balsm_app_flutter/packages/balsm_boundary_lint/lib/src/rules/`:
-  - `no_module_to_module_imports.dart` — error on `import 'package:<context>/...'` from outside that module
-  - `core_must_not_depend_on_module.dart` — error on `import 'package:<context>/...'` from inside core/
-  - `module_barrel_exposes_only_public_api.dart` — barrel may export only `application/`, `presentation/routes.dart`, `domain/repositories/read_*.dart`, `domain/events/**`
-  - `no_aggregate_leak.dart` — no import of aggregate classes outside `src/domain/aggregates/`
-  - `domain_no_flutter_import.dart` — `src/domain/**` may not import `package:flutter/*`
-  - `core_internal_no_cross_subdir_test_kit_in_release.dart` — test_kit imports blocked in non-dev flavors
+  - `no_module_to_module_imports.dart`
+  - `core_must_not_depend_on_module.dart`
+  - `module_barrel_exposes_only_public_api.dart`
+  - `no_aggregate_leak.dart`
+  - `domain_no_flutter_import.dart`
+  - `core_internal_no_cross_subdir_test_kit_in_release.dart`
 
-**Checkpoint**: foundation ready. All user stories below may now proceed with core shared kernel available.
+**Checkpoint**: foundation ready (Flutter core kernel + .NET infra services). All user stories below may now proceed.
 
 ---
 
 ## Phase 2.5: UI/UX Design & Prototype Review (Blocking Gate)
 
-**Purpose**: Produce reviewable UI/UX design spec + interactive prototype for every P001 screen BEFORE Flutter implementation starts. Anchored on existing `balsm-design` skill (brand tokens in `Balsm-Core/brand/colors_and_type.css`, patient-app skeleton in `Balsm-AI/plugin/skills/balsm-design/patient_app/`, preview cards in `.../preview/`). RTL + LTR variants for all screens. PHI-safe placeholder data only.
+**Purpose**: Reviewable UI/UX design spec + interactive prototype for every P001 screen BEFORE Flutter implementation. RTL+LTR variants. PHI-safe placeholder data only. No Flutter code may start until sign-off recorded.
 
-**Goal**: Stakeholder sign-off on visual design + interaction flow per user story. No Flutter code may start until sign-off recorded.
-
-**Independent test**: Open `design/prototype/index.html` in browser → click through all 6 user-story flows (auth, profile, emergency, medications, deletion, country-change) → switch RTL ↔ LTR toggle → switch theme (light/dark) → review report exported.
+**Independent test**: Open `design/prototype/index.html` → click through all 6 US flows → toggle RTL↔LTR + theme → export report.
 
 ### 2.5.1 Design spec + screen inventory
 
-- [ ] D001 [Flutter] Create `design/UI-SPEC.md` — design contract for P001: imports `Balsm-Core/brand/colors_and_type.css` as token source, lists every screen mapped to FRs + SCs, locks typography scale (Display / Body / Caption), spacing scale (4/8/12/16/24/32), radii (sm/md/lg/full), motion (durations + curves), elevation, RTL mirroring rules, dark-mode contrast targets WCAG AA, focus-ring spec
-- [ ] D002 [Flutter] Create `design/SCREEN-INVENTORY.md` — table mapping every screen (CountryPicker, EmailSignUp, OtpVerification, SocialSignIn, ConsolidatedDisclosure, Home, HandleClaim, HealthProfileEditor, EmergencyCard, QrCodeDisplay, PublicEmergencyResolve, MedicationList, AddMedication, TodayScreen, DoseHistory, DeleteAccount, DeletionConfirm, DeletionCancelled, PublicDelete, Sessions, CountrySettings, LanguageSettings, Lockout, NotFound) to: user story, FR, SC, RTL-mirror notes, accessibility notes
-- [ ] D003 [Flutter] Create `design/COMPONENT-CONTRACT.md` — for every shared widget from `core/kit/shared_widgets.dart` (BalsmButton, BalsmTextField, BalsmCountryPicker, BalsmLoadingIndicator, BalsmErrorBanner, BalsmCard, BalsmListItem, BalsmDialog, BalsmBottomSheet, BalsmAppBar, BalsmBottomNav, BalsmFab) — states (default/hover/focus/active/disabled/loading/error), token bindings, RTL behavior, a11y label requirements
+- [ ] D001 [Flutter] Create `design/UI-SPEC.md` — design contract: token source `Balsm-Core/brand/colors_and_type.css`, every screen → FR/SC, typography/spacing/radii/motion/elevation scales, RTL mirroring, dark-mode WCAG AA, focus-ring
+- [ ] D002 [Flutter] Create `design/SCREEN-INVENTORY.md` — table of every screen → user story, FR, SC, RTL-mirror notes, a11y notes
+- [ ] D003 [Flutter] Create `design/COMPONENT-CONTRACT.md` — for every shared widget — states (default/hover/focus/active/disabled/loading/error), token bindings, RTL, a11y labels
 
 ### 2.5.2 High-fidelity mock generation
 
-- [ ] D004 [P] [Flutter] Create `design/mocks/auth/` HTML mocks for US1 — 4 screens (country picker, email signup, OTP verification, social sign-in) × 2 dirs (LTR-en, RTL-ar) × 2 themes (light, dark) = 16 HTML files using `brand/colors_and_type.css` tokens, no JS frameworks
-- [ ] D005 [P] [Flutter] Create `design/mocks/disclosure/` — consolidated disclosure screen (long-scroll) × LTR/RTL × light/dark = 4 files; per-country supervisory authority strings (Egypt PDPC, KSA SDAIA, UAE Data Office) per FR-219
-- [ ] D006 [P] [Flutter] Create `design/mocks/home/` — Home empty state, Home with nudges (handle, emergency card, meds), Home filled = 3 screens × LTR/RTL × light/dark = 12 files
-- [ ] D007 [P] [Flutter] Create `design/mocks/profile/` — HealthProfileEditor sections (blood type, allergies list, allergy add modal, conditions, emergency contacts), HandleClaim with live validation states = 6 screens × LTR/RTL × light/dark = 24 files; Arabic numeral normalization preview per FR-213
-- [ ] D008 [P] [Flutter] Create `design/mocks/emergency_card/` — EmergencyCard view, TTL picker, QrCodeDisplay, PublicEmergencyResolve (browser variant), revoked-token state, lock-screen widget previews (iOS WidgetKit + Android tile) = 7 screens × LTR/RTL × light/dark = 28 files
-- [ ] D009 [P] [Flutter] Create `design/mocks/medications/` — MedicationList empty + filled, AddMedication (schedule shape picker: daily/weekly/custom), DoseHistory, TodayScreen with missed-dose banner, timezone-shift modal per FR-023, notification preview = 7 screens × LTR/RTL × light/dark = 28 files
-- [ ] D010 [P] [Flutter] Create `design/mocks/deletion/` — DeleteAccount pre-confirmation (FR-031 retained/deleted/wiped data list), DeletionConfirm, DeletionCancelled, PublicDelete (browser variant), PublicDeleteCancelled, PostDeletionLogin = 6 screens × LTR/RTL × light/dark = 24 files
-- [ ] D011 [P] [Flutter] Create `design/mocks/sessions/` — Sessions list (multiple devices), per-device detail, "Sign out everywhere" confirm = 3 screens × LTR/RTL × light/dark = 12 files
-- [ ] D012 [P] [Flutter] Create `design/mocks/country_lang/` — CountrySettings, LanguageSettings, country-change re-auth, re-disclosure with new authority = 4 screens × LTR/RTL × light/dark = 16 files
-- [ ] D013 [P] [Flutter] Create `design/mocks/auth_states/` — Lockout countdown screen, geofence-blocked screen, network-error, OTP-expired = 4 screens × LTR/RTL × light/dark = 16 files
-- [ ] D014 [P] [Flutter] Create `design/mocks/system/` — NotFound (FR-404), error-boundary, splash, onboarding loading = 4 screens × LTR/RTL × light/dark = 16 files
+- [ ] D004 [P] [Flutter] Create `design/mocks/auth/` — US1 4 screens × LTR/RTL × light/dark = 16 HTML files
+- [ ] D005 [P] [Flutter] Create `design/mocks/disclosure/` — disclosure long-scroll × 2 × 2 = 4 files; per-country authority strings (PDPC, SDAIA, UAE Data Office) FR-219
+- [ ] D006 [P] [Flutter] Create `design/mocks/home/` — empty / nudges / filled = 3 × 2 × 2 = 12 files
+- [ ] D007 [P] [Flutter] Create `design/mocks/profile/` — 6 screens × 2 × 2 = 24 files; Arabic numeral preview FR-213
+- [ ] D008 [P] [Flutter] Create `design/mocks/emergency_card/` — 7 screens × 2 × 2 = 28 files (incl. lock-screen widget previews)
+- [ ] D009 [P] [Flutter] Create `design/mocks/medications/` — 7 screens × 2 × 2 = 28 files (incl. tz-shift modal FR-023, notification preview)
+- [ ] D010 [P] [Flutter] Create `design/mocks/deletion/` — 6 screens × 2 × 2 = 24 files (FR-031 data lists)
+- [ ] D011 [P] [Flutter] Create `design/mocks/sessions/` — 3 screens × 2 × 2 = 12 files
+- [ ] D012 [P] [Flutter] Create `design/mocks/country_lang/` — 4 screens × 2 × 2 = 16 files
+- [ ] D013 [P] [Flutter] Create `design/mocks/auth_states/` — lockout / geofence-blocked / network-error / OTP-expired = 4 × 2 × 2 = 16 files
+- [ ] D014 [P] [Flutter] Create `design/mocks/system/` — NotFound (FR-404) / error-boundary / splash / loading = 4 × 2 × 2 = 16 files
 
 ### 2.5.3 Interactive prototype
 
-- [ ] D015 [Flutter] Create `design/prototype/index.html` — interactive shell wrapping all mocks: left nav (US flows), iOS device frame (reuse `Balsm-AI/plugin/skills/balsm-design/patient_app/ios-frame.jsx` skeleton), RTL/LTR toggle, theme toggle, locale dropdown (`en`, `ar-EG`, `ar-SA`, `ar-AE`), country dropdown for re-disclosure variants
-- [ ] D016 [Flutter] Create `design/prototype/flows.json` — declarative flow graph: each US flow as ordered list of screen IDs + edge labels (tap targets), driving the prototype's "Next/Back" controls
-- [ ] D017 [Flutter] Create `design/prototype/assets/data.json` — synthetic non-PHI placeholder data (fictional names, no real numbers; matches `phi_leak_fuzz_test/corpus.dart` shape so designers and devs share fixtures)
-- [ ] D018 [P] [Flutter] Create `design/prototype/styles/prototype.css` — prototype chrome (nav, toolbar, frame) using same `brand/colors_and_type.css` tokens; does NOT override component styles
-- [ ] D019 [P] [Flutter] Create `design/prototype/scripts/prototype.js` — minimal vanilla JS: route to mock via hash, toggle dir/theme/locale via `<html dir>` + `data-theme` + `lang` attributes (no frameworks)
+- [ ] D015 [Flutter] Create `design/prototype/index.html` — shell wrapping all mocks: left nav, iOS frame, RTL/LTR toggle, theme toggle, locale + country dropdowns
+- [ ] D016 [Flutter] Create `design/prototype/flows.json` — declarative flow graph per US
+- [ ] D017 [Flutter] Create `design/prototype/assets/data.json` — synthetic non-PHI placeholder data matching `phi_leak_fuzz_test/corpus.dart` shape
+- [ ] D018 [P] [Flutter] Create `design/prototype/styles/prototype.css` — chrome using brand tokens (no component overrides)
+- [ ] D019 [P] [Flutter] Create `design/prototype/scripts/prototype.js` — vanilla JS: hash routing, dir/theme/locale toggles
 
 ### 2.5.4 Review gate + sign-off
 
-- [ ] D020 [Flutter] Create `design/REVIEW-CHECKLIST.md` — 6-pillar checklist (visual hierarchy, motion + interaction, accessibility WCAG AA, RTL + locale, brand fidelity, edge states + errors) per screen, used by reviewers; reuse `gsd-ui-auditor` rubric shape
-- [ ] D021 [Flutter] Create `design/REVIEW-SIGNOFF.md` — empty signoff doc with stakeholder rows (PM, design lead, eng lead, compliance lead), per-flow approval columns, comments column, date column
-- [ ] D022 [Flutter] Run `design/prototype/index.html` review session — collect comments, file findings under `design/findings/<date>.md`, resolve or defer; second-pass mocks updated in place
-- [ ] D023 [Flutter] Update `design/REVIEW-SIGNOFF.md` with signatures + date — **gate unlocks Phase 3+ implementation**. Tasks T071+ may NOT start until this file shows all stakeholders signed
-- [ ] D024 [P] [Flutter] Export design tokens snapshot at `design/tokens-snapshot.json` — JSON dump of every token used (locked at sign-off time) so Flutter implementation can compare against expected values in a CI check
+- [ ] D020 [Flutter] Create `design/REVIEW-CHECKLIST.md` — 6-pillar checklist per screen
+- [ ] D021 [Flutter] Create `design/REVIEW-SIGNOFF.md` — stakeholder rows (PM, design, eng, compliance), per-flow approval columns
+- [ ] D022 [Flutter] Run `design/prototype/index.html` review session — file findings under `design/findings/<date>.md`, resolve/defer
+- [ ] D023 [Flutter] Update `design/REVIEW-SIGNOFF.md` with signatures + date — **gate unlocks Phase 3+**. T071+ may NOT start until signed
+- [ ] D024 [P] [Flutter] Export `design/tokens-snapshot.json` — locked token dump for a CI compare check
 
 ### 2.5.5 Optional design enhancements
 
-- [ ] D025 [P] [Flutter] Create `design/MOTION-SPEC.md` — per-screen motion specs (page transitions, modal enter/exit, list-item stagger, QR reveal, OTP shake on error) with durations + curves anchored to `brand/colors_and_type.css` motion tokens
-- [ ] D026 [P] [Flutter] Create `design/A11Y-SPEC.md` — VoiceOver / TalkBack labels per screen, focus order, touch target ≥44pt, contrast pairs verified, reduced-motion alternates, font scaling up to 200%
-- [ ] D027 [P] [Flutter] Create `design/COPY-SPEC.md` — UX writing per screen anchored on `brand/baslm-brand-canvas.md` voice + tone; localizations for `en`, `ar-EG`, `ar-SA`, `ar-AE`; feeds the i18n bundle creation at T100
+- [ ] D025 [P] [Flutter] Create `design/MOTION-SPEC.md` — per-screen motion (transitions, modals, list stagger, QR reveal, OTP shake)
+- [ ] D026 [P] [Flutter] Create `design/A11Y-SPEC.md` — VoiceOver/TalkBack labels, focus order, ≥44pt targets, contrast, reduced-motion, font scaling 200%
+- [ ] D027 [P] [Flutter] Create `design/COPY-SPEC.md` — UX writing per screen, localized en/ar-EG/ar-SA/ar-AE; feeds i18n at T100
 
-**Checkpoint**: design spec + prototype reviewed + signed off by all stakeholders. `tokens-snapshot.json` locked. Implementation phases 3-9 may proceed referencing finalized mocks + spec.
+**Checkpoint**: design signed off, `tokens-snapshot.json` locked. Phases 3-9 may proceed.
 
 ---
 
@@ -303,249 +381,266 @@ supabase/                 # Supabase migrations + Edge Functions
 
 **Goal**: Patient signs up with email OTP / Google / Apple, country picker pre-selects, denied countries blocked, disclosure accepted, lands on home. Signup-to-home ≤90s P50 (SC-001a).
 
-**Independent Test**: Fresh install → app opens → country picker → enter email → receive OTP → enter OTP → consolidated disclosure → tap Continue → home renders with name.
+**Independent Test**: Fresh install → country picker → enter email → receive OTP → enter OTP → disclosure → Continue → home renders with name.
 
-### 3.1 Supabase: auth-gate Edge Function
+### 3.1 .NET: Auth module + endpoints
 
-- [ ] T071 [P] [Supabase] [US1] Create `../supabase/supabase/functions/auth-gate/index.ts` — reads `X-Client-Country-Code` header, checks `denied_country_blocklist` (reject 403 if denied), checks `account_lockout` for the identifier (reject 423 if locked), calls Supabase Auth sign-in or sign-up, returns result
-- [ ] T072 [P] [Supabase] [US1] Create `../supabase/supabase/functions/geofence-check/index.ts` — accepts `country_code` param, queries `denied_country_blocklist`, returns `{ allowed: boolean, source?: string }`
-- [ ] T073 [P] [Supabase] [US1] Create `../supabase/supabase/functions/auth-attempt-record/index.ts` — called after every failed auth attempt, upserts `account_lockout` row: increments `failed_attempts`, resets `rolling_window_started_at` if outside 10-min window, sets `locked_until` when attempts >= 5
+- [ ] T071 [P] [DotNet] [US1] Create `../Balsm-Core/src/Modules/Auth/Commands/RequestOtpCommand.cs` + handler + `../Balsm-Core/src/Balsm.API/Controllers/AuthController.cs` action `RequestOtp` (`POST /auth/otp/request`) — reads `country_code`, runs `GeofenceService.IsDenied` (403 if denied), runs `NotLockedOutPolicy` (423 + `Retry-After` if locked), applies the T035az rate-limit policies, calls `OtpService.GenerateAndSend`. Returns `{ expires_in_seconds: 600 }`. Per FR-001/FR-005/FR-007/FR-045.
+- [ ] T072 [P] [DotNet] [US1] Create `../Balsm-Core/src/Modules/Geofence/GeofenceService.cs` — `Task<GeofenceResult> Check(string countryCode)` querying `DeniedCountryBlocklist` via EF Core (`AsNoTracking`); returns `{ allowed, source? }`. Inject into the auth signup path. Replaces `geofence-check` Edge Function. Per FR-005/FR-218.
+- [ ] T073 [P] [DotNet] [US1] Create `../Balsm-Core/src/Modules/Auth/Services/AccountLockoutService.cs` — `RecordFailedAttempt(identifier, type)` upserts `AccountLockout` (increment `failed_attempts`, reset `rolling_window_started_at` if outside 10-min window, set `locked_until` when ≥5), `IsLockedOut(identifier)`, `Reset(identifier)` on success. Called from `VerifyOtpCommand`. Replaces `auth-attempt-record`. Per FR-007/SC-011.
+- [ ] T073a [P] [DotNet] [US1] Create `VerifyOtpCommand` + `AuthController.VerifyOtp` (`POST /auth/otp/verify`) — `OtpService.Verify`; on success create-or-load `UserAccount` + `UserIdentity`, issue JWT pair (`JwtService`), create `ActiveSession`, reset lockout; on failure call `AccountLockoutService.RecordFailedAttempt`. Returns `{ access_token, refresh_token, user_id, is_new_user }`. Per FR-001/FR-004.
+- [ ] T073b [P] [DotNet] [US1] Create `ExchangeGoogleTokenCommand` + `ExchangeAppleTokenCommand` + `AuthController.Google`/`Apple` (`POST /auth/google`, `/auth/apple`) — validate via `GoogleOidcValidator`/`AppleOidcValidator`, geofence check, create-or-load account+identity, issue JWT pair + session. Accept Apple `hide-my-email`. Per FR-001/FR-004.
+- [ ] T073c [P] [DotNet] [US1] Create `RefreshTokenCommand` + `SignOutCommand` + `AuthController.Refresh`/`SignOut` (`POST /auth/refresh`, `/auth/sign-out`) — rotate refresh token; revoke on sign-out (sets `UserRefreshToken.revoked_at`). Per research §26.
+- [ ] T073d [DotNet] [US1] Create `../Balsm-Core/tests/Modules/Auth.Tests/AuthFlowTests.cs` — xUnit integration test via `TestWebAppFactory`: OTP request→verify issues JWT; 6th wrong OTP in 10min → 423; denied country → 403; Google/Apple token exchange creates one account. Per Constitution §VI (auth 100% coverage).
 
 ### 3.2 Flutter: auth module
 
-- [ ] T074 [P] [Flutter] [US1] Create `auth` aggregate `AuthSession` at `../balsm_app_flutter/packages/auth/lib/src/domain/aggregates/auth_session.dart` — sealed state: `Unauthenticated`, `Authenticated(userId, email, provider, sessionToken)`, `LockedOut(until, identifier)`
-- [ ] T075 [P] [Flutter] [US1] Create `auth` domain events at `../balsm_app_flutter/packages/auth/lib/src/domain/events/` — `UserSignedUp(userId, email, provider, countryCode)`, `UserSignedIn(userId, email, provider)`, `UserSignedOut(userId)`, `LockoutTriggered(identifier, lockedUntil)`
-- [ ] T076 [P] [Flutter] [US1] Create `auth` `ReadAuthRepository` interface at `../balsm_app_flutter/packages/auth/lib/src/domain/repositories/read_auth_repository.dart` — `Stream<AuthSession> watchSession()`
-- [ ] T077 [P] [Flutter] [US1] Create `auth` Supabase adapter at `../balsm_app_flutter/packages/auth/lib/src/infrastructure/supabase/supabase_auth_adapter.dart` — implements auth operations using `core`'s `SupabaseClientWrapper`, calls Edge Functions `auth-gate` + `geofence-check` + `auth-attempt-record`
-- [ ] T078 [P] [Flutter] [US1] Create `auth` signup use case at `../balsm_app_flutter/packages/auth/lib/src/application/use_cases/sign_up_use_case.dart` — accepts `email | google | apple` + `countryCode`, validates country via `geofence-check`, calls `auth-gate` Edge Function, dispatches `UserSignedUp` event
-- [ ] T079 [P] [Flutter] [US1] Create `auth` sign-in use case at `../balsm_app_flutter/packages/auth/lib/src/application/use_cases/sign_in_use_case.dart` — accepts `email | google | apple` + `countryCode`, handles lockout state, dispatches `UserSignedIn` event
-- [ ] T080 [P] [Flutter] [US1] Create `auth` sign-out use case at `../balsm_app_flutter/packages/auth/lib/src/application/use_cases/sign_out_use_case.dart` — calls `signOut`, dispatches `UserSignedOut`
-- [ ] T081 [P] [Flutter] [US1] Create `auth` providers at `../balsm_app_flutter/packages/auth/lib/src/presentation/providers/auth_providers.dart` — `authSessionProvider` (StreamProvider), `signUpProvider`, `signInProvider`, `signOutProvider`
-- [ ] T082 [P] [Flutter] [US1] Create `auth` screens at `../balsm_app_flutter/packages/auth/lib/src/presentation/screens/` — `CountryPickerScreen`, `EmailSignUpScreen`, `OtpVerificationScreen`, `SocialSignInScreen`
-- [ ] T083 [P] [Flutter] [US1] Create `auth` routes at `../balsm_app_flutter/packages/auth/lib/src/presentation/routes.dart` — `StatefulShellRoute` fragment with named routes `auth.countryPicker`, `auth.emailSignUp`, `auth.otpVerification`, `auth.socialSignIn`
-- [ ] T084 [Flutter] [US1] Update `../balsm_app_flutter/packages/auth/lib/auth.dart` public barrel to export use cases, read repository interface, domain events, routes
+- [ ] T074 [P] [Flutter] [US1] Create `AuthSession` aggregate at `auth/lib/src/domain/aggregates/auth_session.dart` — sealed: `Unauthenticated`, `Authenticated(userId, email, provider, accessToken)`, `LockedOut(until, identifier)`
+- [ ] T075 [P] [Flutter] [US1] Create `auth` domain events at `auth/lib/src/domain/events/` — `UserSignedUp`, `UserSignedIn`, `UserSignedOut`, `LockoutTriggered`
+- [ ] T076 [P] [Flutter] [US1] Create `ReadAuthRepository` at `auth/lib/src/domain/repositories/read_auth_repository.dart` — `Stream<AuthSession> watchSession()`
+- [ ] T077 [P] [Flutter] [US1] Create `auth` API adapter at `auth/lib/src/infrastructure/api/balsm_auth_adapter.dart` — implements auth operations via `core`'s `BalsmApiClient`, calling `.NET` endpoints `POST /auth/otp/request`, `/auth/otp/verify`, `/auth/google`, `/auth/apple`, `/auth/refresh`, `/auth/sign-out`. Persists tokens via secure storage. **Replaces the former `supabase_auth_adapter.dart`.**
+- [ ] T078 [P] [Flutter] [US1] Create `SignUpUseCase` at `auth/lib/src/application/use_cases/sign_up_use_case.dart` — accepts `email | google | apple` + `countryCode`; the .NET API performs the geofence check (handle 403); calls auth adapter; dispatches `UserSignedUp`
+- [ ] T079 [P] [Flutter] [US1] Create `SignInUseCase` at `auth/lib/src/application/use_cases/sign_in_use_case.dart` — handles `LockedOut` (423) state; dispatches `UserSignedIn`
+- [ ] T080 [P] [Flutter] [US1] Create `SignOutUseCase` at `auth/lib/src/application/use_cases/sign_out_use_case.dart` — calls `POST /auth/sign-out`; dispatches `UserSignedOut`
+- [ ] T081 [P] [Flutter] [US1] Create `auth` providers at `auth/lib/src/presentation/providers/auth_providers.dart` — `authSessionProvider`, `signUpProvider`, `signInProvider`, `signOutProvider`
+- [ ] T082 [P] [Flutter] [US1] Create `auth` screens at `auth/lib/src/presentation/screens/` — `CountryPickerScreen`, `EmailSignUpScreen`, `OtpVerificationScreen`, `SocialSignInScreen` (compose BalsmKit widgets)
+- [ ] T083 [P] [Flutter] [US1] Create `auth` routes at `auth/lib/src/presentation/routes.dart` — named routes `auth.countryPicker`, `auth.emailSignUp`, `auth.otpVerification`, `auth.socialSignIn`
+- [ ] T084 [Flutter] [US1] Update `auth/lib/auth.dart` public barrel
 
 ### 3.3 Flutter: disclosure module
 
-- [ ] T085 [P] [Flutter] [US1] Create `disclosure` aggregate `DisclosureAcceptance` at `../balsm_app_flutter/packages/disclosure/lib/src/domain/aggregates/disclosure_acceptance.dart` — properties: `disclosureId`, `version`, `countryCodeAtAccept`, `supervisoryAuthorityNameAtAccept`, `preferredLanguageAtAccept`, `acceptedAt`
-- [ ] T086 [P] [Flutter] [US1] Create `disclosure` domain event `DisclosureAccepted` at `../balsm_app_flutter/packages/disclosure/lib/src/domain/events/disclosure_accepted.dart`
-- [ ] T087 [P] [Flutter] [US1] Create `disclosure` use case at `../balsm_app_flutter/packages/disclosure/lib/src/application/use_cases/accept_disclosure_use_case.dart` — persists on-device disclosure_acceptance row + syncs to cloud mirror via Supabase
-- [ ] T088 [P] [Flutter] [US1] Create `disclosure` drift DAO at `../balsm_app_flutter/packages/disclosure/lib/src/infrastructure/drift/disclosure_dao.dart` — `insert(DisclosureAcceptance)`, `watchAcceptance(disclosureId, version)`
-- [ ] T089 [P] [Flutter] [US1] Create `disclosure` screens at `../balsm_app_flutter/packages/disclosure/lib/src/presentation/screens/` — `ConsolidatedDisclosureScreen` rendering the consolidated onboarding disclosure (localized per FR-040, RTL per preferred language)
-- [ ] T090 [P] [Flutter] [US1] Create `disclosure` routes at `../balsm_app_flutter/packages/disclosure/lib/src/presentation/routes.dart` — `disclosure.onboarding` route
-- [ ] T091 [Flutter] [US1] Update `../balsm_app_flutter/packages/disclosure/lib/disclosure.dart` public barrel
+- [ ] T085 [P] [Flutter] [US1] Create `DisclosureAcceptance` aggregate at `disclosure/lib/src/domain/aggregates/disclosure_acceptance.dart` — `disclosureId`, `version`, `countryCodeAtAccept`, `supervisoryAuthorityNameAtAccept`, `preferredLanguageAtAccept`, `acceptedAt`
+- [ ] T086 [P] [Flutter] [US1] Create `DisclosureAccepted` event at `disclosure/lib/src/domain/events/disclosure_accepted.dart`
+- [ ] T087 [P] [Flutter] [US1] Create `AcceptDisclosureUseCase` at `disclosure/lib/src/application/use_cases/accept_disclosure_use_case.dart` — persists on-device row + syncs cloud mirror via `POST /disclosure/accept`
+- [ ] T088 [P] [Flutter] [US1] Create `disclosure` drift DAO at `disclosure/lib/src/infrastructure/drift/disclosure_dao.dart` — `insert`, `watchAcceptance(disclosureId, version)`
+- [ ] T089 [P] [Flutter] [US1] Create `ConsolidatedDisclosureScreen` at `disclosure/lib/src/presentation/screens/` — localized FR-040, scroll-to-bottom-enables-Accept FR-041, RTL
+- [ ] T090 [P] [Flutter] [US1] Create `disclosure` routes at `disclosure/lib/src/presentation/routes.dart` — `disclosure.onboarding`
+- [ ] T091 [Flutter] [US1] Update `disclosure/lib/disclosure.dart` public barrel
 
-### 3.4 Flutter: geofence_block module
+### 3.4 .NET: disclosure cloud mirror endpoint
 
-- [ ] T092 [P] [Flutter] [US1] Create `geofence_block` read-side repository at `../balsm_app_flutter/packages/geofence_block/lib/src/domain/repositories/read_denied_countries_repository.dart` — `Future<bool> isDenied(String countryCode)` calling Edge Function `geofence-check`, `Stream<List<String>> watchDeniedCountryCodes()` from cloud or cached list
-- [ ] T093 [P] [Flutter] [US1] Create `geofence_block` domain event `BlockedSignupAttempted(countryCode, source)` at `../balsm_app_flutter/packages/geofence_block/lib/src/domain/events/blocked_signup_attempted.dart`
-- [ ] T094 [Flutter] [US1] Update `../balsm_app_flutter/packages/geofence_block/lib/geofence_block.dart` public barrel
+- [ ] T091a [P] [DotNet] [US1] Create `../Balsm-Core/src/Modules/Disclosure/Commands/AcceptDisclosureCommand.cs` + `../Balsm-Core/src/Balsm.API/Controllers/DisclosureController.cs` action `Accept` (`POST /disclosure/accept`, `[Authorize]`) — inserts a `DisclosureAcceptance` row (unique on `user_id, disclosure_id, version`). Per FR-040.
 
-### 3.5 Flutter: home module skeleton
+### 3.5 Flutter: geofence_block module
 
-- [ ] T095 [P] [Flutter] [US1] Create `home` screens at `../balsm_app_flutter/packages/home/lib/src/presentation/screens/` — `HomeScreen` showing user display_name, nudge cards (complete emergency card, medication reminders placeholder), country/language info
-- [ ] T096 [P] [Flutter] [US1] Create `home` routes at `../balsm_app_flutter/packages/home/lib/src/presentation/routes.dart` — `home` as initial route after auth
-- [ ] T097 [Flutter] [US1] Update `../balsm_app_flutter/packages/home/lib/home.dart` public barrel
+- [ ] T092 [P] [Flutter] [US1] Create `ReadDeniedCountriesRepository` at `geofence_block/lib/src/domain/repositories/read_denied_countries_repository.dart` — `Future<bool> isDenied(String countryCode)` (the .NET API is authoritative; this reads a cached list for the picker), `Stream<List<String>> watchDeniedCountryCodes()`
+- [ ] T093 [P] [Flutter] [US1] Create `BlockedSignupAttempted(countryCode, source)` event at `geofence_block/lib/src/domain/events/blocked_signup_attempted.dart`
+- [ ] T094 [Flutter] [US1] Update `geofence_block/lib/geofence_block.dart` public barrel
 
-### 3.6 Flutter: app shell composition
+### 3.6 Flutter: home module skeleton
 
-- [ ] T098 [Flutter] [US1] Compose `go_router` in `../balsm_app_flutter/app/lib/router.dart` — import route fragments from every module, compose auth guard (redirect unauthenticated to `auth.countryPicker`), shell route for authenticated screens with bottom nav
-- [ ] T099 [Flutter] [US1] Wire `bootstrap()` in `../balsm_app_flutter/app/lib/bootstrap.dart` — register all repository implementations for auth, disclosure, geofence_block, home; call `AppDatabase` init
-- [ ] T100 [Flutter] [US1] Create i18n JSON translation bundles at `../balsm_app_flutter/packages/core/assets/i18n/` — `en.json`, `ar-EG.json`, `ar-SA.json`, `ar-AE.json` — with all keys for signup screens, disclosure text, country picker, home, error messages (at least 98% completeness per SC-203)
+- [ ] T095 [P] [Flutter] [US1] Create `HomeScreen` at `home/lib/src/presentation/screens/` — display_name greeting, nudge cards, country/language info
+- [ ] T096 [P] [Flutter] [US1] Create `home` routes at `home/lib/src/presentation/routes.dart` — `home` initial route after auth
+- [ ] T097 [Flutter] [US1] Update `home/lib/home.dart` public barrel
 
-### 3.7 Flutter: account module (signup creates row)
+### 3.7 Flutter: app shell composition
 
-- [ ] T101 [P] [Flutter] [US1] Create `account` value objects at `../balsm_app_flutter/packages/account/lib/src/domain/value_objects/` — `AccountSummary(id, handle, displayName, countryCode, preferredLanguage, deletionState)` read-only projection
-- [ ] T102 [P] [Flutter] [US1] Create `account` domain events at `../balsm_app_flutter/packages/account/lib/src/domain/events/` — `CountryChanged(userId, oldCountry, newCountry)`, `LanguageChanged(userId, oldLanguage, newLanguage)`
-- [ ] T103 [P] [Flutter] [US1] Create `account` read repository interface at `../balsm_app_flutter/packages/account/lib/src/domain/repositories/read_account_repository.dart` — `Future<AccountSummary?> getAccount(String userId)`, `Stream<AccountSummary> watchAccount(String userId)`
-- [ ] T104 [P] [Flutter] [US1] Create `account` Supabase adapter at `../balsm_app_flutter/packages/account/lib/src/infrastructure/supabase/supabase_account_adapter.dart` — queries `user_account` table via Supabase client, returns `AccountSummary`
-- [ ] T105 [Flutter] [US1] Update `../balsm_app_flutter/packages/account/lib/account.dart` public barrel
+- [ ] T098 [Flutter] [US1] Compose `go_router` in `../balsm_app_flutter/app/lib/router.dart` — import route fragments, auth guard (redirect unauthenticated to `auth.countryPicker`), shell route with bottom nav
+- [ ] T099 [Flutter] [US1] Wire `bootstrap()` in `../balsm_app_flutter/app/lib/bootstrap.dart` — register repository implementations for auth, disclosure, geofence_block, home; init `AppDatabase` + `BalsmApiClient`
+- [ ] T100 [Flutter] [US1] Create i18n bundles at `core/assets/i18n/` — `en.json`, `ar-EG.json`, `ar-SA.json`, `ar-AE.json` for signup/disclosure/country-picker/home/errors (≥98% per SC-203)
 
-**Checkpoint**: signup-to-home round-trip complete. User can pick country, sign up with email OTP / Google / Apple, accept disclosure, land on home. Verified by SC-001a.
+### 3.8 Flutter: account module (signup creates row)
+
+- [ ] T101 [P] [Flutter] [US1] Create `account` value objects at `account/lib/src/domain/value_objects/` — `AccountSummary(id, handle, displayName, countryCode, preferredLanguage, deletionState)`
+- [ ] T102 [P] [Flutter] [US1] Create `account` events at `account/lib/src/domain/events/` — `CountryChanged`, `LanguageChanged`
+- [ ] T103 [P] [Flutter] [US1] Create `ReadAccountRepository` at `account/lib/src/domain/repositories/read_account_repository.dart` — `Future<AccountSummary?> getAccount(userId)`, `Stream<AccountSummary> watchAccount(userId)`
+- [ ] T104 [P] [Flutter] [US1] Create `account` API adapter at `account/lib/src/infrastructure/api/balsm_account_adapter.dart` — calls `GET /account/self` via `BalsmApiClient`, maps to `AccountSummary`. **Replaces `supabase_account_adapter.dart`.**
+- [ ] T104a [P] [DotNet] [US1] Create `../Balsm-Core/src/Balsm.API/Controllers/AccountController.cs` action `GetSelf` (`GET /account/self`, `[Authorize(Policy="SelfOnly")]`) backed by `../Balsm-Core/src/Modules/Account/Queries/GetSelfQuery.cs` — returns account fields; decrypts DOB via `DobEncryptionService` (writes audit log) and returns `dob_year`. Per FR-006/FR-048.
+- [ ] T105 [Flutter] [US1] Update `account/lib/account.dart` public barrel
+
+**Checkpoint**: signup-to-home round-trip complete (SC-001a).
 
 ---
 
 ## Phase 4: US1a — Handle Claim & Health Profile (Priority: P2)
 
-**Goal**: Patient claims a unique handle, completes their health profile (blood type, allergies, conditions, emergency contacts). On-device PHI storage only.
+**Goal**: Patient claims a unique handle, completes health profile (blood type, allergies, conditions, contacts). On-device PHI storage only.
 
-**Independent Test**: Complete US1 → tap "Claim handle" → enter `mypharmacy` → success → tap "Complete profile" → fill blood type + 1 allergy + 1 condition + 1 contact → save → restart app → data persists.
+**Independent Test**: Complete US1 → claim handle → "Available" → claim → complete profile → restart → data persists.
 
-### 4.1 Supabase: handle Edge Functions
+### 4.1 .NET: handle endpoints
 
-- [ ] T106 [P] [Supabase] [US1a] Create `../supabase/supabase/functions/reserved-handle-check/index.ts` — accepts `handle`, returns `{ reserved: boolean }` by querying `reserved_handle_blocklist`
-- [ ] T107 [P] [Supabase] [US1a] Create `../supabase/supabase/functions/handle-claim/index.ts` — validates handle format `^[a-z0-9_.]{3,30}$`, checks `reserved_handle_blocklist`, checks `username_reservation` for uniqueness, inserts `username_reservation` row + updates `user_account.handle`, returns `204`
-- [ ] T108 [P] [Supabase] [US1a] Create `../supabase/supabase/functions/handle-suggest/index.ts` — accepts `display_name`, returns 3 handle suggestions by appending random digits
+- [ ] T106 [P] [DotNet] [US1a] Create `../Balsm-Core/src/Modules/Account/Queries/CheckHandleQuery.cs` + `AccountController.CheckHandle` (`POST /account/handle/check`) — validates format `^[a-z0-9_.]{3,30}$`, checks `ReservedHandleBlocklist` + `UsernameReservation`, returns `{ available }`. Replaces `reserved-handle-check`. Per FR-002/FR-003.
+- [ ] T107 [P] [DotNet] [US1a] Create `../Balsm-Core/src/Modules/Account/Commands/ClaimHandleCommand.cs` + `AccountController.ClaimHandle` (`POST /account/handle/claim`, `[Authorize(Policy="ActiveAccount")]`) — re-validates, inserts `UsernameReservation` + updates `UserAccount.handle` in one transaction (unique constraint enforces global uniqueness FR-304); on conflict returns 409 + 3 suggestions. Replaces `handle-claim`. Per FR-002/FR-008/FR-304.
+- [ ] T108 [P] [DotNet] [US1a] Create `../Balsm-Core/src/Modules/Account/Services/HandleSuggestionService.cs` — given a base handle/display name, returns 3 available suggestions (append digits, check availability). Replaces `handle-suggest`. Per FR-008.
 
 ### 4.2 Flutter: profile module (on-device PHI)
 
-- [ ] T109 [P] [Flutter] [US1a] Create `profile` aggregates at `../balsm_app_flutter/packages/profile/lib/src/domain/aggregates/` — `HealthProfile` root with embedded `Allergy`, `ChronicCondition`, `EmergencyContact` entities per data-model.md §2.1–§2.4
-- [ ] T110 [P] [Flutter] [US1a] Create `profile` domain event `HealthProfileUpdated` at `../balsm_app_flutter/packages/profile/lib/src/domain/events/health_profile_updated.dart`
-- [ ] T111 [P] [Flutter] [US1a] Create `profile` drift DAOs at `../balsm_app_flutter/packages/profile/lib/src/infrastructure/drift/` — `ProfileDao` with CRUD for `health_profile`, `allergy`, `chronic_condition`, `emergency_contact` tables using UUID v7 PKs, `watchProfile` StreamProvider
-- [ ] T112 [P] [Flutter] [US1a] Create `profile` use cases at `../balsm_app_flutter/packages/profile/lib/src/application/use_cases/` — `UpdateHealthProfileUseCase`, `AddAllergyUseCase`, `RemoveAllergyUseCase`, `AddChronicConditionUseCase`, `AddEmergencyContactUseCase`
-- [ ] T113 [P] [Flutter] [US1a] Create `profile` screens at `../balsm_app_flutter/packages/profile/lib/src/presentation/screens/` — `HealthProfileEditorScreen` with sections for blood type, allergies (up to 50), chronic conditions, emergency contacts; Arabic numeral normalization per FR-213; national-ID field with country-aware validator per FR-211
-- [ ] T114 [P] [Flutter] [US1a] Create `profile` routes at `../balsm_app_flutter/packages/profile/lib/src/presentation/routes.dart` — `profile.editor`
-- [ ] T115 [Flutter] [US1a] Update `../balsm_app_flutter/packages/profile/lib/profile.dart` public barrel
+- [ ] T109 [P] [Flutter] [US1a] Create `profile` aggregates at `profile/lib/src/domain/aggregates/` — `HealthProfile` root with embedded `Allergy`, `ChronicCondition`, `EmergencyContact` per data-model.md §2.1–§2.4
+- [ ] T110 [P] [Flutter] [US1a] Create `HealthProfileUpdated` event at `profile/lib/src/domain/events/health_profile_updated.dart`
+- [ ] T111 [P] [Flutter] [US1a] Create `profile` drift DAOs at `profile/lib/src/infrastructure/drift/` — `ProfileDao` CRUD for `health_profile`, `allergy`, `chronic_condition`, `emergency_contact` (UUID v7 PKs), `watchProfile`
+- [ ] T112 [P] [Flutter] [US1a] Create `profile` use cases at `profile/lib/src/application/use_cases/` — `UpdateHealthProfileUseCase`, `AddAllergyUseCase`, `RemoveAllergyUseCase`, `AddChronicConditionUseCase`, `AddEmergencyContactUseCase`
+- [ ] T113 [P] [Flutter] [US1a] Create `HealthProfileEditorScreen` at `profile/lib/src/presentation/screens/` — blood type, allergies (≤50), conditions, contacts; Arabic numeral normalization FR-213; national-ID validator FR-211
+- [ ] T114 [P] [Flutter] [US1a] Create `profile` routes at `profile/lib/src/presentation/routes.dart` — `profile.editor`
+- [ ] T115 [Flutter] [US1a] Update `profile/lib/profile.dart` public barrel
 
 ### 4.3 Flutter: account handle-claim surface
 
-- [ ] T116 [P] [Flutter] [US1a] Create `account` handle claim screen at `../balsm_app_flutter/packages/account/lib/src/presentation/screens/handle_claim_screen.dart` — text input with live validation (3-30 chars, `[a-z0-9_.]`), suggestions button, calls `handle-claim` Edge Function, shows 409 on conflict
-- [ ] T117 [P] [Flutter] [US1a] Create `account` handle claim use case at `../balsm_app_flutter/packages/account/lib/src/application/use_cases/claim_handle_use_case.dart`
-- [ ] T118 [Flutter] [US1a] Update `home` screen at `../balsm_app_flutter/packages/home/lib/src/presentation/screens/home_screen.dart` to show nudge "Claim your handle" if `user_account.handle` is null
+- [ ] T116 [P] [Flutter] [US1a] Create `HandleClaimScreen` at `account/lib/src/presentation/screens/handle_claim_screen.dart` — live validation, calls `POST /account/handle/check` then `/claim`, shows 409 + suggestions
+- [ ] T117 [P] [Flutter] [US1a] Create `ClaimHandleUseCase` at `account/lib/src/application/use_cases/claim_handle_use_case.dart`
+- [ ] T118 [Flutter] [US1a] Update `HomeScreen` to show "Claim your handle" nudge when handle is null
 
-**Checkpoint**: handle claim + health profile CRUD complete. All PHI stored on-device only.
+**Checkpoint**: handle claim + health profile CRUD complete. All PHI on-device only.
 
 ---
 
 ## Phase 5: US2 — Emergency Card & QR (Priority: P2)
 
-**Goal**: Patient fills emergency card data, mints QR with configurable TTL, public web page resolves QR. Lock-screen widget on iOS, quick-settings tile on Android. SC-014 token revocation.
+**Goal**: Patient fills emergency card, mints QR (configurable TTL), public web page resolves QR. Lock-screen widget (iOS) + quick-settings tile (Android). SC-014 revocation ≤2s.
 
-**Independent Test**: Complete US1 → tap "Complete emergency card" prompt → fill blood type + 1 allergy + 1 condition + 1 contact → save → mint QR → scan with second device → public page opens with data → revoke token → scan again → "Expired".
+**Independent Test**: Fill card → mint QR TTL 24h → scan with second device → public page opens → revoke → scan again → "Expired" ≤2s.
 
-### 5.1 Supabase: emergency-token Edge Functions
+### 5.1 .NET: EmergencyQr endpoints
 
-- [ ] T119 [P] [Supabase] [US2] Create `../supabase/supabase/functions/emergency-token-mint/index.ts` — service-role function: accepts `user_id`, `ciphertext` (bytea), `profile_etag`, `ttl_seconds`; sets `revoked_at` on prior active token in same TX; inserts new `emergency_qr_token` row; returns `{ jti, expires_at }`
-- [ ] T120 [P] [Supabase] [US2] Create `../supabase/supabase/functions/emergency-token-revoke/index.ts` — sets `revoked_at = now()` on `emergency_qr_token` where `jti = $1 AND user_id = $2`
-- [ ] T121 [P] [Supabase] [US2] Create `../supabase/supabase/functions/emergency-token-resolve/index.ts` — public (no auth) function: queries `emergency_qr_token` where `jti = $1 AND revoked_at IS NULL AND expires_at > now()`; returns `{ ciphertext, profile_etag, expires_at, user_id }` or 404
+- [ ] T119 [P] [DotNet] [US2] Create `../Balsm-Core/src/Modules/EmergencyQr/Commands/MintEmergencyQrCommand.cs` + `../Balsm-Core/src/Balsm.API/Controllers/EmergencyQrController.cs` action `Mint` (`POST /emergency-qr/mint`, `[Authorize(Policy="AgeGate")]`) — accepts `ciphertext` (bytea), `profile_etag`, `ttl_seconds` (CHECK 3600/21600/86400/604800); sets `revoked_at` on the prior active token in the same transaction; inserts new `EmergencyQrToken` with `expires_at = now + ttl`. Returns `{ jti, token_url, expires_at }`. Replaces `emergency-token-mint`. Per FR-013/FR-014.
+- [ ] T120 [P] [DotNet] [US2] Create `RevokeEmergencyQrCommand` + `EmergencyQrController.Revoke` (`POST /emergency-qr/{jti}/revoke`, `[Authorize(Policy="SelfOnly")]`) — sets `revoked_at = now()` where `jti=$1 AND user_id=current`. Replaces `emergency-token-revoke`. Per FR-015/FR-034.
+- [ ] T121 [P] [DotNet] [US2] Create `ResolveEmergencyQrQuery` + `EmergencyQrController.Resolve` (`GET /emergency-qr/resolve/{jti}`, **no auth**, CORS `balsm-public`) — returns `{ ciphertext, preferred_language }` only where `jti=$1 AND revoked_at IS NULL AND expires_at > now()`, else 404/410. Never returns the key (key lives in the URL fragment). Replaces `emergency-token-resolve`. Per FR-015/FR-216.
+- [ ] T121a [P] [DotNet] [US2] Create `EmergencyQrController.GetActive` (`GET /emergency-qr/active`, `[Authorize(Policy="SelfOnly")]`) — returns the current active token summary or null. Per FR-014 (at most one active token).
+- [ ] T121b [DotNet] [US2] Create `../Balsm-Core/tests/Modules/EmergencyQr.Tests/QrLifecycleTests.cs` — mint→resolve returns ciphertext; revoke→resolve returns 410 within the same request; second mint revokes the first. Per SC-014.
 
 ### 5.2 Flutter: emergency_card module
 
-- [ ] T122 [P] [Flutter] [US2] Create `emergency_card` aggregates at `../balsm_app_flutter/packages/emergency_card/lib/src/domain/aggregates/` — `EmergencyCardSnapshot` (PHI fields from health_profile for QR payload), `EmergencyQrToken` (jti, expiresAt, revokedAt, ttl)
-- [ ] T123 [P] [Flutter] [US2] Create `emergency_card` domain events at `../balsm_app_flutter/packages/emergency_card/lib/src/domain/events/` — `EmergencyQrTokenMinted(jti, expiresAt)`, `EmergencyQrTokenRevoked(jti)`
-- [ ] T124 [P] [Flutter] [US2] Create `emergency_card` use cases at `../balsm_app_flutter/packages/emergency_card/lib/src/application/use_cases/` — `MintEmergencyQrTokenUseCase` (reads HealthProfile snapshot from profile module via read repository, encrypts with client-generated key, calls mint Edge Function), `RevokeEmergencyQrTokenUseCase`, `ResolveEmergencyQrTokenUseCase`
-- [ ] T125 [P] [Flutter] [US2] Create `emergency_card` screens at `../balsm_app_flutter/packages/emergency_card/lib/src/presentation/screens/` — `EmergencyCardScreen` (view snapshot, mint QR with TTL picker), `QrCodeDisplayScreen` (renders scannable QR with URL `https://<host>/emergency/<token>#k=<key>`)
-- [ ] T126 [P] [Flutter] [US2] Create `emergency_card` lock-screen widgets: `../balsm_app_flutter/packages/emergency_card/lib/src/presentation/widgets/emergency_lock_screen_widget.dart` — shared widget used by both iOS WidgetKit extension and Android quick-settings tile
-- [ ] T127 [P] [Flutter] [US2] Create `emergency_card` iOS WidgetKit extension at `../balsm_app_flutter/packages/emergency_card/ios/` — SwiftUI widget showing blood type + top 3 allergies + top 2 conditions + primary contact name, updated via app group user defaults
-- [ ] T128 [P] [Flutter] [US2] Create `emergency_card` Android quick-settings tile at `../balsm_app_flutter/packages/emergency_card/android/` — `TileService` subclass showing same data via RemoteViews
-- [ ] T129 [P] [Flutter] [US2] Create `emergency_card` routes at `../balsm_app_flutter/packages/emergency_card/lib/src/presentation/routes.dart` — `emergency.card`, `emergency.qrDisplay`
-- [ ] T130 [Flutter] [US2] Update `../balsm_app_flutter/packages/emergency_card/lib/emergency_card.dart` public barrel
+- [ ] T122 [P] [Flutter] [US2] Create `emergency_card` aggregates at `emergency_card/lib/src/domain/aggregates/` — `EmergencyCardSnapshot` (PHI for QR payload), `EmergencyQrToken` (jti, expiresAt, revokedAt, ttl)
+- [ ] T123 [P] [Flutter] [US2] Create events at `emergency_card/lib/src/domain/events/` — `EmergencyQrTokenMinted`, `EmergencyQrTokenRevoked`
+- [ ] T124 [P] [Flutter] [US2] Create use cases at `emergency_card/lib/src/application/use_cases/` — `MintEmergencyQrTokenUseCase` (reads HealthProfile snapshot via read repo, AES-256-GCM-encrypts with a client-generated key, calls `POST /emergency-qr/mint`), `RevokeEmergencyQrTokenUseCase`, `ResolveEmergencyQrTokenUseCase`
+- [ ] T125 [P] [Flutter] [US2] Create screens at `emergency_card/lib/src/presentation/screens/` — `EmergencyCardScreen` (view + mint with TTL picker), `QrCodeDisplayScreen` (renders `https://<host>/emergency/<token>#k=<key>`)
+- [ ] T126 [P] [Flutter] [US2] Create `emergency_card/lib/src/presentation/widgets/emergency_lock_screen_widget.dart` — shared widget for iOS WidgetKit + Android tile
+- [ ] T127 [P] [Flutter] [US2] Create iOS WidgetKit extension at `emergency_card/ios/` — SwiftUI: blood type + top 3 allergies + top 2 conditions + primary contact, via app group user defaults
+- [ ] T128 [P] [Flutter] [US2] Create Android quick-settings tile at `emergency_card/android/` — `TileService` with RemoteViews, same data
+- [ ] T129 [P] [Flutter] [US2] Create routes at `emergency_card/lib/src/presentation/routes.dart` — `emergency.card`, `emergency.qrDisplay`
+- [ ] T130 [Flutter] [US2] Update `emergency_card/lib/emergency_card.dart` public barrel
 
 ### 5.3 Flutter Web + deeplink: emergency QR public route
 
-- [ ] T131 [P] [Flutter] [US2] Create `emergency_card` public screen at `../balsm_app_flutter/packages/emergency_card/lib/src/presentation/screens/public_emergency_resolve_screen.dart` — no-auth screen: reads `token` from route param, reads fragment key via `dart:html` (Web) / `app_links` (mobile deeplink), calls `emergency-token-resolve` Edge Function, AES-256-GCM-decrypts ciphertext using fragment key, renders blood type, allergies, conditions, contact; RTL-aware; tap-to-call (`tel:`); print-friendly CSS via `flutter_html` or custom view
-- [ ] T132 [P] [Flutter] [US2] Add public route to `../balsm_app_flutter/packages/emergency_card/lib/src/presentation/routes.dart` — `emergency.publicResolve` mapped to path `/emergency/:token` with `noAuthRequired: true` guard bypass; consumes URL fragment `#k=...` for the decryption key (fragment never sent to Edge Function)
-- [ ] T133 [P] [Flutter] [US2] Create deeplink handler at `../balsm_app_flutter/packages/core/lib/src/deeplink/deeplink_router.dart` — listens to `app_links` stream, on `https://{BASE_URL}/emergency/{token}#k=...` parses token + key, navigates app via `go_router` to `emergency.publicResolve`; same handler covers mobile (Universal/App Links) and web (path URL strategy)
-- [ ] T133a [P] [Flutter] [US2] Add `../balsm_app_flutter/app/web/.well-known/emergency-keys.json` — Ed25519 public key file for emergency token signature verification, served by Flutter Web static assets, generated by CI from `contracts/emergency-token.md` spec
+- [ ] T131 [P] [Flutter] [US2] Create `PublicEmergencyResolveScreen` at `emergency_card/lib/src/presentation/screens/public_emergency_resolve_screen.dart` — no-auth: reads `token` route param, reads fragment key (`dart:html` web / `app_links` mobile), calls `GET /emergency-qr/resolve/{jti}`, AES-256-GCM-decrypts with the fragment key, renders RTL-aware card with tap-to-call (`tel:`)
+- [ ] T132 [P] [Flutter] [US2] Add public route to `emergency_card/lib/src/presentation/routes.dart` — `emergency.publicResolve` path `/emergency/:token`, `noAuthRequired: true`; consumes `#k=...` (fragment never sent to API)
+- [ ] T133 [P] [Flutter] [US2] Create `DeeplinkRouter` at `core/lib/src/deeplink/deeplink_router.dart` — listens to `app_links`, parses `/emergency/{token}#k=...`, navigates via `go_router`; covers mobile (Universal/App Links) + web (path URL strategy)
+- [ ] T133a [P] [Flutter] [US2] Add `../balsm_app_flutter/app/web/.well-known/emergency-keys.json` — Ed25519 public key for token signature verification, generated by CI
 
-**Checkpoint**: emergency card + QR full round-trip. Mint → scan → public page resolves → revoke → page returns "Expired".
+**Checkpoint**: emergency card + QR full round-trip.
 
 ---
 
 ## Phase 6: US3 — Medication Reminders (Priority: P3)
 
-**Goal**: Patient adds medications with daily/weekly/custom schedules, notifications fire at correct times offline ≥7 days (SC-004). Dose events logged as append-only. Missed dose detection on foreground.
+**Goal**: Patient adds medications (daily/weekly/custom), notifications fire offline ≥7 days (SC-004). Dose events append-only. Missed-dose detection on foreground. **No backend — all PHI on-device.**
 
-**Independent Test**: Add 3 medications (daily 08:00, weekly Fri 19:00, every-other-day 14:00) → airplane mode → advance clock → notification fires ±60s → tap Taken → verify dose event appears.
+**Independent Test**: Add 3 meds → airplane mode → advance clock → notification ±60s → tap Taken → dose event appears.
 
 ### 6.1 Flutter: medications module
 
-- [ ] T134 [P] [Flutter] [US3] Create `medications` aggregate `Medication` at `../balsm_app_flutter/packages/medications/lib/src/domain/aggregates/medication.dart` — properties per data-model.md §2.5, `recordDose(DoseEvent)` method enforcing invariants (correction parent_event_id check), `isExpired()` check against `endDate`
-- [ ] T135 [P] [Flutter] [US3] Create `medications` entity `DoseEvent` at `../balsm_app_flutter/packages/medications/lib/src/domain/entities/dose_event.dart` — outcomes: `taken`, `skipped`, `snoozed`, `missed`, `correction`; append-only invariant (no UPDATE/DELETE)
-- [ ] T136 [P] [Flutter] [US3] Create `medications` domain events at `../balsm_app_flutter/packages/medications/lib/src/domain/events/` — `MedicationAdded`, `DoseTaken`, `DoseSkipped`, `DoseSnoozed`, `DoseMissed`, `DoseCorrected`
-- [ ] T137 [P] [Flutter] [US3] Create `medications` drift DAO at `../balsm_app_flutter/packages/medications/lib/src/infrastructure/drift/medication_dao.dart` — CRUD for `medication` table, insert-only for `medication_dose_event` with SQLite triggers preventing UPDATE/DELETE per `contracts/medication-scheduler.md`
-- [ ] T138 [P] [Flutter] [US3] Create `medications` scheduler at `../balsm_app_flutter/packages/medications/lib/src/infrastructure/drift/medication_scheduler.dart` — per `contracts/medication-scheduler.md`: daily heartbeat at 03:00 rebuilding next 30 days of OS-native triggers, `zonedSchedule` with `exactAllowWhileIdle`, timezone-shift confirmation modal (FR-023)
-- [ ] T139 [P] [Flutter] [US3] Create `medications` missed-dose detector at `../balsm_app_flutter/packages/medications/lib/src/infrastructure/drift/missed_dose_detector.dart` — on app foreground: queries scheduled doses `scheduled_at < now() - 30 min` with no matching event, inserts `outcome='missed'` event
-- [ ] T140 [P] [Flutter] [US3] Create `medications` use cases at `../balsm_app_flutter/packages/medications/lib/src/application/use_cases/` — `AddMedicationUseCase` (includes schedule rebuild), `RecordDoseOutcomeUseCase`, `EditMedicationUseCase`, `DeleteMedicationUseCase`, `NotifyMissedDosesUseCase`
-- [ ] T141 [P] [Flutter] [US3] Create `medications` screens at `../balsm_app_flutter/packages/medications/lib/src/presentation/screens/` — `MedicationListScreen`, `AddMedicationScreen` (with schedule shape picker: daily/weekly/custom), `DoseHistoryScreen`, `TodayScreen` (shows upcoming + missed doses)
-- [ ] T142 [P] [Flutter] [US3] Create `medications` routes at `../balsm_app_flutter/packages/medications/lib/src/presentation/routes.dart` — `medications.list`, `medications.add`, `medications.detail`
-- [ ] T143 [Flutter] [US3] Update `../balsm_app_flutter/packages/medications/lib/medications.dart` public barrel
-- [ ] T144 [Flutter] [US3] Update `home` screen to show medication nudge if no medications added, and a "Today" summary card
+- [ ] T134 [P] [Flutter] [US3] Create `Medication` aggregate at `medications/lib/src/domain/aggregates/medication.dart` — per data-model.md §2.5; `recordDose(DoseEvent)` enforces correction `parent_event_id`; `isExpired()`
+- [ ] T135 [P] [Flutter] [US3] Create `DoseEvent` entity at `medications/lib/src/domain/entities/dose_event.dart` — outcomes taken/skipped/snoozed/missed/correction; append-only
+- [ ] T136 [P] [Flutter] [US3] Create events at `medications/lib/src/domain/events/` — `MedicationAdded`, `DoseTaken`, `DoseSkipped`, `DoseSnoozed`, `DoseMissed`, `DoseCorrected`
+- [ ] T137 [P] [Flutter] [US3] Create `medication_dao.dart` at `medications/lib/src/infrastructure/drift/` — CRUD for `medication`, insert-only `medication_dose_event` with SQLite triggers preventing UPDATE/DELETE per `contracts/medication-scheduler.md`
+- [ ] T138 [P] [Flutter] [US3] Create `medication_scheduler.dart` — daily 03:00 heartbeat rebuilding next 30 days of OS triggers, `zonedSchedule` `exactAllowWhileIdle`, tz-shift modal FR-023; generic notification body only (FR-018)
+- [ ] T139 [P] [Flutter] [US3] Create `missed_dose_detector.dart` — on foreground, queries scheduled doses `scheduled_at < now-30min` with no event, inserts `outcome='missed'`
+- [ ] T140 [P] [Flutter] [US3] Create use cases at `medications/lib/src/application/use_cases/` — `AddMedicationUseCase` (rebuild schedule), `RecordDoseOutcomeUseCase`, `EditMedicationUseCase`, `DeleteMedicationUseCase`, `NotifyMissedDosesUseCase`
+- [ ] T141 [P] [Flutter] [US3] Create screens at `medications/lib/src/presentation/screens/` — `MedicationListScreen`, `AddMedicationScreen` (schedule shape picker), `DoseHistoryScreen`, `TodayScreen` (`meds.today` — upcoming + missed)
+- [ ] T142 [P] [Flutter] [US3] Create routes at `medications/lib/src/presentation/routes.dart` — `medications.list`, `medications.add`, `medications.detail`, `meds.today`
+- [ ] T143 [Flutter] [US3] Update `medications/lib/medications.dart` public barrel
+- [ ] T144 [Flutter] [US3] Update `HomeScreen` — medication nudge + "Today" summary card linking to `meds.today` in ≤1 tap (FR-017c)
 
 ### 6.2 Flutter: core notifications wiring
 
-- [ ] T145 [Flutter] [US3] Wire notification tap handling in `../balsm_app_flutter/app/lib/app.dart` — on notification tap, deep-link to medication detail or today screen
+- [ ] T145 [Flutter] [US3] Wire notification tap in `../balsm_app_flutter/app/lib/app.dart` — deep-link to `meds.today` with highlighted due dose
 
-**Checkpoint**: medication reminders fire offline ≥7d, dose events logged append-only, missed doses detected on foreground.
+**Checkpoint**: reminders fire offline ≥7d, dose events append-only, missed doses detected.
 
 ---
 
 ## Phase 7: US4 — Self-Service Deletion (Priority: P3)
 
-**Goal**: Patient deletes their account from in-app or web. Deletion FSM: request → grace 7 days → purge. Cancel from grace restores account. SC-012 ≤2 taps from settings root.
+**Goal**: Patient deletes account in-app or web. FSM: request → 7-day grace → purge. Cancel from grace restores. SC-012 ≤2 taps.
 
-**Independent Test**: Settings → Delete account → re-auth → confirm → app signs out → sign back in → only cancel-deletion flow → cancel → account restored. Second path: open web deletion URL → same flow.
+**Independent Test**: Settings → Delete → re-auth → confirm → sign out → sign in within grace → cancel-only flow → cancel → restored. Web path: open `/account/delete`.
 
-### 7.1 Supabase: deletion Edge Functions
+### 7.1 .NET: deletion endpoints + purge job
 
-- [ ] T146 [P] [Supabase] [US4] Create `../supabase/supabase/functions/account-delete-intake/index.ts` — sets `deletion_state = 'DELETION_REQUESTED'`, `deletion_confirmed_at = now()`, `deletion_grace_until = now() + 7 days`, inserts `deletion_log` row with `reason_code = 'user_request'`
-- [ ] T147 [P] [Supabase] [US4] Create `../supabase/supabase/functions/account-delete-confirm/index.ts` — (intake already set the state; this function is called after re-auth in web flow) verifies `deletion_state = 'DELETION_REQUESTED'`, calls Apple `/auth/revoke` if Apple provider, updates `deletion_log.apple_revoke_status`
-- [ ] T148 [P] [Supabase] [US4] Create `../supabase/supabase/functions/account-delete-cancel/index.ts` — sets `deletion_state = 'DELETION_CANCELLED'` → after next sign-in the client transitions back to `ACTIVE`, inserts `deletion_log` row with `reason_code = 'cancelled'`
-- [ ] T149 [P] [Supabase] [US4] Create `../supabase/supabase/functions/account-delete-purge/index.ts` — cron-triggered: queries `user_account` where `deletion_state = 'DELETION_REQUESTED' AND deletion_grace_until < now()`, deletes each matching `auth.users` row (CASCADE removes all related rows), updates `username_reservation.released_at`
-- [ ] T150 [P] [Supabase] [US4] Create `../supabase/supabase/functions/apple-revoke/index.ts` — calls Apple's `/auth/revoke` endpoint with the user's Apple refresh token, returns status
+- [ ] T146 [P] [DotNet] [US4] Create `../Balsm-Core/src/Modules/Deletion/Commands/IntakeDeletionCommand.cs` + `../Balsm-Core/src/Balsm.API/Controllers/DeletionController.cs` action `Intake` (`POST /deletion/intake`, `[Authorize(Policy="AgeGate")]`) — sets `deletion_state='DELETION_REQUESTED'`, `deletion_confirmed_at=now()`, `deletion_grace_until=now()+7d`; inserts `DeletionLog` (`reason_code='user_request'`); revokes all active `EmergencyQrToken` (FR-034). Replaces `account-delete-intake`. Per FR-031/FR-032/FR-034.
+- [ ] T147 [P] [DotNet] [US4] Create `../Balsm-Core/src/Modules/Deletion/Services/AppleRevokeService.cs` — calls Apple `/auth/revoke` with the user's Apple refresh token; updates `DeletionLog.apple_revoke_status`. Invoked from `IntakeDeletionCommand` when the identity provider is Apple. Replaces `account-delete-confirm` + `apple-revoke`. Per FR-031.
+- [ ] T148 [P] [DotNet] [US4] Create `CancelDeletionCommand` + `DeletionController.Cancel` (`POST /deletion/cancel`, `[Authorize]`) — sets `deletion_state='ACTIVE'`, inserts `DeletionLog` (`reason_code='cancelled'`); 409 if grace expired. Replaces `account-delete-cancel`. Per FR-032.
+- [ ] T149 [P] [DotNet] [US4] Create `../Balsm-Core/src/Modules/Deletion/Jobs/DeletionPurgeJob.cs` — an `IHostedService` running nightly: selects `UserAccount` where `deletion_state='DELETION_REQUESTED' AND deletion_grace_until < now()`, deletes each (EF cascade removes related rows), sets `UsernameReservation.released_at`, retains `DeletionLog` 2 years. Replaces `account-delete-purge` cron. Per FR-032.
+- [ ] T150 [DotNet] [US4] Create `../Balsm-Core/tests/Modules/Deletion.Tests/DeletionFsmTests.cs` — intake sets grace + revokes QR; cancel restores ACTIVE; purge job deletes past-grace accounts and keeps the deletion log. Per FR-031/FR-032.
 
 ### 7.2 Flutter: deletion module
 
-- [ ] T151 [P] [Flutter] [US4] Create `deletion` aggregate `DeletionRequest` at `../balsm_app_flutter/packages/deletion/lib/src/domain/aggregates/deletion_request.dart` — FSM: `ACTIVE` → `DELETION_REQUESTED` → cancellable back to `ACTIVE` or proceed to purge; `cancel()` allowed only from `DELETION_REQUESTED` state
-- [ ] T152 [P] [Flutter] [US4] Create `deletion` domain events at `../balsm_app_flutter/packages/deletion/lib/src/domain/events/` — `DeletionRequested`, `DeletionCancelled`, `DeletionPurged`
-- [ ] T153 [P] [Flutter] [US4] Create `deletion` use cases at `../balsm_app_flutter/packages/deletion/lib/src/application/use_cases/` — `RequestDeletionUseCase` (calls `account-delete-intake`), `CancelDeletionUseCase` (calls `account-delete-cancel`)
-- [ ] T154 [P] [Flutter] [US4] Create `deletion` screens at `../balsm_app_flutter/packages/deletion/lib/src/presentation/screens/` — `DeleteAccountScreen` (pre-confirmation listing retained/deleted/wiped data per FR-031, ≤2 taps from settings root per SC-012), `DeletionConfirmScreen`, `DeletionCancelledScreen`, `PostDeletionLoginScreen` (shows only cancel-deletion flow)
-- [ ] T155 [P] [Flutter] [US4] Create `deletion` routes at `../balsm_app_flutter/packages/deletion/lib/src/presentation/routes.dart` — `deletion.request`, `deletion.confirm`, `deletion.cancelled`
-- [ ] T156 [Flutter] [US4] Update `../balsm_app_flutter/packages/deletion/lib/deletion.dart` public barrel
+- [ ] T151 [P] [Flutter] [US4] Create `DeletionRequest` aggregate at `deletion/lib/src/domain/aggregates/deletion_request.dart` — FSM ACTIVE→DELETION_REQUESTED→(cancel→ACTIVE | purge); `cancel()` only from DELETION_REQUESTED
+- [ ] T152 [P] [Flutter] [US4] Create events at `deletion/lib/src/domain/events/` — `DeletionRequested`, `DeletionCancelled`, `DeletionPurged`
+- [ ] T153 [P] [Flutter] [US4] Create use cases at `deletion/lib/src/application/use_cases/` — `RequestDeletionUseCase` (`POST /deletion/intake`), `CancelDeletionUseCase` (`POST /deletion/cancel`)
+- [ ] T154 [P] [Flutter] [US4] Create screens at `deletion/lib/src/presentation/screens/` — `DeleteAccountScreen` (FR-031 retained/deleted/wiped lists, ≤2 taps SC-012), `DeletionConfirmScreen` (re-auth + typed DELETE), `DeletionCancelledScreen`, `PostDeletionLoginScreen`
+- [ ] T155 [P] [Flutter] [US4] Create routes at `deletion/lib/src/presentation/routes.dart` — `deletion.request`, `deletion.confirm`, `deletion.cancelled`
+- [ ] T156 [Flutter] [US4] Update `deletion/lib/deletion.dart` public barrel
 
 ### 7.3 Flutter Web + deeplink: account deletion public route
 
-- [ ] T157 [P] [Flutter] [US4] Create `deletion` public screen at `../balsm_app_flutter/packages/deletion/lib/src/presentation/screens/public_delete_screen.dart` — public route `/account/delete`: 3-channel re-auth (email OTP / Google / Apple) via `auth` use cases, pre-confirmation screen matching in-app copy (FR-031), confirm button calls `account-delete-intake`, navigates to done screen; same widget for web and mobile (mobile reached via deeplink)
-- [ ] T158 [P] [Flutter] [US4] Create `deletion` cancellation public screen at `../balsm_app_flutter/packages/deletion/lib/src/presentation/screens/public_delete_cancelled_screen.dart` — route `/account/delete-cancelled`: shown when user signs back in during grace period, re-auth then `account-delete-cancel`
-- [ ] T158a [P] [Flutter] [US4] Extend `core` `DeeplinkRouter` (T133) to register `/account/delete` and `/account/delete-cancelled` handlers — navigate via `go_router` to public deletion screens regardless of platform (web direct URL, mobile via Universal/App Links)
+- [ ] T157 [P] [Flutter] [US4] Create `PublicDeleteScreen` at `deletion/lib/src/presentation/screens/public_delete_screen.dart` — public `/account/delete`: 3-channel re-auth via `auth` use cases, pre-confirm matching in-app copy, confirm calls `POST /deletion/intake`
+- [ ] T158 [P] [Flutter] [US4] Create `PublicDeleteCancelledScreen` at `deletion/lib/src/presentation/screens/public_delete_cancelled_screen.dart` — `/account/delete-cancelled`: re-auth then `POST /deletion/cancel`
+- [ ] T158a [P] [Flutter] [US4] Extend `core` `DeeplinkRouter` (T133) to register `/account/delete` + `/account/delete-cancelled`
 
-### 7.4 Flutter: sessions module
+### 7.4 Flutter + .NET: sessions module
 
-- [ ] T159 [P] [Flutter] [US4] Create `sessions` aggregate `ActiveSession` at `../balsm_app_flutter/packages/sessions/lib/src/domain/aggregates/active_session.dart` — id, deviceId, deviceLabel, deviceType, firstSeenAt, lastActivityAt, revokedAt (one-way transition)
-- [ ] T160 [P] [Flutter] [US4] Create `sessions` domain event `SessionRevoked` at `../balsm_app_flutter/packages/sessions/lib/src/domain/events/session_revoked.dart`
-- [ ] T161 [P] [Flutter] [US4] Create `sessions` use cases at `../balsm_app_flutter/packages/sessions/lib/src/application/use_cases/` — `ListActiveSessionsUseCase`, `RevokeSessionUseCase`, `SignOutEverywhereUseCase`
-- [ ] T162 [P] [Flutter] [US4] Create `sessions` screens at `../balsm_app_flutter/packages/sessions/lib/src/presentation/screens/` — `SessionsScreen` (list active devices, tap to revoke, "Sign out everywhere" button)
-- [ ] T163 [P] [Flutter] [US4] Create `sessions` routes at `../balsm_app_flutter/packages/sessions/lib/src/presentation/routes.dart` — `sessions.list`
-- [ ] T164 [Flutter] [US4] Update `../balsm_app_flutter/packages/sessions/lib/sessions.dart` public barrel
+- [ ] T159 [P] [Flutter] [US4] Create `ActiveSession` aggregate at `sessions/lib/src/domain/aggregates/active_session.dart` — id, deviceId, deviceLabel, deviceType, firstSeenAt, lastActivityAt, revokedAt (one-way)
+- [ ] T160 [P] [Flutter] [US4] Create `SessionRevoked` event at `sessions/lib/src/domain/events/session_revoked.dart`
+- [ ] T161 [P] [Flutter] [US4] Create use cases at `sessions/lib/src/application/use_cases/` — `ListActiveSessionsUseCase` (`GET /sessions`), `RevokeSessionUseCase` (`DELETE /sessions/{id}`), `SignOutEverywhereUseCase` (`DELETE /sessions`)
+- [ ] T162 [P] [Flutter] [US4] Create `SessionsScreen` at `sessions/lib/src/presentation/screens/` — list devices, tap-to-revoke, "Sign out everywhere"
+- [ ] T163 [P] [Flutter] [US4] Create routes at `sessions/lib/src/presentation/routes.dart` — `sessions.list`
+- [ ] T164 [Flutter] [US4] Update `sessions/lib/sessions.dart` public barrel
+- [ ] T164a [P] [DotNet] [US4] Create `../Balsm-Core/src/Balsm.API/Controllers/SessionsController.cs` (`GET /sessions`, `DELETE /sessions/{id}`, `DELETE /sessions` all `[Authorize(Policy="SelfOnly")]`) backed by `../Balsm-Core/src/Modules/Sessions/` query + commands — list active sessions, revoke one (400 if current), revoke all except current (revokes matching `UserRefreshToken` rows). Per FR-035/FR-036/SC-013.
 
-**Checkpoint**: full deletion FSM observable — in-app request, cancel, web path, purge cron. Sessions screen shows active devices.
+**Checkpoint**: full deletion FSM observable + sessions screen.
 
 ---
 
 ## Phase 8: US5 — Account Lockout & Sessions (Priority: P4)
 
-**Goal**: 5 failed attempts in 10-min rolling window → 15-min lockout. Sessions listed and remotely revocable.
+**Goal**: 5 failed attempts / 10-min rolling → 15-min lockout. Lockout screen exposes a support channel reachable without auth (FR-046a).
 
-**Independent Test**: Sign in with wrong password 5 times → "Locked" screen with countdown → wait 15 min (or skip by testing DB clock) → sign in successfully.
+**Independent Test**: 5 wrong OTPs → "Locked" screen with countdown + mailto + status link → wait 15 min → sign in.
 
 ### 8.1 Flutter: auth lockout UI
 
-- [ ] T165 [P] [Flutter] [US5] Extend `auth` sign-in use case at `../balsm_app_flutter/packages/auth/lib/src/application/use_cases/sign_in_use_case.dart` to handle `LockedOut` state from `auth-gate` Edge Function, surface lockout countdown
-- [ ] T166 [P] [Flutter] [US5] Create lockout screen at `../balsm_app_flutter/packages/auth/lib/src/presentation/screens/lockout_screen.dart` — shows "Too many attempts. Try again in X minutes." with timer countdown
-- [ ] T167 [Flutter] [US5] Update `auth` routes to include lockout screen
+- [ ] T165 [P] [Flutter] [US5] Extend `SignInUseCase` (T079) to handle the `LockedOut` (423 + `Retry-After`) response, surface the countdown
+- [ ] T166 [P] [Flutter] [US5] Create `LockoutScreen` at `auth/lib/src/presentation/screens/lockout_screen.dart` — countdown + `mailto:support@balsm.health` + `/status` link (FR-046a) + recovery-explainer link (T035bg)
+- [ ] T167 [Flutter] [US5] Update `auth` routes to include the lockout screen
 
-### 8.2 Supabase: lockout
+### 8.2 .NET: lockout test
 
-No additional Supabase tasks — `auth-attempt-record` (T073) and `account_lockout` table already handle the lockout state machine from Phase 3.
+- [ ] T167a [DotNet] [US5] No new endpoint — `AccountLockoutService` (T073) + `NotLockedOutPolicy` (T004) already implement the lockout state machine. Add `../Balsm-Core/tests/Modules/Auth.Tests/LockoutWindowTests.cs` verifying the 10-min rolling window + 15-min lock + reset-on-success. Per FR-007/SC-011.
 
-**Checkpoint**: lockout boundary tested. 5 bad logins → locked → unlock after 15 min.
+### 8.3 .NET + Flutter: public status page (FR-046b)
+
+- [ ] T167b [P] [DotNet] [US5] Create `../Balsm-Core/src/Modules/Sessions/Jobs/StatusHealthJob.cs` (`IHostedService`) + `../Balsm-Core/src/Balsm.API/Controllers/StatusController.cs` (`GET /status`, no auth, CORS `balsm-public`) — returns service health + recent incident feed JSON. Per Q4 FR-046b.
+- [ ] T167c [P] [Flutter] [US5] Create `StatusScreen` at `core/lib/src/kit/status_screen.dart` + register public route `/status` (no auth) — renders the `GET /status` payload, RTL-aware. Per FR-046b.
+
+**Checkpoint**: lockout boundary tested + support channels reachable.
 
 ---
 
 ## Phase 9: US6 — Country & Language Change (Priority: P4)
 
-**Goal**: Patient changes country post-signup (re-auth + re-disclosure), changes language with RTL toggle. Single global account across countries (FR-300…FR-305).
+**Goal**: Patient changes country post-signup (re-auth + re-disclosure), changes language with RTL toggle. Single global account (FR-300…FR-305).
 
-**Independent Test**: Sign up in EG → Settings → Change country to KSA → re-auth → re-accept SDAIA disclosure → confirm → country = SA, all data preserved. Change language to العربية → RTL renders.
+**Independent Test**: Sign up EG → change to KSA → re-auth → re-accept SDAIA disclosure → country=SA, data preserved. Change language → RTL renders ≤200ms.
 
-### 9.1 Supabase: country/language Edge Functions
+### 9.1 .NET: country/language endpoints
 
-- [ ] T168 [P] [Supabase] [US6] Create `../supabase/supabase/functions/country-change/index.ts` — validates new country not denied, updates `user_account.country_code` and re-snapshots `preferred_language` defaults for the new country, triggers fresh disclosure acceptance
-- [ ] T169 [P] [Supabase] [US6] Create `../supabase/supabase/functions/language-change/index.ts` — updates `user_account.preferred_language`
+- [ ] T168 [P] [DotNet] [US6] Create `ChangeCountryCommand` + `AccountController.ChangeCountry` (`PATCH /account/country`, `[Authorize]`) — requires a `reauth_token` (from a prior OTP/OIDC verify) + a `disclosure_acceptance_id`; validates the new country is not denied; updates `UserAccount.country_code` ONLY (does NOT migrate the encrypted DOB — research §6a / FR-049 / RR-001, add an explicit code comment). Replaces `country-change`. Per FR-302/FR-044.
+- [ ] T169 [P] [DotNet] [US6] Create `ChangeLanguageCommand` + `AccountController.ChangeLanguage` (`PATCH /account/language`, `[Authorize]`, no re-auth) — updates `UserAccount.preferred_language`. Replaces `language-change`. Per FR-301.
 
 ### 9.2 Flutter: account country/language screens
 
-- [ ] T170 [P] [Flutter] [US6] Create `account` use cases at `../balsm_app_flutter/packages/account/lib/src/application/use_cases/` — `ChangeCountryUseCase`, `ChangeLanguageUseCase`
-- [ ] T171 [P] [Flutter] [US6] Create `account` screens at `../balsm_app_flutter/packages/account/lib/src/presentation/screens/` — `CountrySettingsScreen` (selectable country list, calls country-change flow = re-auth + re-disclosure), `LanguageSettingsScreen` (selectable `ar-EG`, `ar-SA`, `ar-AE`, `en`)
-- [ ] T172 [P] [Flutter] [US6] Create `account` routes at `../balsm_app_flutter/packages/account/lib/src/presentation/routes.dart` — `account.settings`, `account.country`, `account.language`, `account.developer` (route only registered when `FlavorConfig.current.serverSelectorEnabled` is true)
-- [ ] T172a [P] [Flutter] [US6] Update `account` settings root screen at `../balsm_app_flutter/packages/account/lib/src/presentation/screens/settings_screen.dart` to conditionally render a "Developer" section showing tile "Switch server" + active preset label — visible only when `FlavorConfig.current.flavor == Flavor.dev`; tap opens `core` `ServerSelectorScreen` (T035o); section spatially separated below regular settings with `--space-8` margin and warning icon
+- [ ] T170 [P] [Flutter] [US6] Create use cases at `account/lib/src/application/use_cases/` — `ChangeCountryUseCase` (`PATCH /account/country`), `ChangeLanguageUseCase` (`PATCH /account/language`)
+- [ ] T171 [P] [Flutter] [US6] Create screens at `account/lib/src/presentation/screens/` — `CountrySettingsScreen` (re-auth + re-disclosure flow), `LanguageSettingsScreen` (`ar-EG`/`ar-SA`/`ar-AE`/`en`, live RTL preview)
+- [ ] T172 [P] [Flutter] [US6] Create routes at `account/lib/src/presentation/routes.dart` — `account.settings`, `account.country`, `account.language`, `account.developer` (only when `serverSelectorEnabled`)
+- [ ] T172a [P] [Flutter] [US6] Update `SettingsScreen` at `account/lib/src/presentation/screens/settings_screen.dart` to conditionally render a "Developer" section ("Switch server" + active preset) visible only when `flavor == Flavor.dev`; opens `core` `ServerSelectorScreen` (T035o)
 
 ### 9.3 Flutter: home country-change integration
 
-- [ ] T173 [Flutter] [US6] Update `home` screen at `../balsm_app_flutter/packages/home/lib/src/presentation/screens/home_screen.dart` to react to `CountryChanged` event — reload locale, update RTL, re-fetch country-specific data
-- [ ] T174 [Flutter] [US6] Update `disclosure` screen at `../balsm_app_flutter/packages/disclosure/lib/src/presentation/screens/consolidated_disclosure_screen.dart` to support re-disclosure flow on country change (different supervisory authority name, different copy version)
+- [ ] T173 [Flutter] [US6] Update `HomeScreen` to react to `CountryChanged` — reload locale, update RTL, re-fetch country data
+- [ ] T174 [Flutter] [US6] Update `ConsolidatedDisclosureScreen` to support re-disclosure on country change (different authority name + version)
 
-**Checkpoint**: country change round-trip → re-auth → re-disclosure → RTL toggle → single account preserved across countries.
+**Checkpoint**: country change round-trip + single account preserved.
 
 ---
 
@@ -553,23 +648,24 @@ No additional Supabase tasks — `auth-attempt-record` (T073) and `account_locko
 
 **Purpose**: PHI-leak guardrails, CI/CD, E2E tests, localization completeness.
 
-- [ ] T175 [P] [Flutter] Create PHI-leak fuzz test at `../balsm_app_flutter/test/phi_leak_fuzz_test/sentry_allowlist_test.dart` — exercises ≥50 synthetic PHI payloads through Sentry `beforeSend` and Dio `PhiLeakInterceptor`, asserts zero non-allowlisted field names on wire (SC-006, SC-016)
-- [ ] T176 [P] [Flutter] Create `../balsm_app_flutter/test/phi_leak_fuzz_test/corpus.dart` — generates synthetic Egyptian/Saudi/UAE names, phone numbers, national IDs, DOBs, allergy/condition/medication names in ar + en per `contracts/crash-allowlist.json`
-- [ ] T177 [P] [Flutter] Create golden test suite at `../balsm_app_flutter/test/golden/` — RTL + LTR golden tests for every screen (auth, disclosure, home, profile, emergency_card, medications, deletion, sessions, account)
-- [ ] T178 [P] [Flutter] Create localized 404 screen at `../balsm_app_flutter/packages/core/lib/src/kit/not_found_screen.dart` — `go_router` `errorBuilder` target, uses `TranslationCatalog`, RTL-aware
-- [ ] T179 [P] [Flutter] Wire web-target error boundary at `../balsm_app_flutter/app/lib/web_error_boundary.dart` — `FlutterError.onError` + `PlatformDispatcher.instance.onError` route to localized error page, Sentry capture with same allowlist
-- [ ] T180 [P] [Flutter] Add Flutter Web `flutter build web --release` smoke test at `../balsm_app_flutter/test/web_smoke/public_routes_test.dart` — verify `/emergency/{token}` + `/account/delete` resolve to public screens without auth redirect; verify deeplink fragment-key parser
-- [ ] T181 [P] [Flutter] Create CI workflow at `../balsm_app_flutter/.github/workflows/ci.yml` — steps: flutter analyze, flutter test, golden diffs, phi_leak_fuzz_test, drift schema check, translation catalog ≥98% completeness per language, iOS + Android release build
-- [ ] T182 [P] [Supabase] Create CI workflow at `../supabase/.github/workflows/ci.yml` — steps: supabase db diff, Edge Function typecheck via deno check, migration dry-run
-- [ ] T183 [P] [Flutter] Extend Flutter CI workflow `../balsm_app_flutter/.github/workflows/ci.yml` with a `build-web` job — `flutter build web --release --wasm`, validate `.well-known/apple-app-site-association` content-type + JSON, validate `assetlinks.json` SHA-256 fingerprint matches release signing cert, publish artifact for Firebase Hosting / Cloudflare Pages
-- [ ] T184 [P] [Flutter] Add E2E test at `../balsm_app_flutter/test/e2e_test/signup_to_home_test.dart` — full signup flow via Patrol
-- [ ] T185 [P] [Flutter] Add E2E test at `../balsm_app_flutter/test/e2e_test/emergency_qr_roundtrip_test.dart` — mint QR → verify public page resolves
-- [ ] T186 [P] [Flutter] Add E2E test at `../balsm_app_flutter/test/e2e_test/medication_reminder_test.dart` — add medication → advance clock → verify notification fires
-- [ ] T187 [P] [Flutter] Add E2E test at `../balsm_app_flutter/test/e2e_test/deletion_flow_test.dart` — request deletion → cancel → sign in → verify no data loss
-- [ ] T188 [P] [Flutter] Add E2E test at `../balsm_app_flutter/test/e2e_test/country_change_test.dart` — sign up EG → change to KSA → verify re-disclosure appears
-- [ ] T189 [Flutter] Verify translation catalog completeness across all 4 locales (`en`, `ar-EG`, `ar-SA`, `ar-AE`) — every key present, ≥98% completeness per SC-203
-- [ ] T190 Run the `quickstart.md` walkthrough end-to-end on iOS Simulator + Android Emulator; record pass/fail per SC-001a, US2, SC-004, US4, SC-006, SC-016, SC-011, Q1, FR-300..FR-305
-- [ ] T191 Update `../balsm_app_flutter/AGENTS.md` notes section to mention the project structure (12 packages, boundary lint rules, core shared kernel)
+- [ ] T175 [P] [Flutter] Create PHI-leak fuzz test at `../balsm_app_flutter/test/phi_leak_fuzz_test/sentry_allowlist_test.dart` — ≥50 synthetic PHI payloads through Sentry `beforeSend` + Dio `PhiLeakInterceptor`, assert zero non-allowlisted fields (SC-006/SC-016)
+- [ ] T175a [P] [DotNet] Create `../Balsm-Core/tests/Balsm.API.IntegrationTests/PhiLeakGuardTests.cs` — feed ≥50 synthetic PHI payloads through `PhiLeakGuardMiddleware`, assert no non-allowlisted field is logged (SC-006/SC-016 backend side)
+- [ ] T176 [P] [Flutter] Create `../balsm_app_flutter/test/phi_leak_fuzz_test/corpus.dart` — synthetic EG/SA/AE names, phones, national IDs, DOBs, allergy/condition/medication names in ar+en per `contracts/crash-allowlist.json`
+- [ ] T177 [P] [Flutter] Create golden test suite at `../balsm_app_flutter/test/golden/` — RTL+LTR goldens for every screen
+- [ ] T178 [P] [Flutter] Create localized 404 at `core/lib/src/kit/not_found_screen.dart` — `go_router` `errorBuilder`, RTL-aware (FR-404)
+- [ ] T179 [P] [Flutter] Wire web error boundary at `../balsm_app_flutter/app/lib/web_error_boundary.dart` — `FlutterError.onError` + `PlatformDispatcher.onError` → localized error page + Sentry capture
+- [ ] T180 [P] [Flutter] Add web smoke test at `../balsm_app_flutter/test/web_smoke/public_routes_test.dart` — `/emergency/{token}` + `/account/delete` + `/status` resolve without auth redirect; deeplink fragment-key parser
+- [ ] T181 [P] [Flutter] Create CI at `../balsm_app_flutter/.github/workflows/ci.yml` — flutter analyze, test, golden diffs, phi_leak_fuzz, drift schema check, i18n ≥98% completeness, iOS + Android release builds
+- [ ] T182 [P] [DotNet] Create CI at `../Balsm-Core/.github/workflows/dotnet-ci.yml` — `dotnet restore`, `dotnet build -warnaserror`, `dotnet test` (xUnit + Testcontainers PostgreSQL), `dotnet ef migrations script` dry-run, `dotnet format --verify-no-changes`. Replaces the former Supabase CI.
+- [ ] T183 [P] [Flutter] Extend Flutter CI with a `build-web` job — `flutter build web --release --wasm`, validate AASA content-type + JSON, validate `assetlinks.json` SHA-256 vs release cert, publish artifact
+- [ ] T184 [P] [Flutter] Add E2E at `../balsm_app_flutter/test/e2e_test/signup_to_home_test.dart` — full signup via Patrol (against a local .NET API)
+- [ ] T185 [P] [Flutter] Add E2E at `../balsm_app_flutter/test/e2e_test/emergency_qr_roundtrip_test.dart` — mint → public page resolves
+- [ ] T186 [P] [Flutter] Add E2E at `../balsm_app_flutter/test/e2e_test/medication_reminder_test.dart` — add medication → advance clock → notification fires
+- [ ] T187 [P] [Flutter] Add E2E at `../balsm_app_flutter/test/e2e_test/deletion_flow_test.dart` — request → cancel → sign in → no data loss
+- [ ] T188 [P] [Flutter] Add E2E at `../balsm_app_flutter/test/e2e_test/country_change_test.dart` — sign up EG → change KSA → re-disclosure appears
+- [ ] T189 [Flutter] Verify i18n completeness across `en`, `ar-EG`, `ar-SA`, `ar-AE` — ≥98% per SC-203
+- [ ] T190 Run `quickstart.md` end-to-end on iOS Simulator + Android Emulator against a local .NET API; record pass/fail per SC-001a, US2, SC-004, US4, SC-006, SC-016, SC-011, Q1-Q5, FR-300..FR-305
+- [ ] T191 Update `../balsm_app_flutter/AGENTS.md` + `../Balsm-Core/AGENTS.md` — note the structure (12 Flutter packages + 7 .NET modules, boundary lint, core kernel, 3 flavors, 4 sub-processors: Resend, iCloud, Drive, reCAPTCHA)
 
 ---
 
@@ -578,13 +674,13 @@ No additional Supabase tasks — `auth-attempt-record` (T073) and `account_locko
 ### Phase order
 
 ```
-Phase 1 (Setup)
+Phase 1 (Setup — .NET solution + Flutter scaffold)
   │
   ▼
-Phase 2 (Foundational — Core + Boundary Lint)
+Phase 2 (Foundational — .NET infra services + Flutter core kernel + boundary lint)
   │
   ▼
-Phase 2.5 (UI/UX Design + Prototype Review) ── BLOCKING GATE: stakeholder sign-off required
+Phase 2.5 (UI/UX Design + Prototype Review) ── BLOCKING GATE: stakeholder sign-off
   │
   ├──► Phase 3 (US1 — Signup & Auth) ────────── P1, blocks everything
   │         │
@@ -602,75 +698,20 @@ Phase 2.5 (UI/UX Design + Prototype Review) ── BLOCKING GATE: stakeholder si
 
 ### Within each user story
 
-- **US1** tasks: Supabase Edge Functions (T071-T073) may run in parallel with Flutter module (T074-T100).
-- **US1a**: Supabase handle Edge Functions (T106-T108) parallel with Flutter profile module (T109-T118).
-- **US2**: Two tracks (Supabase T119-T121, Flutter T122-T133a — incl. Flutter Web public route + deeplink) fully parallel.
-- **US3**: Flutter medications module (T134-T144) then core notifications wiring (T145).
-- **US4**: Tracks (Supabase T146-T150, Flutter deletion T151-T156 + public T157-T158a, Flutter sessions T159-T164) fully parallel.
-- **US5**: Flutter lockout UI only (T165-T167) — Supabase lockout already deployed.
-- **US6**: Supabase Edge Functions (T168-T169) parallel with Flutter screens (T170-T174).
+- **US1**: .NET auth endpoints (T071-T073d) parallel with Flutter modules (T074-T105). The Flutter auth adapter (T077) depends on the endpoint contracts in `contracts/dotnet-api-endpoints.md`, not on the implementations being deployed.
+- **US1a**: .NET handle endpoints (T106-T108) parallel with Flutter profile (T109-T118).
+- **US2**: .NET emergency endpoints (T119-T121b) parallel with Flutter emergency_card (T122-T133a).
+- **US3**: Flutter-only (T134-T145) — no backend (PHI on-device).
+- **US4**: .NET deletion (T146-T150) + .NET sessions (T164a) parallel with Flutter deletion (T151-T158a) + Flutter sessions (T159-T164).
+- **US5**: Flutter lockout UI (T165-T167) + .NET status (T167b) + Flutter status (T167c).
+- **US6**: .NET country/language (T168-T169) parallel with Flutter screens (T170-T174).
 
 ### Parallel opportunities
 
-- Phase 1 strongly parallel — 35 tasks across 3 repos, marked `[P]`.
-- Phase 2 strongly parallel — 35 tasks across core subdirectories and lint rules.
-- Phases 3-6 may run on separate developers/agents after Phase 2 completes.
-- Phase 9 depends on auth being available (re-auth flow), so cannot start before US1.
-
----
-
-## Parallel execution examples
-
-### Phase 1 burst (Supabase + Flutter + Web)
-
-```bash
-# Supabase track (8 tasks)
-Task: T001 supabase/config.toml
-Task: T002 migration 00001_initial_schema.sql
-Task: T003 seed.sql
-Task: T004 migration 00002_rls_policies.sql
-Task: T005 Edge Function directory scaffold
-Task: T006 _shared/supabase-client.ts
-Task: T007 _shared/cors.ts
-Task: T008 _shared/response.ts
-
-# Flutter track (22 tasks)
-Task: T009 melos.yaml
-Task: T010 pubspec.yaml
-...
-Task: T030 bootstrap.dart
-
-# Web track (5 tasks)
-Task: T031 package.json
-...
-Task: T035 supabase-client.ts
-```
-
-### Phase 3 (US1) parallel tracks
-
-```bash
-# Edge Functions (3 tasks)
-Task: T071 auth-gate/index.ts
-Task: T072 geofence-check/index.ts
-Task: T073 auth-attempt-record/index.ts
-
-# Flutter auth module (11 tasks)
-Task: T074 auth_session.dart
-Task: T075 domain events (5 files)
-Task: T076 read_auth_repository.dart
-...
-Task: T084 auth.dart barrel
-
-# Flutter disclosure module (7 tasks)
-Task: T085 disclosure_acceptance.dart
-...
-Task: T091 disclosure.dart barrel
-
-# Flutter geofence_block module (3 tasks)
-Task: T092 read_denied_countries_repository.dart
-...
-Task: T094 geofence_block.dart barrel
-```
+- Phase 1 strongly parallel across both repos (.NET solution init + Flutter scaffold).
+- Phase 2 strongly parallel — .NET infra services (T035bt-by) independent of Flutter core subdirectories.
+- Phases 3-6 may run on separate agents after Phase 2.
+- Phase 9 depends on auth (re-auth flow) — cannot start before US1.
 
 ---
 
@@ -678,41 +719,43 @@ Task: T094 geofence_block.dart barrel
 
 ### MVP first (US1 only)
 
-1. Phase 1 (35 tasks) + Phase 2 (35 tasks) → foundation ready
-2. Phase 3 US1 (34 tasks) → signup-to-home round-trip complete
-3. **Stop and validate**: run quickstart step SC-001a
-4. Demo / ship MVP. Subsequent stories add value without breaking US1.
+1. Phase 1 + Phase 2 → foundation ready (both repos)
+2. Phase 3 US1 → signup-to-home round-trip
+3. **Stop and validate**: run SC-001a (T073d backend test + T184 E2E)
+4. Demo / ship MVP.
 
 ### Incremental delivery
 
-- After US1 → demo signup flow + disclosure + home
-- Add US1a → handle claim + health profile → demo
-- Add US2 → emergency card + QR + public web page → demo
-- Add US3 → medication reminders offline → demo
-- Add US4 → deletion FSM both paths → demo
-- Add US5 → lockout + sessions → demo
-- Add US6 → country change + RTL → demo
-- Polish → CI, E2E, PHI-leak fuzz, completeness checks
+- US1 → signup + disclosure + home
+- US1a → handle + health profile
+- US2 → emergency card + QR + public page
+- US3 → medication reminders offline
+- US4 → deletion FSM both paths + sessions
+- US5 → lockout + status page
+- US6 → country change + RTL
+- Polish → CI, E2E, PHI-leak fuzz, completeness
 
 ### Parallel team strategy
 
-- Foundation team: Phase 1 + Phase 2 (70 tasks, well-parallelized)
-- Dev A: US1 (Phase 3, 34 tasks) — auth-heavy
-- Dev B: US1a + US2 (Phases 4+5) — profile + emergency card
-- Dev C: US3 (Phase 6) — medication scheduler
-- Dev D: US4 + US5 (Phases 7+8) — deletion + sessions
-- Dev E: US6 (Phase 9) — country/language
-- Polish team picks up Phase 10 after stories land
+- Backend team: .NET tasks (T001-T008, T035az-bd, T035bt-by, all `[DotNet]` story tasks)
+- Foundation team: Flutter Phase 1 + Phase 2 core kernel
+- Dev A: US1 (auth-heavy, both repos)
+- Dev B: US1a + US2 (profile + emergency)
+- Dev C: US3 (medication scheduler, Flutter-only)
+- Dev D: US4 + US5 (deletion + sessions + lockout)
+- Dev E: US6 (country/language)
 
 ---
 
 ## Notes for cheap-model execution
 
-- Each task names the exact file path. Open the file (or create it if absent), apply the named change, do not refactor adjacent code.
-- When a task says "extend `<existing file>`", load the file first, locate the cited symbol, and add the new behavior without rewriting unrelated regions.
-- Every module follows the same DDD template (domain/ → application/ → infrastructure/ → presentation/). Copy-paste the pattern from a completed module to bootstrap a new one.
-- All drift DAOs must use `UuidV7` for all PHI table PKs (UUID v7 per Q4 resolution).
-- All drift tables with PHI must go through `SQLCipher` encryption (handled by `core.db.AppDatabase`).
-- All Supabase Edge Functions use the `_shared/` library for `createClient`, `corsHeaders`, and response helpers.
-- All `[P]` tasks in the same phase may run in parallel — they touch different files.
-- Test tasks (T175-T188) are collected in Phase 10; they reference patterns found in `core/test_kit/` and can be written last.
+- Each task names the exact file path. Open the file (or create it), apply the named change, do not refactor adjacent code.
+- When a task says "extend `<existing file>`", load it first, locate the cited symbol, add the behavior without rewriting unrelated regions.
+- Every Flutter module follows the same DDD template (domain/ → application/ → infrastructure/ → presentation/). Copy the pattern from a completed module.
+- Every .NET module follows the same template: `Commands/` + `Queries/` (MediatR handlers) → `Domain/` (aggregate) → `Infrastructure/` (EF config). Controllers live in `Balsm.API/Controllers/`. Copy the pattern from the `Auth` module.
+- The API contract is authoritative: `contracts/dotnet-api-endpoints.md`. Match request/response shapes exactly so the Flutter adapter (`infrastructure/api/`) and the .NET controller agree.
+- All drift PHI table PKs use `UuidV7`; all PHI tables go through SQLCipher (`core.db.AppDatabase`).
+- All .NET reads use `AsNoTracking()`; all I/O is async with `CancellationToken`; never `SELECT *` (project to DTOs) — Constitution §VII.
+- DOB is encrypted/decrypted ONLY via `DobEncryptionService` (T035bw); every decrypt writes a `UserAccountAuditLog` row.
+- `[P]` tasks in the same phase touch different files — safe to run in parallel.
+- Test tasks (T073d, T121b, T150, T167a, T175-T188) reference patterns in `core/test_kit/` (Flutter) and `TestWebAppFactory` (.NET) — can be written last per story.

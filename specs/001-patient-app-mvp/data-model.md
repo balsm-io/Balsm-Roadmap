@@ -2,8 +2,8 @@
 
 Two storage planes — strictly separate.
 
-- **Cloud plane (Supabase Postgres, single EU region)** — non-PHI only per ADR-10 + Q2 resolution. RLS-enforced. Email is the recovery identifier.
-- **On-device plane (SQLite via drift, encrypted with SQLCipher)** — all PHI. UUID v7 primary keys across every PHI table per Q4 resolution + ADR-12. Append-only triggers on `medication_dose_event`.
+- **Cloud plane (PostgreSQL 16, EF Core 10 + Npgsql, single EU region)** — non-PHI only per ADR-10 + Q2 resolution. **Application-layer authorization** via ASP.NET Core policies (not PostgreSQL RLS — removed 2026-06-17 pivot, research §28). Email is the recovery identifier.
+- **On-device plane (SQLite via drift, SQLCipher-encrypted)** — all PHI. UUID v7 primary keys across every PHI table per Q4 resolution + ADR-12. Append-only triggers on `medication_dose_event`.
 
 Cross-references use `[[name]]` style for related tables in the same plane; cross-plane links are described in prose.
 
@@ -11,16 +11,25 @@ Cross-references use `[[name]]` style for related tables in the same plane; cros
 
 ## 1. Cloud plane (Supabase Postgres — non-PHI)
 
-### 1.1 `auth.users` (Supabase-managed)
+### 1.1 `public.user_identities` *(replaces Supabase-managed `auth.users` — 2026-06-17 pivot)*
 
-Managed by Supabase Auth. Three providers enabled per FR-001: `email` (OTP), `google` (OIDC), `apple` (OIDC). Phone provider **disabled**.
+Custom-managed by `Balsm.Modules.Auth`. Three providers per FR-001: `email` (OTP), `google` (OIDC), `apple` (OIDC). Phone provider **disabled**.
 
-Fields used downstream:
-- `id` UUID — Supabase user id; foreign key for every `public.*` row.
-- `email` text — recovery identifier (Apple `hide-my-email` relay address counts).
-- `email_confirmed_at` timestamptz — drives FR-008 `email_verified` badge.
-- `raw_app_meta_data.provider` — drives FR-302 duplicate-identity check across `sub` values.
-- `raw_user_meta_data.country_code_at_signup` — captured at signup for the deletion-log retention story.
+| Column | Type | Constraint | Notes |
+|---|---|---|---|
+| `id` | uuid | PRIMARY KEY DEFAULT gen_random_uuid() | Identity row id. |
+| `user_id` | uuid | NOT NULL REFERENCES public.user_account(id) ON DELETE CASCADE | Links to account aggregate. |
+| `provider` | text | NOT NULL CHECK (provider IN ('email','google','apple')) | |
+| `provider_subject` | text | NOT NULL | OAuth `sub` for Google/Apple; lowercased email for email provider. |
+| `email_normalized` | citext | NULLABLE | Populated for `email` + `google` providers; Apple `hide-my-email` relay accepted verbatim. |
+| `email_confirmed_at` | timestamptz | NULLABLE | Set on first successful OTP verify or OIDC email-verified claim. |
+| `created_at` | timestamptz | NOT NULL DEFAULT now() | |
+
+**Unique constraints**: `UNIQUE(provider, provider_subject)` — prevents duplicate identities; `UNIQUE(email_normalized) WHERE provider = 'email'` — one email account.
+
+**Replaces**: `auth.users.id` FK — `public.user_account.id` is now a generated UUID with no dependency on a managed auth table. `raw_app_meta_data.provider` → `user_identities.provider`. `raw_user_meta_data.country_code_at_signup` → captured in `user_account.country_code` at signup.
+
+**JWT sessions** (replaces Supabase sessions): `public.user_refresh_token (id uuid PK, user_id uuid FK, token_hash text NOT NULL, device_id uuid NOT NULL, expires_at timestamptz NOT NULL, revoked_at timestamptz)` — issued by `Balsm.Infrastructure.Auth.JwtService`; 30-day expiry; revoked on sign-out or session-revoke.
 
 ### 1.2 `public.user_account`
 
@@ -28,11 +37,11 @@ Spec entities: **User Account (cloud, non-PHI)** + global-account invariants fro
 
 | Column | Type | Constraint | Notes |
 |---|---|---|---|
-| `id` | uuid | PRIMARY KEY, REFERENCES auth.users(id) ON DELETE CASCADE | 1:1 with auth.users. |
+| `id` | uuid | PRIMARY KEY DEFAULT gen_random_uuid() | Generated UUID; no FK to managed auth table (2026-06-17 pivot). Referenced by `user_identities.user_id`. |
 | `handle` | citext | UNIQUE, NULLABLE | FR-002 — 3–30 chars, `[a-z0-9_.]`, case-insensitive, country-agnostic. NULL until post-signup claim. |
 | `display_name` | text | NULLABLE | FR-006. |
 | `bio` | text | NULLABLE | FR-006. |
-| `date_of_birth_ciphertext` | bytea | NULLABLE | **PHI** per 2026-06-15 Path-ii clarification. Field-level encrypted via `pgp_sym_encrypt(date, key)`; key in Supabase secrets, rotated annually. Decrypted on demand by Edge Functions (`auth-gate`, `age-gate-check`); NEVER appears as plaintext in views, logical replication, or backups. Captured lazily on first age-gated action. |
+| `date_of_birth_ciphertext` | bytea | NULLABLE | **PHI** per 2026-06-15 Path-ii clarification. Field-level encrypted via **AES-256-GCM in .NET application layer** (`DobEncryptionService`; key from `DOB_ENCRYPTION_KEY` env var, rotated annually); replaces pgcrypto pgp_sym per research §30. Decrypted on demand by .NET endpoints (`POST /auth/otp/verify` age-gate, `GET /account/self`); NEVER appears as plaintext in DB logs, replication, or backups. Captured lazily on first age-gated action. |
 | `country_code` | char(2) | NOT NULL | FR-202 — ISO 3166-1 alpha-2; per-user **attribute**, not partition. |
 | `preferred_language` | text | NOT NULL | FR-205 — BCP 47 tag (`ar-EG`, `ar-SA`, `ar-AE`, `en` first-class; any other valid BCP 47 → falls back to `en` if not in catalog). |
 | `deletion_state` | text | NOT NULL DEFAULT 'ACTIVE', CHECK (deletion_state IN ('ACTIVE','DELETION_REQUESTED','DELETION_CANCELLED')) | Research §12 FSM. |
@@ -471,6 +480,45 @@ Per `contracts/module-package-boundaries.md`, every PHI-touching context owns a 
 - `Bcp47Tag` — language tag with first-class / default-class classification.
 - `Iso8601Timestamp` — UTC milliseconds wrapper.
 - `Money` — currency code + minor units (EGP / SAR / AED / generic for default-class).
+
+## 5b. Clarifications
+
+### Session 2026-06-16
+
+> Recorded here because `spec.md` is absent. When `spec.md` is regenerated these MUST be merged into a `## Clarifications` section there.
+
+- **Q1**: Multi-device sign-in PHI restore behavior → **A**: User-owned encrypted backup. iOS uses iCloud Drive (`com.apple.developer.icloud-services` documents container), Android uses Google Drive (`AppFolder` scope via `DriveScopes.SCOPE_APPDATA`). Balsm client encrypts the drift export with a key derived from `Argon2id(user_otp_token || device_secret)` and uploads the ciphertext blob. New-device sign-in: after first OTP success, prompts "Restore from your backup?" — user accepts, blob downloads, drift database rehydrated. Balsm servers never see plaintext or key. Rationale: meets FR-009 literally (no PHI on Balsm servers) while solving the multi-device-restore gap.
+  - **Affected FRs**: FR-009 (clarified — PHI never reaches Balsm; user-cloud is the patient's data, not Balsm's), new FR-009a (multi-device restore via user-owned cloud), new FR-009b (restore is explicit opt-in, defaults to off)
+  - **Affected SCs**: new SC-002a "Restore from backup completes in ≤30s P50 on second-device sign-in"
+  - **Affected tasks**: new tasks needed under `core` for `BackupAdapter` + per-platform implementations + drift export/import; restore prompt screen after auth-otp success when backup-blob detected
+  - **Implementation impact**: ~6 new tasks (T112-class), 1 new screen, 2 platform-channel implementations
+
+- **Q2**: Medication reminder notification body content → **A**: Strict privacy. Notification body fixed to localized "Time for your medication" / "موعد دوائك" / etc. Drug name, dose, schedule never appear in `notification.body`, `notification.title`, `subtitle`, `summary`, or watchOS/Android Wear preview. Drug name only inside the app after unlock. Multi-dose-at-same-time collision resolved by deep-link payload → `meds.today` screen which lists the due doses. Rationale: matches MASTER.md §9 PHI rule literally; matches Balsm voice; accepted UX cost for poly-pharmacy patients (mitigation: deep-link straight to today screen).
+  - **Affected FRs**: FR-018 (clarified — notification CONTENT bounded to localized generic string), new FR-018a (deep-link payload routes to `meds.today` with the due-dose ID highlighted)
+  - **Affected SCs**: clarification on SC-004 — "notification fires" measured by OS delivery, not by user reading drug name in notification
+  - **Affected tasks**: T138 (medication scheduler) — add notification-body redaction guard in code; T145 (notification tap handler) — route deep-link payload to `meds.today` with highlighted due-dose; T175 (PHI-leak fuzz test) — extend corpus to include `flutter_local_notifications` payload assertion
+  - **Implementation impact**: ~3 task updates, no new screens
+
+- **Q3**: Country change after Path-ii encrypted DOB stored — residency handling → **A**: No migration. Encrypted DOB stays on the originally-provisioned Supabase project regardless of `country_code` changes. `user_account.country_code` becomes the user-facing locale + supervisory-authority field; it does NOT drive row residency post-creation.
+  - **⚠️ COMPLIANCE GAP — documented intentionally**: UAE Federal Law 2/2019 + UAE Health Data Office 2024-Q3 guidance treats encrypted PHI as PHI. An EG-signed-up user who relocates to UAE retains EU-resident encrypted DOB. This is a known divergence from FR-049's letter. Must be tracked on the compliance risk register and disclosed in the UAE-app-store privacy filing.
+  - **Affected FRs**: FR-049 (clarified — residency pinned at signup, not mutable; document gap explicitly); FR-302 (clarified — country-change updates country_code only, no row migration)
+  - **Affected SCs**: SC-302 (clarified — country-change ≤2s, no migration latency budget)
+  - **Affected tasks**: T168 (country-change Edge Function) — explicit comment that row is not migrated; T146-T149 (deletion functions) — deletion still works regardless of country_code drift; new task to add a compliance-risk-register entry under repo `docs/compliance-risks.md`
+  - **Risk mitigations to add**: (i) on signup, the chosen country is the *durable residency* — change UI copy on country picker to convey this without scaring user; (ii) UAE residents MUST sign up with country=AE — denied_country_blocklist doesn't help here; consider a soft warning on country picker if device-locale is AE but user picks non-AE; (iii) document the gap in privacy notice + app-store data-safety filings; (iv) revisit in P002 when cross-project migration tooling exists
+  - **Implementation impact**: ~3 task updates, copy edits on auth-country screen, 1 new compliance-risk-register doc
+
+- **Q4**: Lockout escape path / support contact channel → **B**: Two channels — `mailto:support@balsm.health` (renders via device mail client; no auth required) + public status page at `{BASE_URL}/status`. Both reachable from `auth-lockout`, `auth-blocked` (geofence), `not-found`, and `meds-tz-shift` error states. Status page is a static Flutter Web route hosted alongside `/emergency/{token}` and `/account/delete`, showing current Supabase health, scheduled maintenance, and a feed of recent incidents. Rationale: zero ops headcount, works for phone-stolen recovery via second device, handles outage queries without flooding email. P002 may add in-app contact form for authenticated users.
+  - **Affected FRs**: new FR-046a "All hard-blocking screens (lockout, geofence-blocked, 404) MUST expose at least one support channel reachable without app auth"; new FR-046b "Public status page MUST display at `{BASE_URL}/status` showing service health"
+  - **Affected SCs**: new SC-011a "Locked-out user can reach support email or status page in ≤2 taps from lockout screen"
+  - **Affected tasks**: T166 (lockout screen) — wire mailto: + status link; new task to create Flutter Web `/status` public route (T133b-class); new task to add status page to AASA + assetlinks deeplink allowlist; T193 design copy task in `findings/_template.md` to specify support copy
+  - **Implementation impact**: ~3 task updates, 1 new public web route + cron-checked status feed, copy edits across lockout/geofence/404 screens
+
+- **Q5**: OTP delivery provider → **B**: Resend.com via custom domain `noreply@balsm.health`. SPF + DKIM + DMARC aligned at DNS level. Resend EU region (Frankfurt) matches our EU-resident Supabase project default; Resend Egypt-EG region considered when available. Free tier 3000 emails/day; paid $20/mo for 50k. DPA via Resend's standard data-processing agreement; named sub-processor on Apple/Google data-safety filings. Templates stored in `supabase/templates/auth-otp/{en,ar-EG,ar-SA,ar-AE}.html` and sent via Supabase Auth's custom SMTP setting pointing at Resend's SMTP endpoint with API key in Supabase secrets.
+  - **Affected FRs**: clarification on FR-001 (OTP delivery via Resend; not Supabase default); new FR-001a "OTP email rendered from versioned localized template; subject + body + sender match user's `preferred_language`"
+  - **Affected SCs**: SC-001a OTP-delivery-to-inbox ≤30s P50, ≤90s P99 (Resend SLA)
+  - **Affected tasks**: T001 (Supabase config.toml) — set custom SMTP to Resend host + port 587; secret `RESEND_API_KEY` in Supabase project secrets; new task to create 4 localized OTP templates under `supabase/templates/auth-otp/`; new task in CI to validate template render with sample tokens
+  - **DPA + filings**: add Resend to (i) privacy notice sub-processor list, (ii) Apple/Google data-safety email-collection field, (iii) UAE/KSA/EG DPA registers
+  - **Implementation impact**: ~4 task updates/additions, 4 email templates, 1 secret bootstrap, 3 regulatory filing updates
 
 ## 6. P002 forward-compat notes
 

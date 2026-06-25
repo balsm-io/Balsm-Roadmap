@@ -62,7 +62,7 @@ const s8 = 32.0;  // --space-8
 
 **Border radii**: `sm=4, md=8, lg=12, xl=16, full=999`
 
-**Key packages** (already in pubspec): `flutter_riverpod`, `go_router`, `drift`, `supabase_flutter`, `flutter_local_notifications`, `flutter_secure_storage`, `qr_flutter`, `url_launcher`, `lucide_icons` (or `icons_plus`)
+**Key packages** (already in pubspec): `flutter_riverpod`, `go_router`, `drift`, `dio` (the .NET API client — no `supabase_flutter`), `flutter_local_notifications`, `flutter_secure_storage`, `qr_flutter`, `url_launcher`, `lucide_icons` (or `icons_plus`)
 
 ---
 
@@ -996,7 +996,7 @@ const s8 = 32.0;  // --space-8
   )
   ```
   `_mintToken()`: call `ref.read(mintQrProvider.notifier).mint(ttlSeconds: _ttlValues[_selectedTtlIndex])`.
-  `baseUrl` from `FlavorConfig.current.supabaseUrl` domain.
+  `baseUrl` from `FlavorConfig.current.apiBaseUrl` domain.
 
 - [ ] UI035 [P] [US2] Create `../balsm_app_flutter/packages/emergency_card/lib/src/presentation/screens/public_emergency_resolve_screen.dart`.
   Class: `class PublicEmergencyResolveScreen extends ConsumerWidget`. Route: `/emergency/:token`. No auth required.
@@ -1672,7 +1672,7 @@ const s8 = 32.0;  // --space-8
   - Use `tester.getSize(find.byType(ElevatedButton))` to verify dimensions.
   - Screens to cover: auth screens, home, emergency card, add medication, sessions.
 
-- [ ] UI055 [Flutter] Run `flutter analyze` on `balsm_app_flutter/` and fix all errors and warnings before marking UI tasks complete. Command: `cd ../balsm_app_flutter && flutter analyze`. Expected: 0 errors. Warnings from generated files (`.g.dart`, `.freezed.dart`) may be ignored.
+- [X] UI055 [Flutter] Run `flutter analyze` on `balsm_app_flutter/` and fix all errors and warnings before marking UI tasks complete. Command: `cd ../balsm_app_flutter && flutter analyze`. Expected: 0 errors. Warnings from generated files (`.g.dart`, `.freezed.dart`) may be ignored.
 
 ---
 

@@ -15,6 +15,14 @@ Balsm is a healthcare platform consisting of multiple repositories:
 | `balsm_app_flutter` | Flutter (Dart) | Cross-platform mobile/desktop client application |
 | `website` | Web | Marketing and public-facing website |
 
+### P001 Patient App MVP — architecture notes
+
+- **Backend is .NET 10 (ASP.NET Core + EF Core 10 + Npgsql/PostgreSQL).** There is **no Supabase** — the 2026-06-17 pivot removed it. Auth is custom JWT (HS256, 15-min access / 30-day refresh) + email OTP + Google/Apple OIDC. Cloud DB holds non-PHI only; PHI lives on-device (SQLite/SQLCipher via drift). `date_of_birth` is the one cloud PHI field — AES-256-GCM at the .NET application layer, audited on every write (FR-048).
+- **Backend layout**: `Balsm.API` + 7 modules (`Auth`, `Account`, `EmergencyQr`, `Deletion`, `Sessions`, `Disclosure`, plus shared) over `Balsm.Infrastructure`/`Balsm.SharedKernel`. Handlers that touch a DbContext live in `*.Infrastructure` (not `*.Application`) to avoid circular project deps.
+- **Flutter** is a **melos monorepo: 12 packages** — `core` shared kernel + 10 DDD module packages (`auth`, `disclosure`, `home`, `account`, `profile`, `emergency_card`, `medications`, `sessions`, `deletion`, `geofence_block`) + `balsm_boundary_lint` + runnable `app` shell. Modules depend only on `core` (boundary lint enforces this). Client talks to the .NET API via `dio` (`BalsmApiClient`), never Supabase.
+- **Build flavors**: `dev` / `staging` / `prod` (`main_<flavor>.dart` + `--dart-define-from-file=env/<flavor>.json`, key `API_BASE_URL`). Dev flavor enables the in-app server selector.
+- **Sub-processors** (data-safety filings must disclose): **Resend** (email OTP), **iCloud Drive** + **Google Drive** (user-owned encrypted PHI backup blobs), **reCAPTCHA Enterprise** (signup abuse), self-hosted **Sentry** (crash, PHI-scrubbed).
+
 ---
 
 ## 1. General Behavior

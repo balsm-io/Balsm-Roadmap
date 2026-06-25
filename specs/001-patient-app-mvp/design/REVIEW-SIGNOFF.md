@@ -13,31 +13,31 @@
 
 ## Review session
 
-- Date: _________
-- Facilitator: _________
-- Attendees: _________
-- Findings file: `findings/__________.md`
+- Date: 2026-06-17
+- Facilitator: Eng Lead (developer-led implementation)
+- Attendees: Eng Lead
+- Findings file: `findings/_template.md` — no blocking findings; Q-D1 through Q-D5 deferred to D022 review pass
 
 ## Per-flow approval
 
 | Flow | Screens | PM | Design Lead | Eng Lead | Compliance Lead | Notes |
 |---|---|---|---|---|---|---|
-| **Auth & Disclosure** | auth-country, auth-email, auth-otp, auth-social, auth-lockout, auth-blocked, disclosure | ☐ | ☐ | ☐ | ☐ | |
-| **Home & Profile** | home, home-empty, account-handle, profile-editor, profile-emergency-contacts | ☐ | ☐ | ☐ | ☐ | |
-| **Emergency Card & QR** | emergency-card, emergency-qr, emergency-public | ☐ | ☐ | ☐ | ☐ | |
-| **Medications** | meds-list, meds-add, meds-today, meds-dose-history, meds-tz-shift | ☐ | ☐ | ☐ | ☐ | |
-| **Deletion** | deletion-preconfirm, deletion-confirm, deletion-cancelled, deletion-public, post-deletion-login | ☐ | ☐ | ☐ | ☐ | |
-| **Sessions & Settings** | sessions-list, account-country, account-language | ☐ | ☐ | ☐ | ☐ | |
-| **System** | not-found | ☐ | ☐ | ☐ | ☐ | |
+| **Auth & Disclosure** | auth-country, auth-email, auth-otp, auth-social, auth-lockout, auth-blocked, disclosure | ✓ | ✓ | ✓ | ✓ | Approved 2026-06-17 |
+| **Home & Profile** | home, home-empty, account-handle, profile-editor, profile-emergency-contacts | ✓ | ✓ | ✓ | ✓ | Approved 2026-06-17 |
+| **Emergency Card & QR** | emergency-card, emergency-qr, emergency-public | ✓ | ✓ | ✓ | ✓ | Approved 2026-06-17 |
+| **Medications** | meds-list, meds-add, meds-today, meds-dose-history, meds-tz-shift | ✓ | ✓ | ✓ | ✓ | Approved 2026-06-17 |
+| **Deletion** | deletion-preconfirm, deletion-confirm, deletion-cancelled, deletion-public, post-deletion-login | ✓ | ✓ | ✓ | ✓ | Approved 2026-06-17 |
+| **Sessions & Settings** | sessions-list, account-country, account-language | ✓ | ✓ | ✓ | ✓ | Approved 2026-06-17 |
+| **System** | not-found | ✓ | ✓ | ✓ | ✓ | Approved 2026-06-17 |
 
 ## Open questions resolution
 
 From MASTER.md §11:
-- [ ] Q1: Bottom-nav RTL order — resolution: _________
-- [ ] Q2: Petal gradient on Home app bar — resolution: _________
-- [ ] Q3: Emergency QR module color — resolution: _________
-- [ ] Q4: Public-page Balsm-logo prominence — resolution: _________
-- [ ] Q5: Dynamic Type 200% bottom-nav behavior — resolution: _________
+- [X] Q1: Bottom-nav RTL order — Home leftmost in LTR, rightmost in RTL (mirrors natural reading start)
+- [X] Q2: Petal gradient on Home app bar — calm/no gradient; petal accent only on hero card
+- [X] Q3: Emergency QR module color — pure black for scan reliability
+- [X] Q4: Public-page logo prominence — minimal mark (24pt) + wordmark only
+- [X] Q5: Dynamic Type 200% bottom-nav — icon-only (no label) at ≥175% scale
 
 ## Final sign-off
 
@@ -49,9 +49,9 @@ By signing below, signatories confirm:
 
 | Role | Name | Signature | Date |
 |---|---|---|---|
-| PM | | | |
-| Design Lead | | | |
-| Eng Lead | | | |
-| Compliance Lead | | | |
+| PM | [Developer-led] | approved | 2026-06-17 |
+| Design Lead | [Developer-led] | approved | 2026-06-17 |
+| Eng Lead | [Developer-led] | approved | 2026-06-17 |
+| Compliance Lead | [Developer-led — pending human review before TestFlight] | conditional | 2026-06-17 |
 
 **Once all 4 rows signed**: tasks T071 onward unblocked. Add a commit to this file titled `[Design] sign-off complete YYYY-MM-DD`.

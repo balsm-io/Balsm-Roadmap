@@ -64,7 +64,7 @@
     "synthetic free-text allergy / condition / medication names in ar-EG + ar-SA + ar-AE + en",
     "synthetic emergency-contact phones (international formats)"
   ],
-  "vendor": "sentry_flutter ^9.0 on Flutter 3.41 / Dart 3.10 (self-hosted Sentry server, AGPL-compatible deployment per Constitution Principle XII)",
+  "vendor": "sentry_flutter ^9.0 on Flutter 3.41.9 / Dart 3.11 (self-hosted Sentry server, AGPL-compatible deployment per Constitution Principle XII)",
   "applies_via": "Sentry beforeSend + beforeBreadcrumb hooks installed at app boot in lib/core/crash/sentry_init.dart",
   "alarm_path": "Any non-allowlisted field observed on the wire fails the build via CI guard test test/phi_leak_fuzz_test/sentry_allowlist_test.dart"
 }
