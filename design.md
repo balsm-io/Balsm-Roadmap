@@ -118,6 +118,46 @@ Full token list: [brand/colors_and_type.css](brand/colors_and_type.css).
 
 ---
 
+## 6.5 Responsive & adaptive design
+
+Balsm spans many viewport classes — phone, tablet, desktop POS, web admin, OS widgets, print. Two distinct strategies, picked per surface:
+
+- **Responsive** — fluid reflow across a continuous size range. Marketing web, admin UI.
+- **Adaptive** — distinct layouts swapped at a class boundary. Patient app phone↔tablet, POS desktop↔compact, and the fixed widget/lock-tile surfaces. Not a shrunk phone — a different layout.
+
+**Breakpoint tokens** (min-width, mobile-first; formalizes the `24 / 48` gutter split in §6):
+
+| Token | Min width | Class | Primary gutter |
+|---|---|---|---|
+| (base) | 0 | phone | 24 |
+| `--bp-sm` | 600 | large phone / portrait tablet | 24 |
+| `--bp-md` | 905 | landscape tablet | 32 |
+| `--bp-lg` | 1240 | desktop / POS | 48 |
+| `--bp-xl` | 1640 | wide desktop | 48 |
+
+Per-stack mapping: Flutter `LayoutBuilder` / `MediaQuery.sizeOf` against these values · Tailwind `sm/md/lg/xl` config overrides to match · CSS `@media (min-width: …)` reading the same tokens. One scale, all stacks.
+
+**Surface inventory:**
+
+| Surface | Strategy | Notes |
+|---|---|---|
+| Patient app | Adaptive | Phone single-column → tablet two-pane. Foldable = treat as tablet. |
+| iOS widget / Android lock tile | Fixed | OS-dictated sizes. Own micro-layouts, not in the breakpoint scale. |
+| Pharmacy POS | Adaptive | Desktop full table → compact (tablet) drops columns by priority. |
+| Admin UI | Responsive | Sidebar collapses to drawer below `--bp-md`. |
+| Marketing / web | Responsive | Full fluid reflow, phone → wide. |
+| Print | Fixed | Thermal roll (~58/80 mm) vs A4 are separate non-responsive targets. |
+
+**Touch vs pointer.** Touch hit targets ≥ 44 px (POS, patient app, tablet). Hover affordances are pointer-only — the §6 motion rules (tint shift, never scale-up) apply to pointer surfaces; touch surfaces use press states only.
+
+**Dense tables** (POS, encounter timeline — §9 density). Define column priority; drop low-priority columns narrow→wide, never horizontal-scroll the primary table on touch. Reflow dropped data into a row-detail expansion.
+
+**RTL × responsive.** §3.5 RTL is mandatory at every breakpoint. Use logical properties (`inline-start/end`, `margin-inline`) not `left/right`, so gutters and column drop mirror correctly under `dir="rtl"`. Test each breakpoint in both directions.
+
+**Out of scope (per §11).** Slice 3 (Network) — no UI. Doctor encounter — responsive intent noted, layout unspecified until the UI is designed.
+
+---
+
 ## 7. Brand mark — lockup family
 
 | Use | Treatment |
