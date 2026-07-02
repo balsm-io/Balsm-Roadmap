@@ -1,0 +1,104 @@
+/* ============================================================
+   Balsm Design System — Adaptive layer  (Tier 4)
+   §6.5 Responsive & adaptive.
+
+   Two strategies, picked per surface:
+     · RESPONSIVE — fluid reflow across a continuous range.
+       Media queries; utilities live in colors_and_type.css
+       (.container, .grid, .card-grid, .row-md, fluid type, show/hide).
+     · ADAPTIVE — distinct layouts swapped at a boundary, driven by the
+       element's OWN container (container queries) so a component adapts
+       inside a narrow tablet pane / foldable, not just at the viewport.
+       That's what this file adds.
+
+   One scale, all stacks: container breakpoints mirror the --bp tokens
+   (xs 375 · sm 480 · md 768 · lg 1024 · xl 1280). The same numbers map to
+   Flutter LayoutBuilder, Tailwind sm/md/lg/xl, and CSS @media / @container.
+
+   RTL: every rule here uses logical properties (inline-start/-end,
+   margin-inline, padding-inline) so layouts mirror automatically under
+   dir="rtl" — test each breakpoint in both directions.
+   ============================================================ */
+
+/* ── Query containers ─────────────────────────────────────────
+   Mark an element a container so descendants can adapt to ITS width.
+   Use the named variants when you need to query a specific ancestor
+   past intermediate containers. ──────────────────────────────── */
+.cq      { container-type: inline-size; }
+.cq-pane { container: pane / inline-size; }
+.cq-card { container: card / inline-size; }
+.cq-list { container: list / inline-size; }
+
+/* ── Adaptive cluster — wraps onto new lines, never h-scrolls ── */
+.adaptive-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* ── Adaptive row — stacks, then becomes a row when the CONTAINER
+      passes sm (480). Form field↔field, label↔control, toolbars. ── */
+.adaptive-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+@container (min-width: 480px) {
+  .adaptive-row { flex-direction: row; align-items: center; }
+}
+
+/* ── Adaptive split — single column → two-pane once the container
+      passes md (768). Patient app phone→tablet, master/detail. ─── */
+.adaptive-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+@container (min-width: 768px) {
+  .adaptive-split        { grid-template-columns: var(--pane-aside, 18rem) 1fr; }
+  .adaptive-split--even  { grid-template-columns: 1fr 1fr; }
+  .adaptive-split--end   { grid-template-columns: 1fr var(--pane-aside, 18rem); }
+}
+
+/* ── Adaptive auto-grid — fills as many columns as fit, content-led.
+      Card decks, tiles, dashboards. No breakpoints to maintain. ── */
+.adaptive-grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(var(--col-min, 16rem), 1fr));
+}
+
+/* ── Touch targets — ≥44px; bump to 48 on coarse pointers (§6.5) ── */
+.touch-target { min-height: 44px; min-width: 44px; }
+@media (pointer: coarse) {
+  .touch-target { min-height: 48px; min-width: 48px; }
+}
+
+/* ── Pointer-only hover — touch surfaces use press states, not hover.
+      Gate decorative hover so it never fires on touch (§6 motion). ── */
+@media (hover: hover) and (pointer: fine) {
+  .hover-tint:hover { background: var(--balsm-ink-50); }
+  .hover-lift:hover { box-shadow: var(--shadow-md); }
+}
+
+/* ── Priority column drop — dense tables shed low-priority columns
+      narrow→wide instead of horizontal-scrolling. Reflow the dropped
+      data into a row-detail expansion on touch. Container-driven so a
+      table inside a pane drops correctly. (§6.5 dense tables) ────── */
+.col-p2, .col-p3 { display: none; }
+@container (min-width: 768px)  { .col-p2 { display: table-cell; } }
+@container (min-width: 1024px) { .col-p3 { display: table-cell; } }
+
+/* ── Show / hide by CONTAINER size (complements the viewport-based
+      .show-/.hide- helpers in colors_and_type.css) ─────────────── */
+.cq-show-md, .cq-show-lg { display: none; }
+@container (min-width: 768px)  { .cq-show-md { display: revert; } .cq-hide-md { display: none; } }
+@container (min-width: 1024px) { .cq-show-lg { display: revert; } .cq-hide-lg { display: none; } }
+
+/* ── Logical spacing helpers — RTL-safe by construction ───────── */
+.mis-auto  { margin-inline-start: auto; }
+.mie-auto  { margin-inline-end:   auto; }
+.ps-gutter { padding-inline-start: var(--gutter); }
+.pe-gutter { padding-inline-end:   var(--gutter); }
+.gap-fluid { gap: clamp(var(--space-3), 2vw, var(--space-6)); }
