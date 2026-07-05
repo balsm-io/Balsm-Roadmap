@@ -58,6 +58,15 @@
 - [ ] Reproducible build inputs documented if feature changes packaging
 - [ ] DCO `Signed-off-by:` commit policy reaffirmed for contributors
 
+**Cross-repo rule & skill gate** *(Principle XIII — required for every feature)*:
+- [ ] Affected stacks identified: [Backend `Balsm-API-DotNet` / Flutter `balsm_app_flutter` / Website `website` / Docs `Balsm-Core` `docs` / multi]
+- [ ] Rules/skills read from each affected repo's local relative directory first (`../Balsm-API-DotNet`, `../balsm_app_flutter`, `../website`); local working tree takes priority over git remote
+- [ ] Git remote pulled only as fallback (local checkout missing or known-behind); local edits never overwritten
+- [ ] Each affected stack's own rules consulted: `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/*.mdc` / `.cursorrules`
+- [ ] Each affected stack's own skills consulted: `dotnet-skills` (API) / `flutter-*` (Flutter) / `impeccable` (website) / `balsm-ai` shared skills
+- [ ] Cross-stack changes reconciled — naming and contracts consistent across all touched repos (Principle IX)
+- [ ] Precedence honored on conflict: constitution > repo-local rules > skills
+
 **Domain modeling gate** *(Principles IV & IX — required for any feature adding or changing domain logic)*:
 - [ ] Owning bounded context identified (one of the 13); no cross-context table or internal-class access
 - [ ] Subdomain type classified — Core / Supporting / Generic — and modeling depth matched to it

@@ -1,36 +1,38 @@
 <!--
   SYNC IMPACT REPORT
-  Version change: 1.4.0 → 1.5.0
-  Bump rationale: MINOR — Principles IV and IX materially expanded with the full
-  Domain-Driven Design tactical and strategic framework: aggregate sizing and
-  consistency boundaries, anemic-model prohibition, factory-enforced invariants,
-  repository/interface layering, past-tense domain-event naming, internal-vs-
-  integration event distinction, "a bounded context is a model boundary, not a
-  deployment unit", Core/Supporting/Generic subdomain classification of all 13
-  contexts, and ubiquitous-language naming-smell rejection. No principle weakened
-  or removed; LOCKED Principle I (Patient Safety First) untouched.
+  Version change: 1.5.0 → 1.6.0
+  Bump rationale: MINOR — new Principle XIII (Cross-Repository Rule & Skill
+  Alignment) added. Planning for any feature that touches a stack (backend,
+  Flutter apps, website, docs, shared toolkit) MUST load and honor that stack's
+  own agent rules and skills — not just this constitution — reading them from the
+  stack's local relative project directory first (local working tree > git
+  remote; remote is fallback only). Planning against stale per-repo rules or
+  skills is a defect. No principle weakened or removed; LOCKED Principle I
+  (Patient Safety First) untouched.
 
-  Modified principles:
-    - IV. Modular Monolith with Domain-Driven Design: expanded with tactical
-      aggregate rules, anemic-model ban, domain-event naming, factory/repository
-      layering, context-≠-deployment-unit rule, and a strategic subdomain
-      classification (Core / Supporting / Generic) of all 13 bounded contexts
-    - IX. Ubiquitous Language: added naming-as-design-signal, naming-smell
-      rejection list, and same-term-different-context clause
+  Added principles:
+    - XIII. Cross-Repository Rule & Skill Alignment: enumerates the per-repo
+      rule + skill sources (Balsm-API-DotNet, balsm_app_flutter, website,
+      Balsm-Core, docs, balsm-ai shared plugin), mandates a pull-latest step in
+      the planning phase, and sets constitution > repo-rules > skills precedence
 
-  Added sections: None (guidance added within existing Principles IV and IX)
+  Modified principles: None
+
+  Added sections: None (new principle added within Core Principles)
 
   Removed sections: N/A
 
   Templates requiring updates:
-    - .specify/templates/plan-template.md        ✅ Domain modeling gate added
+    - .specify/templates/plan-template.md        ✅ Cross-repo rule & skill gate added
     - .specify/templates/spec-template.md         ⚠ pending — add bounded-context
       + aggregate identification to the spec structure
     - .specify/templates/tasks-template.md        ✅ No change required
 
-  Prior amendment (1.3.0 → 1.4.0):
-    - Principle I (Patient Safety First) marked LOCKED
-    - Governance "Locked principles" clause added (raised amendment bar)
+  Prior amendment (1.4.0 → 1.5.0):
+    - Principles IV and IX materially expanded with the full DDD tactical and
+      strategic framework (aggregate sizing, anemic-model ban, domain-event
+      naming, factory/repository layering, Core/Supporting/Generic subdomain
+      classification, ubiquitous-language naming-smell rejection)
 
   Follow-up TODOs:
     - spec-template.md: add a "Domain Model" section capturing the feature's
@@ -416,6 +418,51 @@ commitment — not a marketing badge.
   process MUST exist (`SECURITY.md`) with a maximum 90-day embargo from
   acknowledged report to public patch
 
+### XIII. Cross-Repository Rule & Skill Alignment
+
+Balsm is a multi-repository family. Each repository carries its own agent rules
+and skills that encode stack-specific standards below this constitution.
+Planning MUST be repo-aware: before writing any spec or plan that touches a
+stack, the planner MUST load and honor that stack's current rules and skills —
+not this constitution alone — reading them from the stack's local relative
+project directory first, and pulling from the git remote only as a fallback.
+
+- **Identify the affected stacks** for every feature, then consult that stack's
+  own rule and skill sources:
+  - **Backend — `Balsm-API-DotNet`** (.NET modular monolith): `AGENTS.md`,
+    `CLAUDE.md`, `.cursor/rules/*.mdc`, and the project-scoped `dotnet-skills`
+    plugin
+  - **Flutter apps — `balsm_app_flutter`** (Balsm, Balsm Pro, Balsm Connect):
+    `AGENTS.md`, `CLAUDE.md`, and the `flutter-*` skills in `.claude/skills/`
+  - **Website — `website`** (Next.js): `AGENTS.md`, `.cursorrules`, and the
+    `impeccable` skill
+  - **Governance & docs — `Balsm-Core` / `docs`**: `AGENTS.md`,
+    `agents/rules/CODING_STANDARDS.md`, this constitution, and `docs/AGENTS.md`
+  - **Shared toolkit — `balsm-ai` plugin**: cross-cutting skills used in every
+    repo (`domain-driven-design`, `balsm-design`, the security skill set) plus
+    the `balsm-reviewer` agent
+- **Local working directory is the source of truth** — the sibling repos are
+  checked out locally alongside `Balsm-Core` (e.g. `../Balsm-API-DotNet`,
+  `../balsm_app_flutter`, `../website`). Planning MUST read each affected repo's
+  rules and skills from its **local relative project directory first**; the
+  local working tree (including uncommitted local edits) takes priority over any
+  git remote, because it reflects what is actually being built here and now
+- **Git remote is fallback, not primary** — `git pull` / `git fetch` a sibling
+  repo only when its local checkout is missing, or to refresh a local copy known
+  to be behind. Never let a remote pull overwrite or override newer local
+  working-tree rules. Refresh installed skill plugins likewise from their local
+  source. Planning against stale per-repo rules or skills is a planning defect,
+  not a detail
+- **Cross-stack features MUST reconcile all touched stacks** — a change spanning
+  API + Flutter + website MUST satisfy each stack's rules simultaneously; naming
+  and contracts MUST stay consistent across repos per Principle IX
+- **Precedence on conflict**: this constitution wins (Governance "Supremacy");
+  repo-local rules govern stack-specific detail beneath it; skills supply
+  procedure and MUST NOT be read as overriding a rule or principle
+- **Gate**: the Constitution Check in every `plan.md` MUST list the stacks the
+  feature touches and confirm each affected stack's current rules and skills were
+  pulled and consulted before Phase 0 research
+
 ## Technology Stack & Constraints
 
 - **License**: AGPL-3.0-or-later for all core repositories (see Principle XII)
@@ -516,4 +563,4 @@ Platform. It supersedes all other practices, conventions, and ad-hoc decisions.
   tactical patterns exception, new abstractions) MUST be justified in the PR
   description with measurable benefit
 
-**Version**: 1.5.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-07-06
+**Version**: 1.6.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-07-06
