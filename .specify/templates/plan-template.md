@@ -58,6 +58,16 @@
 - [ ] Reproducible build inputs documented if feature changes packaging
 - [ ] DCO `Signed-off-by:` commit policy reaffirmed for contributors
 
+**Domain modeling gate** *(Principles IV & IX — required for any feature adding or changing domain logic)*:
+- [ ] Owning bounded context identified (one of the 13); no cross-context table or internal-class access
+- [ ] Subdomain type classified — Core / Supporting / Generic — and modeling depth matched to it
+- [ ] Aggregate(s) and aggregate root(s) identified; aggregates kept small (root + minimal cluster), cross-aggregate references by ID only
+- [ ] Consistency boundaries stated: transactional within an aggregate, eventual (via domain events) between aggregates
+- [ ] Entity vs Value Object decided per model object (prefer immutable Value Objects); invariants placed on the model, not in services (no anemic model)
+- [ ] Domain events named past-tense; internal vs integration events distinguished; integration events cross the boundary via ACL + published language
+- [ ] Repository interfaces defined in the domain layer (implementations in infrastructure); methods speak the ubiquitous language
+- [ ] Names map to the ubiquitous language — no `Manager` / `Helper` / `Processor` / `Util` domain types; hard-to-name concepts flagged as model smells
+
 ## Project Structure
 
 ### Documentation (this feature)

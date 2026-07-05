@@ -1,33 +1,40 @@
 <!--
   SYNC IMPACT REPORT
-  Version change: 1.3.0 → 1.4.0
-  Bump rationale: MINOR — Principle I (Patient Safety First) marked LOCKED;
-  Governance materially expanded with new "Locked principles" clause that
-  raises the amendment bar for locked principles to MAJOR (backward-
-  incompatible) regardless of edit type.
+  Version change: 1.4.0 → 1.5.0
+  Bump rationale: MINOR — Principles IV and IX materially expanded with the full
+  Domain-Driven Design tactical and strategic framework: aggregate sizing and
+  consistency boundaries, anemic-model prohibition, factory-enforced invariants,
+  repository/interface layering, past-tense domain-event naming, internal-vs-
+  integration event distinction, "a bounded context is a model boundary, not a
+  deployment unit", Core/Supporting/Generic subdomain classification of all 13
+  contexts, and ubiquitous-language naming-smell rejection. No principle weakened
+  or removed; LOCKED Principle I (Patient Safety First) untouched.
 
   Modified principles:
-    - I. Patient Safety First: LOCKED marker added; body unchanged
-    - Governance: new "Locked principles" clause; amendment process
-      cross-reference added
+    - IV. Modular Monolith with Domain-Driven Design: expanded with tactical
+      aggregate rules, anemic-model ban, domain-event naming, factory/repository
+      layering, context-≠-deployment-unit rule, and a strategic subdomain
+      classification (Core / Supporting / Generic) of all 13 bounded contexts
+    - IX. Ubiquitous Language: added naming-as-design-signal, naming-smell
+      rejection list, and same-term-different-context clause
 
-  Added sections:
-    - Governance → "Locked principles" sub-clause
+  Added sections: None (guidance added within existing Principles IV and IX)
 
   Removed sections: N/A
 
   Templates requiring updates:
-    - .specify/templates/plan-template.md        ✅ Aligned
-    - .specify/templates/spec-template.md         ✅ Aligned
-    - .specify/templates/tasks-template.md        ✅ Aligned
+    - .specify/templates/plan-template.md        ✅ Domain modeling gate added
+    - .specify/templates/spec-template.md         ⚠ pending — add bounded-context
+      + aggregate identification to the spec structure
+    - .specify/templates/tasks-template.md        ✅ No change required
 
-  Prior amendment (1.2.0 → 1.3.0):
-    - Added Principle XII (Open-Source Ecosystem & Community Stewardship)
-    - Expanded Principle III to Egypt + KSA + UAE + MENA scope
-    - Templates patched: plan-template (MENA + open-source gates),
-      spec-template (KSA + UAE PDPL rows)
+  Prior amendment (1.3.0 → 1.4.0):
+    - Principle I (Patient Safety First) marked LOCKED
+    - Governance "Locked principles" clause added (raised amendment bar)
 
-  Follow-up TODOs: None
+  Follow-up TODOs:
+    - spec-template.md: add a "Domain Model" section capturing the feature's
+      bounded context, aggregates, and domain events
 -->
 
 # Balsm Healthcare Platform Constitution
@@ -164,8 +171,46 @@ Module boundaries are inviolable.
 - Anti-corruption layers MUST be used when integrating with external systems
   (HL7/FHIR, DICOM, insurance APIs, national health exchanges)
 - Tactical DDD patterns (aggregates, domain events, value objects, repositories,
-  domain services) MUST be applied in complex contexts: Clinical Records,
-  Prescriptions, Billing, Labs, Radiology
+  domain services) MUST be applied in the Core and complex Supporting contexts
+  (Clinical Records, Prescriptions, Billing, Labs, Radiology):
+  - **Aggregates MUST be small** — one aggregate root plus a minimal cluster;
+    reference other aggregates by identity (ID), never by direct object reference
+  - **Consistency boundaries**: immediate (transactional) consistency is
+    guaranteed only *within* an aggregate; consistency *between* aggregates MUST
+    be eventual, coordinated through domain events — never through a
+    cross-aggregate transaction
+  - **Entities vs Value Objects**: model as an Entity only when identity persists
+    across attribute changes; otherwise prefer an immutable Value Object (dosage,
+    money, address, code) — replace, never mutate
+  - **No anemic models** — invariants and business rules MUST live inside
+    entities, value objects, and aggregate roots; domain services orchestrate and
+    MUST NOT hold logic that belongs on the model. Data-bag objects with rules
+    scattered across services are forbidden
+  - **Factories MUST enforce invariants** so an aggregate cannot be constructed
+    in an invalid state (an invalid instance MUST be unrepresentable)
+  - **Repository interfaces belong to the domain layer; implementations to
+    infrastructure.** Repository methods MUST speak the ubiquitous language
+    (`FindPendingPrescriptions()`, not `GetByStatus(3)`)
+- Domain events MUST be named in the past tense as immutable facts
+  (`PrescriptionDispensed`, `SpecimenCollected`, `AppointmentScheduled`) — a
+  published event MUST NOT be retracted or mutated. Internal domain events stay
+  within a bounded context; integration events that cross a context boundary MUST
+  pass through that boundary's published language and anti-corruption layer
+- **A bounded context is a model boundary, not a deployment unit** — a context
+  MUST NOT be equated with, or prematurely split into, a microservice purely for
+  deployment; the modular monolith is the default (see Technology Stack)
+- **Strategic design — every bounded context MUST be classified** so engineering
+  effort matches business value:
+  - **Core Domain** (deepest modeling, richest behavior, best engineers):
+    Clinical Records, Prescriptions — the safety-critical clinical logic that
+    differentiates Balsm (reinforces Principle I)
+  - **Supporting Subdomains** (build, but do not over-engineer): Entity
+    Management, Appointment, Pharmacy, Labs, Radiology, Billing & Finance,
+    Inventory, Charitable Donations, Marketplace
+  - **Generic Subdomains** (prefer buy / open-source over custom modeling):
+    Identity & Access, Messaging & Notifications
+  - Classification MUST be revisited each milestone — today's differentiator may
+    become tomorrow's commodity
 - Simple CRUD contexts (User Profile, Announcements) MUST remain lightweight —
   do not over-engineer with unnecessary patterns
 - The 13 bounded contexts are: Identity & Access, Entity Management, Appointment,
@@ -275,6 +320,15 @@ database schemas, documentation, and UI.
 - Use "specimen" not "sample"
 - Use "entity" for healthcare organizations (clinic, hospital, pharmacy, lab)
 - Use "encounter" for clinical interactions between provider and patient
+- Naming difficulty is a design signal — if a domain concept is hard to name,
+  the model is probably wrong; fix the model, do not settle for a vague name
+- Technical-only names are naming smells and MUST be rejected in review:
+  `Manager`, `Helper`, `Processor`, `Handler`, `Util(s)`, `Data`, `Info` on a
+  domain type hide the concept from the domain experts who could correct it
+- The same term MAY carry different meanings in different bounded contexts (a
+  "Patient" in Clinical Records is not the "Patient" record in Billing) — this is
+  expected and acceptable; do not force a single shared definition across
+  contexts, translate at the boundary instead (see Principle IV)
 - Naming MUST be consistent across all repositories: Balsm-API-DotNet,
   balsm_app_flutter, website, Balsm-Core, and docs
 - .NET naming follows: `Create{Entity}Command`, `Get{Entity}ByIdQuery`,
@@ -462,4 +516,4 @@ Platform. It supersedes all other practices, conventions, and ad-hoc decisions.
   tactical patterns exception, new abstractions) MUST be justified in the PR
   description with measurable benefit
 
-**Version**: 1.4.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-06-14
+**Version**: 1.5.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-07-06
