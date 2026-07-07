@@ -1,42 +1,75 @@
 <!--
   SYNC IMPACT REPORT
-  Version change: 1.5.0 → 1.6.0
-  Bump rationale: MINOR — new Principle XIII (Cross-Repository Rule & Skill
-  Alignment) added. Planning for any feature that touches a stack (backend,
-  Flutter apps, website, docs, shared toolkit) MUST load and honor that stack's
-  own agent rules and skills — not just this constitution — reading them from the
-  stack's local relative project directory first (local working tree > git
-  remote; remote is fallback only). Planning against stale per-repo rules or
-  skills is a defect. No principle weakened or removed; LOCKED Principle I
-  (Patient Safety First) untouched.
+  Patch 1.7.0 → 1.7.1: PATCH — Principles IV and XIII now link the
+  `architecture/` folder (subdomain-map.md, subdomain-classification.md,
+  routing strategies) as a mandatory planning-phase input. No semantic change
+  to any rule.
+
+  Version change: 1.6.0 → 1.7.0
+  Bump rationale: MINOR — new Principle XIV (External Integration & Messaging
+  Surfaces) added, plus materially expanded guidance in Principles II, IV, VI,
+  X, XII, XIII, the Technology Stack, and the Development Workflow, derived
+  from a full survey of every sibling repository in the workspace
+  (Balsm-API-DotNet, balsm_app_flutter, website, docs, Balsm-AI, supabase,
+  OpenWA, Balsm-Draft, db_benchmark, root workspace meta). No principle
+  weakened or removed; LOCKED Principle I (Patient Safety First) untouched.
 
   Added principles:
-    - XIII. Cross-Repository Rule & Skill Alignment: enumerates the per-repo
-      rule + skill sources (Balsm-API-DotNet, balsm_app_flutter, website,
-      Balsm-Core, docs, balsm-ai shared plugin), mandates a pull-latest step in
-      the planning phase, and sets constitution > repo-rules > skills precedence
+    - XIV. External Integration & Messaging Surfaces: governs the WhatsApp
+      gateway (OpenWA), webhooks, cloud edge functions, and third-party
+      channels — no PHI over third-party messaging, HMAC-verified webhooks,
+      scoped gateway credentials, RLS deny-by-default, edge-function-only
+      writes for sensitive cloud fields
 
-  Modified principles: None
+  Modified principles:
+    - II. Security & Privacy by Design: PHI data topology (on-device SQLCipher
+      PHI vs non-PHI cloud tier; sole DOB exception field-level encrypted),
+      encrypted device backups, telemetry/crash-report PII scrubbing,
+      data-subject erasure workflow reconciled with the soft-delete rule,
+      SYSTEM_THREAT_MODEL.md consultation mandate
+    - IV. Modular Monolith & DDD: implemented-module → bounded-context mapping
+      requirement (per-repo module sets MUST map to the 13 contexts)
+    - VI. Test-First Discipline: repo-level CI quality gates declared
+      constitutional (backend per-layer coverage gates; Flutter boundary lint,
+      PHI-leak fuzz, translation-completeness, golden tests)
+    - X. AI Governance: AI model registry, admin kill switch, pre-deployment
+      bias evaluation, AI threat-ID citation (AI01–AI16) requirements
+    - XII. Open-Source Ecosystem: per-repo license registry added; existing
+      license divergences (website addendum, docs MIT) surfaced for
+      reconciliation; new divergences forbidden
+    - XIII. Cross-Repository Rule & Skill Alignment: repo enumeration extended
+      with supabase (cloud data platform), OpenWA (messaging gateway),
+      Balsm-Draft (planning), db_benchmark (tooling), root workspace meta
 
-  Added sections: None (new principle added within Core Principles)
+  Added sections: None (new principle added within Core Principles; Technology
+  Stack and Development Workflow extended in place)
 
   Removed sections: N/A
 
   Templates requiring updates:
-    - .specify/templates/plan-template.md        ✅ Cross-repo rule & skill gate added
+    - .specify/templates/plan-template.md        ⚠ pending — add integration-
+      surface (Principle XIV) + PHI-topology rows to the Constitution Check
     - .specify/templates/spec-template.md         ⚠ pending — add bounded-context
       + aggregate identification to the spec structure
     - .specify/templates/tasks-template.md        ✅ No change required
 
-  Prior amendment (1.4.0 → 1.5.0):
-    - Principles IV and IX materially expanded with the full DDD tactical and
-      strategic framework (aggregate sizing, anemic-model ban, domain-event
-      naming, factory/repository layering, Core/Supporting/Generic subdomain
-      classification, ubiquitous-language naming-smell rejection)
+  Prior amendment (1.5.0 → 1.6.0):
+    - Principle XIII added: per-repo rule + skill sources, local-first reading
+      order, constitution > repo-rules > skills precedence
 
   Follow-up TODOs:
     - spec-template.md: add a "Domain Model" section capturing the feature's
       bounded context, aggregates, and domain events
+    - Reconcile website's AGPL + Anti-White-Label/SaaS addendum and the docs
+      repo's MIT license with Principle XII (explicit amendment or relicense)
+    - Reconcile supabase default region (eu-west-1) with Principle III MENA
+      residency (UAE rows → UAE-resident self-hosted Supabase per FR-049)
+    - Publish the implemented-module → bounded-context mapping for
+      Balsm-API-DotNet (Account, Auth, Customer, Deletion, Disclosure,
+      EmergencyQr, Entity, Geofence, Identity, Inventory, POS, Prescription,
+      Sessions) and balsm_app_flutter modules
+    - website still depends on supabase-js despite the 2026-06-17 backend
+      pivot note in docs — verify and reconcile
 -->
 
 # Balsm Healthcare Platform Constitution
@@ -88,10 +121,30 @@ Patient health information (PHI) MUST be protected at every layer.
   where)
 - Platform-native secure token storage MUST be used (Keychain on iOS/macOS,
   EncryptedSharedPreferences on Android, OS keyring on desktop)
-- Brute-force protection: 5 failed login attempts → 15-minute lockout
+- Brute-force protection: 5 failed login attempts → 15-minute lockout;
+  passwordless flows (OTP) MUST apply layered throttles (per-identifier,
+  per-IP, and global) with CAPTCHA escalation for repeat offenders
 - Device registry with remote revocation capability MUST be maintained
 - OWASP Top 10 vulnerabilities MUST be prevented — every code change MUST be
   evaluated against this list
+- **PHI data topology (patient app)**: PHI lives on-device in
+  SQLCipher-encrypted storage; the cloud tier stores non-PHI account and
+  metadata rows only. The sole cloud PHI exception is `date_of_birth`,
+  field-level encrypted (pgcrypto `pgp_sym`) and audit-logged; age-gate checks
+  run server-side against the encrypted value — never client-side. Adding any
+  further PHI column to the cloud tier requires a constitutional amendment
+- Device backup blobs (iCloud Drive on iOS, Google Drive on Android) MUST be
+  encrypted before upload — a backup blob is PHI
+- Crash reporting and telemetry MUST NOT capture PII/PHI —
+  `SendDefaultPii=false` (or platform equivalent), no request/response body
+  capture; PHI-leak fuzz tests MUST gate CI in every client and server repo
+- **Data-subject erasure vs soft-delete**: the soft-delete rule protects
+  clinical records; account erasure (PDPL/GDPR right-to-be-forgotten) follows
+  the documented deletion workflow — a cancellable grace period (currently
+  14 days), then an auditable service-role-only purge with a retained
+  deletion log. Ad-hoc hard deletion outside this workflow remains forbidden
+- Security-relevant specs and plans MUST consult `SYSTEM_THREAT_MODEL.md`,
+  cite the applicable threat IDs, and confirm the BLOCKING mitigations
 
 ### III. Regulatory Compliance (Egypt, KSA, UAE, MENA)
 
@@ -218,6 +271,22 @@ Module boundaries are inviolable.
 - The 13 bounded contexts are: Identity & Access, Entity Management, Appointment,
   Clinical Records, Prescriptions, Pharmacy, Labs, Radiology, Billing & Finance,
   Inventory, Messaging & Notifications, Charitable Donations, Marketplace
+- The canonical decomposition behind these contexts lives in the
+  [`architecture/`](../../architecture/) folder —
+  [`subdomain-map.md`](../../architecture/subdomain-map.md),
+  [`subdomain-classification.md`](../../architecture/subdomain-classification.md),
+  and the routing strategies. Every planning phase (`/speckit.plan` Phase 0
+  research and the Constitution Check) MUST consult it before assigning a
+  feature to a context. On conflict this constitution prevails and the
+  architecture doc MUST be corrected in the same change
+- **Implemented modules MUST map to the 13 contexts** — a delivery phase MAY
+  decompose into a different working module set (e.g., the patient-app MVP's
+  Account, Auth, Sessions, EmergencyQr, Geofence, Disclosure, Deletion, POS,
+  Customer modules), but each implemented module MUST be explicitly mapped to
+  exactly one of the 13 bounded contexts in the owning repo's architecture
+  docs. An unmapped module is an architecture defect; a module that cannot be
+  mapped signals a missing or wrong context and MUST trigger a constitution
+  amendment, not a silent 14th context
 
 ### V. Offline-First, Cloud-Enhanced
 
@@ -257,6 +326,20 @@ Code without tests for new business logic MUST NOT be submitted.
 - Authentication endpoints (both cloud and local paths) require 100% test coverage
 - Clinical safety workflows (prescription validation, drug interactions, dosage
   checks) require exhaustive edge case coverage
+- **Repo-level CI quality gates are constitutional gates** — disabling,
+  bypassing, or lowering any of them requires a documented amendment-level
+  justification, not a PR note:
+  - Backend (`Balsm-API-DotNet`): per-layer coverage — Domain + Application
+    100%; Infrastructure + Api ≥90% line / ≥80% branch; overall ≥95% line —
+    plus the quality-bar checks (async-only, no-PHI-in-logs, `Result<T>` on
+    handlers)
+  - Flutter (`balsm_app_flutter`): `balsm_boundary_lint` module-boundary rules
+    (no module→module imports, core never depends on modules, domain never
+    imports Flutter, no aggregate leak into presentation, no test_kit in
+    release), PHI-leak fuzz tests, translation-completeness tests, and golden
+    visual-regression tests
+- The 80% coverage target above is a platform-wide floor; where a repo's own
+  gates are stricter, the stricter gate governs
 
 ### VII. Performance as a Feature
 
@@ -356,6 +439,18 @@ decisions.
 - Ambient scribing MUST require explicit consent from both patient and provider
   — consent MUST be revocable at any time during the session
 - AI inputs MUST be sanitized against prompt injection attacks
+- An **AI model registry** MUST list every active model with its purpose,
+  inputs, and known limitations — an unregistered model MUST NOT run in
+  production
+- **Admin kill switch**: every AI feature MUST be instantly disableable by an
+  administrator without a redeploy; clinical workflows MUST continue unchanged
+  when it is off
+- Models MUST be evaluated for demographic bias before deployment; known gaps
+  MUST be disclosed; AI MUST NOT drive eligibility determinations that could
+  discriminate
+- Every spec or plan introducing an AI feature MUST cite the applicable AI
+  threat IDs (AI01–AI16 in `SYSTEM_THREAT_MODEL.md`) and confirm the BLOCKING
+  mitigations are in place
 - Refer to `AI_GOVERNANCE.md` for the complete governance framework
 
 ### XI. Certifications & Standards Compliance
@@ -391,6 +486,18 @@ commitment — not a marketing badge.
   balsm_app_flutter, website, docs) MUST be released under AGPL-3.0-or-later.
   License downgrades, re-licensing, or proprietary forks are forbidden without
   a constitutional amendment
+- **License registry** — the per-repo license reality MUST be tracked and kept
+  reconciled with this principle:
+  - Currently AGPL-3.0-or-later: Balsm-Core, Balsm-API-DotNet,
+    balsm_app_flutter
+  - Known divergences requiring reconciliation (explicit amendment or
+    relicense): website ships AGPL **plus a Balsm Anti-White-Label/SaaS
+    addendum** (the addendum's restrictions are not OSI-open); docs is
+    currently **MIT**, not AGPL
+  - Peripheral/tooling repositories carrying no clinical logic (OpenWA — MIT,
+    db_benchmark) MAY use permissive licenses
+  - Introducing any **new** license divergence in a core repository is
+    forbidden
 - **Public-by-default**: The default visibility for new repositories and
   documentation MUST be public. Private repositories require an explicit
   documented justification (e.g., active security disclosure embargo)
@@ -437,10 +544,27 @@ project directory first, and pulling from the git remote only as a fallback.
   - **Website — `website`** (Next.js): `AGENTS.md`, `.cursorrules`, and the
     `impeccable` skill
   - **Governance & docs — `Balsm-Core` / `docs`**: `AGENTS.md`,
-    `agents/rules/CODING_STANDARDS.md`, this constitution, and `docs/AGENTS.md`
+    `agents/rules/CODING_STANDARDS.md`, this constitution, the
+    [`architecture/`](../../architecture/) folder (subdomain map,
+    classification, routing strategies — mandatory planning-phase input per
+    Principle IV), and `docs/AGENTS.md`
   - **Shared toolkit — `balsm-ai` plugin**: cross-cutting skills used in every
     repo (`domain-driven-design`, `balsm-design`, the security skill set) plus
-    the `balsm-reviewer` agent
+    the `balsm-reviewer` agent; `Balsm-AI/canonical/` + `plugin/` are the
+    source of truth, distributed to sibling repos via `sync.mjs` — hand-editing
+    a generated `AGENTS.md` is a defect, fix the canonical source instead
+  - **Cloud data platform — `supabase`**: PostgreSQL schema migrations,
+    RLS policies, and Deno edge functions for the patient app's non-PHI cloud
+    tier — migrations and `config.toml` are governed artifacts subject to
+    Principles II, III, and XIV
+  - **Messaging gateway — `OpenWA`** (WhatsApp API gateway, NestJS): the
+    third-party-channel rules in Principle XIV govern every integration with it
+  - **Planning — `Balsm-Draft`** and the root workspace meta
+    (`balsm.code-workspace`, root `.github/`, `.claude/`, `.specify/`): carry
+    the same generated rule set; planning artifacts there are drafts until
+    promoted into `Balsm-Core`
+  - **Tooling — `db_benchmark`**: storage-engine evaluation harness;
+    non-governing, but storage-engine decisions MUST cite its findings
 - **Local working directory is the source of truth** — the sibling repos are
   checked out locally alongside `Balsm-Core` (e.g. `../Balsm-API-DotNet`,
   `../balsm_app_flutter`, `../website`). Planning MUST read each affected repo's
@@ -463,17 +587,69 @@ project directory first, and pulling from the git remote only as a fallback.
   feature touches and confirm each affected stack's current rules and skills were
   pulled and consulted before Phase 0 research
 
+### XIV. External Integration & Messaging Surfaces
+
+Every surface where Balsm data crosses to a third-party service or channel —
+the WhatsApp gateway (OpenWA), webhooks, cloud edge functions, email/SMS — is
+a governed boundary, not plumbing.
+
+- **No PHI over third-party messaging channels** — WhatsApp, SMS, and email
+  carry appointment reminders, OTPs, and generic notifications only; clinical
+  content MUST travel as a deep link into the authenticated app, never as
+  message body text
+- Patient consent MUST be recorded per channel before the first outbound
+  message; opt-out MUST take effect immediately and be auditable
+- Webhooks (inbound and outbound) MUST be HMAC-signed and verified — unsigned
+  or badly-signed payloads MUST be rejected and logged
+- Gateway credentials MUST be scoped to least-privilege permissions, hashed at
+  rest, IP-allowlisted where supported, and rotatable without downtime
+- Every outbound message and every gateway API operation MUST produce an audit
+  log entry (Principle II audit rules apply)
+- **Edge functions are the sole write path for sensitive cloud fields** (e.g.,
+  the encrypted `date_of_birth`) — clients MUST NOT write such fields
+  directly; server-side validation, throttling, and encryption happen in the
+  function
+- Cloud tables MUST be RLS deny-by-default — a user sees only their own rows;
+  service-role bypass is reserved for documented system operations (purge
+  crons, regulator access) and each bypass path MUST be enumerated in the
+  schema docs
+- An integration surface added to any repo MUST appear in the feature's spec
+  with its data classification (PHI / PII / non-PHI) and its threat-model IDs
+
 ## Technology Stack & Constraints
 
 - **License**: AGPL-3.0-or-later for all core repositories (see Principle XII)
 - **Backend**: .NET 10.0 modular monolith, C#, Entity Framework Core 10.0.5, SQLite
-  (local/embedded), PostgreSQL (cloud)
-- **Frontend Apps**: Flutter (Dart) — iOS, Android, Web, macOS, Windows, Linux
-- **Website**: Next.js (TypeScript) — marketing and public-facing
-- **API Style**: RESTful, URI-versioned (`/api/v1/`), consistent error responses
+  (local/embedded), PostgreSQL (cloud); dual deployment modes from one binary —
+  Standalone (on-prem: Supervisor admin module, mDNS discovery, self-signed
+  HTTPS, self-update) and Cloud (stateless, `$PORT`-driven, Docker non-root,
+  Railway / Cloud Run compatible)
+- **Frontend Apps**: Flutter (Dart) — iOS, Android, Web, macOS, Windows, Linux;
+  melos monorepo (core package + module packages + `balsm_boundary_lint` + app
+  shell); on-device storage drift + SQLCipher (encryption mandatory)
+- **Website**: Next.js (TypeScript) — marketing and public-facing; deployed to
+  Cloudflare Pages via `opennextjs-cloudflare`; WCAG AA minimum; Arabic-first
+  RTL-native i18n; carries no PHI or clinical data
+- **Cloud data platform**: Supabase — PostgreSQL + RLS + Deno edge functions;
+  non-PHI tier only (Principle II PHI topology); region placement governed by
+  Principle III residency
+- **Messaging**: OpenWA WhatsApp gateway (Node.js / NestJS) — governed by
+  Principle XIV
+- **Observability**: Sentry on backend and Flutter apps — PII scrubbing
+  mandatory per Principle II (`SendDefaultPii=false`, no body capture)
+- **API Style**: RESTful, URI-versioned (`/api/v1/`), consistent error responses;
+  every module exposes an anonymous liveness-only health endpoint
+- **API contract artifacts**: OpenAPI 3.1 specs generated from code annotations
+  (never hand-edited) plus per-module Insomnia v5 collections with synthetic
+  data only; breaking changes tagged `x-balsm-breaking` and gated by a
+  breaking-change diff in CI
+- **Idempotency**: all write endpoints MUST be idempotent; client-generated
+  idempotency keys required for creates — non-negotiable for payments and
+  prescriptions
 - **Authentication**: JWT with cloud-first + local-fallback dual-mode
 - **Database Migrations**: Reversible — both `Up()` and `Down()` required,
-  descriptively named
+  descriptively named; provider-specific migration projects (SQLite vs Npgsql)
+  kept separate
 - **Error Handling**: `Result<T>` for expected failures, domain-specific
   exceptions for unexpected failures, FluentValidation for API input validation
 - **Logging**: Structured (key-value), always include CorrelationId, UserId,
@@ -508,6 +684,15 @@ project directory first, and pulling from the git remote only as a fallback.
 - All list API endpoints MUST support pagination, filtering, and sorting
 - API responses MUST use a consistent error response structure with correlation
   IDs
+- Non-trivial backend changes require C4 diagrams (Mermaid) before
+  implementation per the backend repo rules — new bounded context: Levels 1–2;
+  cross-module flow: Levels 3–4; skip only for typo-level changes
+- API contract changes MUST run the breaking-change diff against the previous
+  OpenAPI spec and flag every consumer (Flutter apps, website) — unresolved
+  contract drift blocks merge (see Principle XIII)
+- Accepted security risks (e.g., an unpatchable CVE in a dependency) MUST be
+  documented in the owning repo with scope, rationale, and a migration path —
+  silent suppression is forbidden
 - The phased delivery model (20 phases, 4 tiers) MUST be followed — each phase
   has explicit exit criteria that MUST pass before the next phase begins
 - MENA regulatory tracking: a documented owner MUST monitor Egypt (PDPC),
@@ -563,4 +748,4 @@ Platform. It supersedes all other practices, conventions, and ad-hoc decisions.
   tactical patterns exception, new abstractions) MUST be justified in the PR
   description with measurable benefit
 
-**Version**: 1.6.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-07-06
+**Version**: 1.7.1 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-07-07
