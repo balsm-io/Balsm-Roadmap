@@ -211,13 +211,15 @@ Rules:
 
 ### balsm_app_flutter packages
 
-In tree today: `core` (`shared-kernel`), `balsm_api` (`infrastructure` — HTTP client layer), `balsm_boundary_lint` (`tooling`). Planned P001 domain packages:
+In tree: libs under `packages/` — `core` (`shared-kernel`), `balsm_api` (`infrastructure` — HTTP client layer), `balsm_boundary_lint` (`tooling`) — and P001 domain modules under `modules/`. All carry the README frontmatter mapping.
 
-| Package | Context |
+| Module | Context |
 |---|---|
 | `auth`, `sessions`, `account`, `deletion`, `disclosure`, `geofence_block` | Identity & Access |
 | `profile`, `medications`, `emergency_card` | Personal Health |
-| `home` | `app-shell` (orchestration, not a context) |
+| `app/` (composition root) | `app-shell` (orchestration, not a context) |
+
+The former `modules/home` was folded into `app/` (2026-07-11): it was presentation-only cross-context glue (greeting, onboarding nudges, locale refresh) with no domain — app-shell's job, not a context.
 
 ### Supabase (consumer identity plane)
 
