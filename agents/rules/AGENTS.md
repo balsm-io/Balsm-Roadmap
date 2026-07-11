@@ -57,6 +57,9 @@ Balsm is a healthcare platform consisting of multiple repositories:
 
 ### 2.2 Domain-Driven Design
 
+- [`architecture/`](../../architecture/) is the **single source of truth for domain decomposition**: subdomains (problem space) in [`architecture/domain-map.md`](../../architecture/domain-map.md), bounded contexts (solution space) in [`architecture/bounded-contexts/`](../../architecture/bounded-contexts/README.md). All bounded contexts, modules, and submodules MUST be defined there before they exist in code
+- before creating, renaming, splitting, merging, or deleting any module/submodule in any repo, consult `architecture/domain-map.md` and `architecture/bounded-contexts/`; if the proposed module maps to no documented subdomain/context, STOP and propose an architecture/ update first — docs lead, code follows
+- a module that exists in code but not in `architecture/` (or vice versa where the phase is active) is an architecture defect — surface it, do not silently extend it
 - the codebase uses DDD with 20 canonical bounded contexts (+2 provisional), organized by data-ownership plane (ADR-10) — respect their boundaries; full canvases in [`architecture/bounded-contexts/`](../../architecture/bounded-contexts/README.md):
   - *Consumer plane (patient-owned PHI):*
   - **Personal Health** (Core) — HealthProfile, TimelineEntry, VaccinationRecord, MedicationSchedule, DoseEvent, EmergencyCardSnapshot, EmergencyToken, RecordDocument
@@ -213,6 +216,7 @@ Read [`CODING_STANDARDS.md`](./CODING_STANDARDS.md) for detailed technical patte
 ## Key Documentation
 
 ### Architecture & Design
+- [`architecture/domain-map.md`](../../architecture/domain-map.md) — **authoritative problem-space decomposition**: domain vision, 17 subdomains (Core/Supporting/Generic), subdomain → bounded-context mapping — consult before any module/context change (§2.2)
 - [`architecture/subdomain-classification.md`](../../architecture/subdomain-classification.md) — DDD subdomain analysis: Core, Supporting, and Generic domains with investment strategies
 - [`architecture/subdomain-map.md`](../../architecture/subdomain-map.md) — visual subdomain organization, context maps, and team ownership
 - [`architecture/communication-architecture.md`](../../architecture/communication-architecture.md) — three-tier architecture (App, Local Server, Cloud)
