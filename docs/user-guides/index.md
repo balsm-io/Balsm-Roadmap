@@ -1,6 +1,6 @@
 # User Guides
 
-Step-by-step tutorials and how-to guides for Balsm.IO platform users.
+Step-by-step tutorials and how-to guides for Balsm platform users.
 
 ## Getting Started
 - [Platform Overview](./getting-started/overview.md)
@@ -33,4 +33,4 @@ Step-by-step tutorials and how-to guides for Balsm.IO platform users.
 
 ---
 
-*Need help? Visit our [Support Center](https://support.balsm.io) or contact support@balsm.io*
+*Need help? Visit our [Support Center](https://support.balsm.health) or contact support@balsm.health*

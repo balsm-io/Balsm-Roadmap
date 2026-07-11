@@ -1,6 +1,6 @@
 # Developer Documentation
 
-Technical documentation, architecture guides, and contribution guidelines for Balsm.IO platform.
+Technical documentation, architecture guides, and contribution guidelines for Balsm platform.
 
 ## Architecture
 - [System Overview](./architecture/overview.md)

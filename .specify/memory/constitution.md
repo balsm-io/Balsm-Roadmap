@@ -1,6 +1,46 @@
 <!--
   SYNC IMPACT REPORT
-  Patch 1.7.0 → 1.7.1: PATCH — Principles IV and XIII now link the
+  Version change: 1.7.1 → 1.8.0
+  Bump rationale: MINOR — Principle IV materially amended: the canonical
+  bounded-context set grows from 13 to 20 (+2 provisional), organized by three
+  data-ownership planes (ADR-10), derived bottom-up from
+  Balsm-Draft/PHASED_ROADMAP.md (P000–P023). No principle weakened; LOCKED
+  Principle I untouched.
+
+  Modified principles:
+    - IV. Modular Monolith & DDD:
+      * Canonical contexts 13 → 20: added Personal Health (Core, consumer
+        plane), Provider Directory, Point of Sale, Customer Relations,
+        Care Delivery, Balsm Network, Platform Access; Community and
+        Population Insights listed as provisional (P021 gate; modules may not
+        map to provisional contexts)
+      * Core set now: Personal Health, Clinical Records, Prescriptions
+      * Inventory reclassified Generic → Supporting (Egypt Law 182/1960
+        controlled-substance tagging, FIFO-by-expiry, POS-atomic deduction)
+      * PharmacyInventory entity moved Pharmacy → Inventory (one context owns
+        stock)
+      * Canonical decomposition now lives in architecture/bounded-contexts/
+        (one canvas per context + context map); subdomain-map.md and
+        subdomain-classification.md corrected in the same change (stale Core
+        labels on Charitable Donations and Marketplace fixed to Supporting)
+      * Narrow, documented exception added to the eventual-consistency rule:
+        Point of Sale → Inventory DeductStock synchronous command (P007
+        atomicity exit criterion)
+
+  Templates requiring updates:
+    - .specify/templates/plan-template.md  ✅ done (2026-07-11) — "Module &
+      Bounded Context Mapping" section added (context, plane, repo, module,
+      sub-module, owning context); Domain modeling gate now cites the
+      20-context list + bounded-contexts/ canvases
+    - .specify/templates/tasks-template.md ✅ done (2026-07-11) — "Module &
+      Context Scope" section + per-story Bounded Context / Module line +
+      declared-module path rule
+    - speckit-plan / speckit-tasks skills (.claude/.agents/.opencode mirrors)
+      ✅ done (2026-07-11) — mandatory module/sub-module/context detection step
+      in plan; mapping extraction + scope enforcement in tasks
+    - .specify/templates/spec-template.md  ⚠ still pending from 1.7.0
+
+  Prior amendment (1.7.0 → 1.7.1): PATCH — Principles IV and XIII now link the
   `architecture/` folder (subdomain-map.md, subdomain-classification.md,
   routing strategies) as a mandatory planning-phase input. No semantic change
   to any rule.
@@ -210,7 +250,9 @@ conflicts with a feature request, regulation wins.
 
 ### IV. Modular Monolith with Domain-Driven Design
 
-The system follows a modular monolith architecture with 13 bounded contexts.
+The system follows a modular monolith architecture with 20 canonical bounded
+contexts (+2 provisional pending the P021 spec), organized by three
+data-ownership planes (Consumer / Provider / Platform, per ADR-10).
 Module boundaries are inviolable.
 
 - Every bounded context MUST be a separate package/project — no two contexts in
@@ -227,13 +269,20 @@ Module boundaries are inviolable.
   (HL7/FHIR, DICOM, insurance APIs, national health exchanges)
 - Tactical DDD patterns (aggregates, domain events, value objects, repositories,
   domain services) MUST be applied in the Core and complex Supporting contexts
-  (Clinical Records, Prescriptions, Billing, Labs, Radiology):
+  (Personal Health, Clinical Records, Prescriptions, Billing & Finance, Labs,
+  Radiology):
   - **Aggregates MUST be small** — one aggregate root plus a minimal cluster;
     reference other aggregates by identity (ID), never by direct object reference
   - **Consistency boundaries**: immediate (transactional) consistency is
     guaranteed only *within* an aggregate; consistency *between* aggregates MUST
     be eventual, coordinated through domain events — never through a
-    cross-aggregate transaction
+    cross-aggregate transaction. Sole sanctioned exception: a synchronous
+    published-interface command where a phase exit criterion demands
+    cross-context atomicity inside one local process — currently only
+    Point of Sale → Inventory `DeductStock`/`RestoreStock` (P007 "atomic stock
+    deduction, no partial sales"). The never-below-zero invariant still lives
+    inside Inventory's `StockLevel` aggregate, no tables are shared, and this
+    seam MUST become a reservation saga if the contexts ever deploy separately
   - **Entities vs Value Objects**: model as an Entity only when identity persists
     across attribute changes; otherwise prefer an immutable Value Object (dosage,
     money, address, code) — replace, never mutate
@@ -257,36 +306,53 @@ Module boundaries are inviolable.
 - **Strategic design — every bounded context MUST be classified** so engineering
   effort matches business value:
   - **Core Domain** (deepest modeling, richest behavior, best engineers):
-    Clinical Records, Prescriptions — the safety-critical clinical logic that
-    differentiates Balsm (reinforces Principle I)
-  - **Supporting Subdomains** (build, but do not over-engineer): Entity
-    Management, Appointment, Pharmacy, Labs, Radiology, Billing & Finance,
-    Inventory, Charitable Donations, Marketplace
+    Personal Health, Clinical Records, Prescriptions — the patient-owned-data
+    consumer differentiation and the safety-critical clinical logic that
+    differentiate Balsm (reinforces Principle I)
+  - **Supporting Subdomains** (build, but do not over-engineer): Provider
+    Directory, Entity Management, Inventory, Point of Sale, Customer Relations,
+    Appointment, Pharmacy, Billing & Finance, Labs, Radiology, Care Delivery,
+    Charitable Donations, Balsm Network, Marketplace
   - **Generic Subdomains** (prefer buy / open-source over custom modeling):
-    Identity & Access, Messaging & Notifications
+    Identity & Access, Messaging & Notifications, Platform Access
   - Classification MUST be revisited each milestone — today's differentiator may
     become tomorrow's commodity
 - Simple CRUD contexts (User Profile, Announcements) MUST remain lightweight —
   do not over-engineer with unnecessary patterns
-- The 13 bounded contexts are: Identity & Access, Entity Management, Appointment,
-  Clinical Records, Prescriptions, Pharmacy, Labs, Radiology, Billing & Finance,
-  Inventory, Messaging & Notifications, Charitable Donations, Marketplace
+- The 20 canonical bounded contexts, organized by data-ownership plane
+  (ADR-10), are:
+  - **Consumer plane** (patient-owned PHI): Personal Health, Provider Directory
+  - **Provider plane** (entity-owned data): Entity Management, Inventory,
+    Point of Sale, Customer Relations, Appointment, Clinical Records,
+    Prescriptions, Pharmacy, Billing & Finance, Labs, Radiology, Care Delivery,
+    Charitable Donations
+  - **Platform plane** (Balsm-owned, non-PHI): Balsm Network, Platform Access,
+    Marketplace
+  - **Cross-plane**: Identity & Access, Messaging & Notifications
+  - **Provisional** (candidates only — confirmed or dissolved at the P021 spec;
+    modules MUST NOT map to them): Community, Population Insights
 - The canonical decomposition behind these contexts lives in the
   [`architecture/`](../../architecture/) folder —
+  [`bounded-contexts/`](../../architecture/bounded-contexts/README.md) (context
+  map + one canvas per context: aggregates, events, relationships, module and
+  phase mappings),
   [`subdomain-map.md`](../../architecture/subdomain-map.md),
   [`subdomain-classification.md`](../../architecture/subdomain-classification.md),
   and the routing strategies. Every planning phase (`/speckit.plan` Phase 0
   research and the Constitution Check) MUST consult it before assigning a
   feature to a context. On conflict this constitution prevails and the
   architecture doc MUST be corrected in the same change
-- **Implemented modules MUST map to the 13 contexts** — a delivery phase MAY
-  decompose into a different working module set (e.g., the patient-app MVP's
-  Account, Auth, Sessions, EmergencyQr, Geofence, Disclosure, Deletion, POS,
-  Customer modules), but each implemented module MUST be explicitly mapped to
-  exactly one of the 13 bounded contexts in the owning repo's architecture
-  docs. An unmapped module is an architecture defect; a module that cannot be
-  mapped signals a missing or wrong context and MUST trigger a constitution
-  amendment, not a silent 14th context
+- **Implemented modules MUST map to the canonical contexts** — a delivery phase
+  MAY decompose into a different working module set (e.g., the patient-app
+  MVP's Account, Auth, Sessions, EmergencyQr, Geofence, Disclosure, Deletion
+  modules → Identity & Access and Personal Health; the pharmacy track's POS →
+  Point of Sale and Customer → Customer Relations), but each implemented module
+  MUST be explicitly mapped to exactly one of the canonical bounded contexts in
+  the owning repo's architecture docs (see the Module → Context Mapping table
+  in [`bounded-contexts/README.md`](../../architecture/bounded-contexts/README.md)).
+  An unmapped module is an architecture defect; a module that cannot be mapped
+  signals a missing or wrong context and MUST trigger a constitution
+  amendment, not a silent 21st context
 
 ### V. Offline-First, Cloud-Enhanced
 
@@ -748,4 +814,4 @@ Platform. It supersedes all other practices, conventions, and ad-hoc decisions.
   tactical patterns exception, new abstractions) MUST be justified in the PR
   description with measurable benefit
 
-**Version**: 1.7.1 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-07-07
+**Version**: 1.8.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-07-10

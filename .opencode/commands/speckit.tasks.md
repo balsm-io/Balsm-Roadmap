@@ -65,6 +65,13 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 3. **Execute task generation workflow**:
    - Load plan.md and extract tech stack, libraries, project structure
+   - **Extract the "Module & Bounded Context Mapping" from plan.md** and copy it
+     into tasks.md's "Module & Context Scope" section — ERROR if plan.md lacks
+     the mapping (rerun /speckit.plan first)
+   - Annotate every user story phase with its bounded context and module via
+     the **Bounded Context / Module** line; every task's file path MUST fall
+     inside a declared module — if a needed task falls outside the declared
+     scope, STOP and report that plan.md's mapping must be updated first
    - Load spec.md and extract user stories with their priorities (P1, P2, P3, etc.)
    - If data-model.md exists: Extract entities and map to user stories
    - If contracts/ exists: Map interface contracts to user stories

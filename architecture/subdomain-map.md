@@ -1,351 +1,154 @@
 # Subdomain Map
 
-**Balsm Healthcare Platform - Visual Subdomain Organization**
+**Balsm Healthcare Platform — Visual Subdomain Organization**
+
+> Canonical context definitions + canvases: [`bounded-contexts/`](./bounded-contexts/README.md). This file is the visual overview. Classification rationale: [`subdomain-classification.md`](./subdomain-classification.md). Aligned with constitution v1.8.0 (20 canonical contexts, three data-ownership planes per ADR-10).
 
 ---
 
 ## Strategic Subdomain Landscape
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         CORE DOMAINS                                     │
-│                    (Competitive Differentiation)                         │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                           │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐     │
-│  │  Clinical        │  │  Prescriptions   │  │   Charitable     │     │
-│  │  Records         │  │                  │  │   Donations      │     │
-│  │                  │  │                  │  │                  │     │
-│  │ • AI Scribe      │  │ • Drug Safety    │  │ • Case Tracking  │     │
-│  │ • Timeline       │  │ • Interactions   │  │ • Transparency   │     │
-│  │ • Audit Trail    │  │ • CDSS           │  │ • Social Impact  │     │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘     │
-│                                                                           │
-│  ┌──────────────────┐                                                   │
-│  │  Marketplace     │                                                   │
-│  │                  │                                                   │
-│  │ • Add-Ons        │                                                   │
-│  │ • Developer      │                                                   │
-│  │ • Ecosystem      │                                                   │
-│  └──────────────────┘                                                   │
-│                                                                           │
-└─────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│                              CORE DOMAINS                                  │
+│                       (Competitive Differentiation)                        │
+├───────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐        │
+│  │ Personal Health  │  │ Clinical Records │  │  Prescriptions   │        │
+│  │ (Consumer plane) │  │ (Provider plane) │  │ (Provider plane) │        │
+│  │                  │  │                  │  │                  │        │
+│  │ • Emergency Card │  │ • Encounters     │  │ • Lifecycle FSM  │        │
+│  │ • Timeline (ADR-12)│ │ • AI Scribe     │  │ • QR Dispensing  │        │
+│  │ • Patient-owned  │  │ • Immutability   │  │ • Drug Safety    │        │
+│  │   PHI (ADR-10)   │  │ • Audit Trail    │  │ • CDSS           │        │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘        │
+└───────────────────────────────────────────────────────────────────────────┘
 
+┌───────────────────────────────────────────────────────────────────────────┐
+│                         SUPPORTING SUBDOMAINS                              │
+│                     (Custom-Built, Domain-Specific)                        │
+├───────────────────────────────────────────────────────────────────────────┤
+│ Consumer plane:                                                            │
+│  ┌───────────────┐                                                         │
+│  │Provider       │                                                         │
+│  │Directory      │                                                         │
+│  └───────────────┘                                                         │
+│ Provider plane:                                                            │
+│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐   │
+│  │  Entity   │ │ Inventory │ │ Point of  │ │ Customer  │ │Appointment│   │
+│  │Management │ │           │ │   Sale    │ │ Relations │ │           │   │
+│  └───────────┘ └───────────┘ └───────────┘ └───────────┘ └───────────┘   │
+│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐   │
+│  │ Pharmacy  │ │ Billing & │ │   Labs    │ │ Radiology │ │   Care    │   │
+│  │           │ │  Finance  │ │ (ADR-13)  │ │           │ │ Delivery  │   │
+│  └───────────┘ └───────────┘ └───────────┘ └───────────┘ └───────────┘   │
+│  ┌───────────┐                                                            │
+│  │Charitable │                                                            │
+│  │ Donations │                                                            │
+│  └───────────┘                                                            │
+│ Platform plane:                                                            │
+│  ┌───────────┐ ┌───────────┐   provisional: ┌───────────┐ ┌───────────┐  │
+│  │   Balsm   │ │Marketplace│                │ Community*│ │Population │  │
+│  │  Network  │ │           │                │           │ │ Insights* │  │
+│  └───────────┘ └───────────┘                └───────────┘ └───────────┘  │
+└───────────────────────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      SUPPORTING SUBDOMAINS                               │
-│                  (Custom-Built, Domain-Specific)                         │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                           │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │
-│  │ Appointment │  │    Labs     │  │  Radiology  │  │  Pharmacy   │  │
-│  │             │  │             │  │             │  │             │  │
-│  │ • Waiting   │  │ • Orders    │  │ • DICOM     │  │ • Dispense  │  │
-│  │ • Schedule  │  │ • QC        │  │ • PACS      │  │ • Delivery  │  │
-│  │ • Cost Est  │  │ • LOINC     │  │ • Reports   │  │ • QR Verify │  │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘  │
-│                                                                           │
-│  ┌─────────────┐  ┌─────────────┐                                      │
-│  │  Billing &  │  │   Entity    │                                      │
-│  │  Finance    │  │  Management │                                      │
-│  │             │  │             │                                      │
-│  │ • Claims    │  │ • Branch    │                                      │
-│  │ • Insurance │  │ • Dept      │                                      │
-│  │ • Revenue   │  │ • Room/Bed  │                                      │
-│  └─────────────┘  └─────────────┘                                      │
-│                                                                           │
-└─────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│                          GENERIC SUBDOMAINS                                │
+│                        (Commodity / Buy / Wrap)                            │
+├───────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐        │
+│  │ Identity &       │  │ Messaging &      │  │ Platform Access  │        │
+│  │ Access           │  │ Notifications    │  │                  │        │
+│  │                  │  │                  │  │ • OAuth2 + PKCE  │        │
+│  │ • Supabase Auth  │  │ • FCM/APNs/SMS   │  │ • API Keys       │        │
+│  │ • JWT bridge     │  │ • WhatsApp gw    │  │ • Rate Limits    │        │
+│  │   (ADR-03)       │  │ • No PHI (XIV)   │  │ • Consent Grants │        │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘        │
+└───────────────────────────────────────────────────────────────────────────┘
 
-
-┌─────────────────────────────────────────────────────────────────────────┐
-│                       GENERIC SUBDOMAINS                                 │
-│                    (Commodity/Buy Solutions)                             │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                           │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐     │
-│  │  Identity &      │  │   Inventory      │  │   Messaging &    │     │
-│  │  Access          │  │                  │  │   Notifications  │     │
-│  │                  │  │                  │  │                  │     │
-│  │ • Auth/OAuth     │  │ • Stock          │  │ • SMS            │     │
-│  │ • Permissions    │  │ • PO             │  │ • Email          │     │
-│  │ • Sessions       │  │ • Vendors        │  │ • Push           │     │
-│  │                  │  │                  │  │ • Chat           │     │
-│  │ Consider:        │  │ Consider:        │  │ Consider:        │     │
-│  │ Auth0/Keycloak   │  │ ERP Integration  │  │ Twilio/SendGrid  │     │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘     │
-│                                                                           │
-└─────────────────────────────────────────────────────────────────────────┘
+* provisional — confirmed or dissolved at P021 spec time
 ```
+
+---
+
+## Three Data-Ownership Planes (ADR-10)
+
+```
+CONSUMER PLANE                PROVIDER PLANE               PLATFORM PLANE
+patient-owned PHI             entity-owned data            Balsm-owned, non-PHI
+─────────────────             ──────────────────           ───────────────────
+Local SQLite (primary)        .NET local server            Balsm Cloud (Postgres)
++ Drive/iCloud (optional)     SQLite per-module schema     multi-tenant
+
+Personal Health ★             Entity Mgmt   Inventory      Balsm Network
+Provider Directory            Point of Sale Customer Rel.  Platform Access
+                              Appointment   Clinical ★     Marketplace
+                              Prescriptions ★ Pharmacy     (Community*)
+                              Billing  Labs  Radiology     (Population Insights*)
+                              Care Delivery  Donations
+
+              CROSS-PLANE: Identity & Access (JWT bridge, ADR-03)
+                           Messaging & Notifications
+```
+
+Same word, different model per plane: a consumer-plane "Record" is a patient-owned append-only ledger entry; a provider-plane "Record" is an entity-owned encounter log. They meet only through mirror entries behind an ACL (ADR-12, `external_source`).
+
+---
+
+## Context Map (summary)
+
+Full relationship matrix + mermaid diagram: [`bounded-contexts/README.md`](./bounded-contexts/README.md#context-map).
+
+Key structural facts:
+
+- **Identity & Access** is the universal upstream — Supabase-issued JWT validated everywhere (ADR-03), including offline local servers (cached public key).
+- **The care loop**: Appointment → Clinical Records → Prescriptions → Pharmacy → (mirror) Personal Health.
+- **The counter loop**: Point of Sale ↔ Pharmacy (partnership) → Inventory (sync `DeductStock` command, single local transaction) → Customer Relations / Billing (events).
+- **Balsm Network** is the gatekeeper: nothing crosses instances except through the entity sharing policy (BRD §1.4).
+- **Platform Access** is the only third-party door: patient PHI via OAuth consent only; entity API keys never grant PHI.
+- **Messaging & Notifications** is everyone's downstream; no context talks to FCM/APNs/Twilio/OpenWA directly.
 
 ---
 
 ## Investment Heat Map
 
 ```
-                    Complexity
-                    ↑
-                    │
-         Very High  │   ┌─────────┐  ┌─────────┐
-                    │   │Clinical │  │Prescrip.│
-                    │   │ Records │  │         │
-                    │   └─────────┘  └─────────┘
-                    │
-            High    │   ┌─────────┐  ┌─────────┐  ┌─────────┐
-                    │   │Billing &│  │  Labs   │  │Radiology│
-                    │   │ Finance │  └─────────┘  └─────────┘
-                    │   └─────────┘  ┌─────────┐
-                    │                │Appoint. │
-            Medium  │   ┌─────────┐  └─────────┘  ┌─────────┐
-                    │   │Identity │  ┌─────────┐  │Charity  │
-                    │   │& Access │  │Pharmacy │  │Donation │
-                    │   └─────────┘  └─────────┘  └─────────┘
-                    │   ┌─────────┐  ┌─────────┐  ┌─────────┐
-            Low     │   │Messaging│  │Inventory│  │ Entity  │
-                    │   │& Notif. │  └─────────┘  │  Mgmt   │
-                    │   └─────────┘               └─────────┘
-                    │                              ┌─────────┐
-                    │                              │Market-  │
-                    │                              │ place   │
-                    │                              └─────────┘
-                    └──────────────────────────────────────────────→
-                        Low         Medium          High      Strategic
-                                                              Importance
-```
+                Complexity
+                ↑
+     Very High  │  Clinical Records ★   Prescriptions ★   Labs
+                │
+         High   │  Personal Health ★    Billing & Finance  Balsm Network
+                │  Care Delivery        Radiology
+                │
+       Medium   │  Appointment  Point of Sale  Pharmacy   Platform Access
+                │  Identity & Access    Charitable Donations  Marketplace
+                │
+          Low   │  Inventory  Customer Relations  Entity Mgmt
+                │  Messaging & Notif.   Provider Directory
+                └────────────────────────────────────────────→
+                   Low            Medium            High
+                              Strategic Importance
 
-**Legend:**
-- Top-right quadrant: Maximum investment (Core, Complex)
-- Bottom-right quadrant: High investment (Strategic, Simpler)
-- Top-left quadrant: Optimize/Simplify (Complex, Low value)
-- Bottom-left quadrant: Automate/Outsource (Generic)
-
----
-
-## Context Map (DDD Pattern)
-
-```
-┌────────────────────────────────────────────────────────────────────┐
-│                         UPSTREAM CONTEXTS                           │
-└────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   │
-                    ┌──────────────┴──────────────┐
-                    │                             │
-                    ▼                             ▼
-         ┌────────────────────┐        ┌────────────────────┐
-         │  Identity & Access │        │ Entity Management  │
-         │    (Generic)       │        │   (Supporting)     │
-         └──────┬─────────────┘        └──────┬─────────────┘
-                │                             │
-                │ ACL                         │ ACL
-                │                             │
-                └──────────────┬──────────────┘
-                               │
-                               │
-                    ┌──────────┴──────────────────────┐
-                    │                                  │
-                    ▼                                  ▼
-         ┌────────────────────┐            ┌────────────────────┐
-         │ Clinical Records   │◄───────────┤   Prescriptions    │
-         │     (CORE)         │    Events  │      (CORE)        │
-         └──────┬─────────────┘            └──────┬─────────────┘
-                │                                  │
-                │ Events                           │ Events
-                │                                  │
-       ┌────────┼────────┬─────────────────────────┼──────────┐
-       │        │        │                         │          │
-       ▼        ▼        ▼                         ▼          ▼
-  ┌────────┐ ┌────┐ ┌─────────┐              ┌──────────┐ ┌────────┐
-  │  Labs  │ │Rad.│ │Appoint. │              │ Pharmacy │ │Billing │
-  │(Support)│ │(Sup)│ │(Support)│              │(Support) │ │(Support)│
-  └────────┘ └────┘ └─────────┘              └──────────┘ └────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                      DOWNSTREAM CONTEXTS                             │
-└─────────────────────────────────────────────────────────────────────┘
-                    │                       │
-                    ▼                       ▼
-         ┌────────────────────┐  ┌────────────────────┐
-         │   Messaging &      │  │   Marketplace      │
-         │   Notifications    │  │      (Core)        │
-         │    (Generic)       │  └────────────────────┘
-         └────────────────────┘
-                    │
-                    ▼
-         External Services:
-         • Twilio (SMS)
-         • SendGrid (Email)
-         • Firebase (Push)
-```
-
-**Relationship Patterns:**
-- **ACL** (Anti-Corruption Layer): Protects downstream context from upstream changes
-- **Events**: Asynchronous communication via domain events
-- **Shared Kernel**: Minimal shared code (only for value objects/contracts)
-
----
-
-## Team Ownership Map
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    CLINICAL TEAM (Team A)                        │
-├─────────────────────────────────────────────────────────────────┤
-│ • Clinical Records (Core)                                        │
-│ • Care Coordination                                              │
-│ • Timeline & Audit                                               │
-│ • AI Scribe Integration                                          │
-│                                                                   │
-│ Skills: Senior devs, Healthcare domain, AI/ML                    │
-│ Size: 5-7 developers                                             │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│               PHARMACEUTICAL TEAM (Team B)                       │
-├─────────────────────────────────────────────────────────────────┤
-│ • Prescriptions (Core)                                           │
-│ • Drug Safety & Interactions                                     │
-│ • Pharmacy Operations (Supporting)                               │
-│ • CDSS Integration                                               │
-│                                                                   │
-│ Skills: Senior devs, Pharmacy domain, Safety-critical systems    │
-│ Size: 4-6 developers                                             │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│              PLATFORM TEAM (Team C)                              │
-├─────────────────────────────────────────────────────────────────┤
-│ • Marketplace (Core)                                             │
-│ • Charitable Donations (Core)                                    │
-│ • Identity & Access (Generic)                                    │
-│ • Entity Management (Supporting)                                 │
-│                                                                   │
-│ Skills: Mid-senior devs, Platform/API design, Security           │
-│ Size: 4-5 developers                                             │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│            CLINICAL OPERATIONS TEAM (Team D)                     │
-├─────────────────────────────────────────────────────────────────┤
-│ • Appointments (Supporting)                                      │
-│ • Labs (Supporting)                                              │
-│ • Radiology (Supporting)                                         │
-│                                                                   │
-│ Skills: Mid-level devs, Healthcare workflows, Integration        │
-│ Size: 4-5 developers                                             │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│            BUSINESS OPERATIONS TEAM (Team E)                     │
-├─────────────────────────────────────────────────────────────────┤
-│ • Billing & Finance (Supporting)                                 │
-│ • Inventory (Generic)                                            │
-│ • Messaging & Notifications (Generic)                            │
-│                                                                   │
-│ Skills: Mid-level devs, ERP/Financial domain, Integrations       │
-│ Size: 3-4 developers                                             │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Technology Stack Recommendations
-
-### Core Domains
-**Rich Domain Models with Full DDD Tactical Patterns**
-
-```yaml
-Clinical Records:
-  Architecture: Onion Architecture
-  Patterns:
-    - Aggregates (PatientRecord, Entry)
-    - Domain Events (RecordUpdated, ConsentGranted)
-    - Value Objects (Timeline, CareTeamMember)
-    - Repositories (UnitOfWork)
-    - Domain Services (AuditLogger, TimelineBuilder)
-  Testing: 90%+ coverage
-  Performance: Cache-aside pattern, CQRS for read-heavy operations
-
-Prescriptions:
-  Architecture: Hexagonal Architecture
-  Patterns:
-    - Aggregates (Prescription, Medication)
-    - Domain Events (PrescriptionCreated, DrugInteractionDetected)
-    - Value Objects (Dosage, DrugCode)
-    - Specifications (DrugInteractionSpec, AllergySpec)
-    - Domain Services (SafetyValidator, InteractionChecker)
-  Testing: 95%+ coverage (safety-critical)
-  Performance: Real-time validation, in-memory cache for drug database
-```
-
-### Supporting Subdomains
-**Clean Architecture with Selective DDD Patterns**
-
-```yaml
-Appointment:
-  Architecture: Clean Architecture
-  Patterns:
-    - Aggregates (Appointment, Schedule)
-    - Domain Events (AppointmentBooked, SlotReleased)
-    - Repositories
-  Testing: 80%+ coverage
-  Performance: Slot availability caching
-
-Labs:
-  Architecture: Clean Architecture
-  Patterns:
-    - Aggregates (LabOrder, Specimen)
-    - Domain Events (ResultPublished)
-    - Domain Services (QualityControlService)
-  Testing: 80%+ coverage
-  Performance: Batch processing for bulk results
-```
-
-### Generic Subdomains
-**Thin Wrappers Around Services**
-
-```yaml
-Identity & Access:
-  Architecture: Adapter/Port Pattern
-  Integration: Auth0 / Keycloak (OAuth 2.0 / OIDC)
-  Custom: PBAC permission layer
-  Testing: Integration tests with identity provider
-  Performance: Token caching, session management
-
-Messaging & Notifications:
-  Architecture: Adapter pattern
-  Integration:
-    - Twilio (SMS)
-    - SendGrid (Email)
-    - Firebase Cloud Messaging (Push)
-  Testing: Mock external services in tests
-  Performance: Queue-based delivery, batch notifications
+★ = Core Domain (max investment)
 ```
 
 ---
 
 ## Quick Reference: When to Invest
 
-| Subdomain | Invest Time | Build Quality | Innovation | Buy vs Build |
-|-----------|-------------|---------------|------------|--------------|
-| **Core** | 60-70% | Highest | Continuous | Always Build |
-| **Supporting** | 20-30% | High | Periodic | Build (custom fit) |
-| **Generic** | 5-10% | Good Enough | Minimal | Buy/Integrate |
-
----
-
-## Next Actions
-
-1. **Review & Validate**: Present to leadership and technical stakeholders
-2. **Team Formation**: Organize teams around subdomain ownership
-3. **Technology Audit**: Evaluate current implementations against classification
-4. **Investment Plan**: Create quarterly OKRs aligned with subdomain priorities
-5. **Quarterly Reassessment**: Review classification as business strategy evolves
+| Subdomain type | Invest time | Build quality | Buy vs build |
+|---|---|---|---|
+| **Core** (Personal Health, Clinical Records, Prescriptions) | 60-70% | Highest | Always build |
+| **Supporting** (14 contexts) | 20-30% | High | Build (custom fit) |
+| **Generic** (Identity, Messaging, Platform Access) | 5-10% | Good enough | Buy/wrap (Supabase Auth, FCM/APNs, standard OAuth2 server) |
 
 ---
 
 ## Related Documents
 
-- [subdomain-classification.md](./subdomain-classification.md) — Detailed analysis and rationale
-- [communication-architecture.md](./communication-architecture.md) — Inter-context communication patterns
-- [AGENTS.md](../agents/rules/AGENTS.md) — Bounded context definitions and coding rules
-- [BUSINESS_FEATURES.md](../BUSINESS_FEATURES.md) — Feature specifications per subdomain
+- [bounded-contexts/README.md](./bounded-contexts/README.md) — canonical context map, canvases, module/phase mappings
+- [subdomain-classification.md](./subdomain-classification.md) — classification rationale + decision log
+- [communication-architecture.md](./communication-architecture.md) — inter-context communication patterns
+- [AGENTS.md](../agents/rules/AGENTS.md) — agent rules referencing the contexts
+- Constitution Principle IV — the binding rule set (v1.8.0)

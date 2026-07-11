@@ -59,6 +59,18 @@ You **MUST** consider the user input before proceeding (if not empty).
 2. **Load context**: Read FEATURE_SPEC and `.specify/memory/constitution.md`. Load IMPL_PLAN template (already copied).
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
+   - **Detect the dedicated module, sub-module, and bounded context(s)** for the
+     feature/change (REQUIRED, before anything else): read
+     `architecture/bounded-contexts/README.md` (context map + three
+     data-ownership planes) and the canvas of every candidate context; inspect
+     the affected repos' real module layout
+     (`../Balsm-API-DotNet/src/Modules/`, `../balsm_app_flutter/modules/` +
+     `packages/`, `../supabase/`); then fill the plan's "Module & Bounded
+     Context Mapping" table — bounded context, plane, repo, module,
+     sub-module/layer, new/existing — with exactly one primary (owning)
+     context. ERROR if any touched module cannot be mapped to a canonical
+     context (Principle IV), or if a provisional context (Community,
+     Population Insights) would own a module
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)

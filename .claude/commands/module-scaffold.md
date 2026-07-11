@@ -8,7 +8,7 @@ Scaffold a new bounded context module with the correct folder structure for Bals
    - Module name (bounded context name, e.g., "Labs", "Radiology", "Pharmacy")
    - Target project: .NET API, Flutter App, or both
 
-2. Verify the module name aligns with one of the 13 bounded contexts defined in AGENTS.md. If it's a new context, confirm with the user before proceeding.
+2. Verify the module name maps to one of the 20 canonical bounded contexts defined in AGENTS.md §2.2 (canvases in `architecture/bounded-contexts/`). Provisional contexts (Community, Population Insights) may not receive modules. If it's a new context, stop — a module that cannot be mapped requires a constitution amendment (Principle IV), not a silent 21st context.
 
 ### .NET Module Structure
 

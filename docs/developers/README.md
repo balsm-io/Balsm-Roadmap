@@ -2,7 +2,7 @@
 
 ## Overview
 
-This section contains technical documentation for developers working on or integrating with Balsm.IO.
+This section contains technical documentation for developers working on or integrating with Balsm.
 
 ## Architecture
 
@@ -83,5 +83,5 @@ This section contains technical documentation for developers working on or integ
 ## Support
 
 - [Development Discord](https://discord.gg/balsm-dev)
-- [GitHub Discussions](https://github.com/orgs/Balsm-IO/discussions)
-- Email: dev@balsm.io
+- [GitHub Discussions](https://github.com/orgs/balsm-health/discussions)
+- Email: dev@balsm.health

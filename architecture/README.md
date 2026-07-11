@@ -14,15 +14,29 @@ This directory contains architectural documentation, design decisions, and strat
 
 ### Strategic Design
 
+#### [domain-map.md](./domain-map.md)
+**Problem-Space Decomposition — Domain, Areas, Subdomains**
+
+The business problems Balsm solves, independent of software: domain vision statement, 5 narrative domain areas, 17 subdomains (3 Core / 12 Supporting / 2 Generic), subdomain → bounded-context mapping, evolution triggers.
+
+---
+
+#### [bounded-contexts/](./bounded-contexts/README.md)
+**Canonical Context Map & Per-Context Canvases**
+
+The authoritative decomposition (constitution v1.8.0): 20 canonical bounded contexts (+2 provisional) across three data-ownership planes (ADR-10). Context map with relationship patterns (OHS/PL, Customer-Supplier, ACL, Conformist, Partnership, Shared Kernel), one canvas per context (purpose, ubiquitous language, aggregates, events, relationships), module → context and phase → context mappings.
+
+---
+
 #### [subdomain-classification.md](./subdomain-classification.md)
 **Domain-Driven Design Subdomain Analysis**
 
-Comprehensive classification of Balsm's 13 bounded contexts into:
-- **Core Domains** (4): Clinical Records, Prescriptions, Charitable Donations, Marketplace
-- **Supporting Subdomains** (6): Appointment, Labs, Radiology, Pharmacy, Billing & Finance, Entity Management
-- **Generic Subdomains** (3): Identity & Access, Inventory, Messaging & Notifications
+Classification of the 20 canonical bounded contexts into:
+- **Core Domains** (3): Personal Health, Clinical Records, Prescriptions
+- **Supporting Subdomains** (14): Provider Directory, Entity Management, Inventory, Point of Sale, Customer Relations, Appointment, Pharmacy, Billing & Finance, Labs, Radiology, Care Delivery, Charitable Donations, Balsm Network, Marketplace
+- **Generic Subdomains** (3): Identity & Access, Messaging & Notifications, Platform Access
 
-Includes investment strategies, team allocation recommendations, and architectural implications for each subdomain type.
+Includes investment strategies and architectural implications for each subdomain type.
 
 ---
 
@@ -60,7 +74,7 @@ Covers:
 #### [api-routing-strategy.md](./api-routing-strategy.md)
 **API Endpoint Routing by Bounded Context**
 
-Complete REST API routing specification organized by all 13 bounded contexts:
+Complete REST API routing specification organized by bounded context (⚠ predates the v1.8.0 20-context amendment — routes for the seven new contexts pending):
 - URL structure and versioning strategy (`/v1/{context}/{resource}`)
 - Detailed endpoint listings for each subdomain (Core, Supporting, Generic)
 - HTTP methods, status codes, and response formats
@@ -236,7 +250,7 @@ Enables users to shape the product through feedback, vote on features, report is
 - No cross-module direct dependencies
 
 ### 2. Domain-Driven Design
-- 13 bounded contexts aligned with business domains
+- 20 canonical bounded contexts (+2 provisional) aligned with business domains across three data-ownership planes (see [bounded-contexts/](./bounded-contexts/README.md))
 - Ubiquitous language shared between technical and domain experts
 - Anti-corruption layers for external integrations
 

@@ -57,20 +57,34 @@ Balsm is a healthcare platform consisting of multiple repositories:
 
 ### 2.2 Domain-Driven Design
 
-- the codebase uses DDD with 13 bounded contexts — respect their boundaries:
-  - **Identity & Access** — User, Account, Permission, PermissionGroup, Team, Session, Authentication, Caregiver, EmergencyProfile, HealthPassport
-  - **Entity Management** — Entity, Branch, Department, Room, Bed
+- the codebase uses DDD with 20 canonical bounded contexts (+2 provisional), organized by data-ownership plane (ADR-10) — respect their boundaries; full canvases in [`architecture/bounded-contexts/`](../../architecture/bounded-contexts/README.md):
+  - *Consumer plane (patient-owned PHI):*
+  - **Personal Health** (Core) — HealthProfile, TimelineEntry, VaccinationRecord, MedicationSchedule, DoseEvent, EmergencyCardSnapshot, EmergencyToken, RecordDocument
+  - **Provider Directory** — ProviderListing, CatalogProjection
+  - *Provider plane (entity-owned data):*
+  - **Entity Management** — Workspace, Entity, Branch, Department, Room, Bed
+  - **Inventory** — CatalogItem, Barcode, StockLevel, PurchaseEntry, PurchaseReturn, ControlledSubstanceClassification
+  - **Point of Sale** — Sale, Basket, SaleReturn, CashDrawerSession, Receipt
+  - **Customer Relations** — Customer, PaperPrescriptionNote, PurchaseHistory (projection)
   - **Appointment** — Appointment, Slot, Schedule, WaitingList, HouseVisit, Questionnaire, CostEstimate
-  - **Clinical Records** — PatientRecord, Entry, CareTeam, Referral, Consent, SelfReport, DischargeFollowUp, Timeline
-  - **Prescriptions** — Prescription, Medication, DrugInteraction, Validity, RecurringPrescription
-  - **Pharmacy** — Pharmacy, PharmacyInventory, Dispensation, QRCode, Delivery
-  - **Labs** — LabOrder, Specimen, TestResult, QualityControl
-  - **Radiology** — ImagingOrder, Study, RadiologyReport, PACS
-  - **Billing & Finance** — Bill, Claim, Payment, InsurancePolicy, Revenue
-  - **Inventory** — Item, PurchaseOrder, Vendor, StockLevel
-  - **Messaging & Notifications** — Conversation, Message, Notification, Announcement
+  - **Clinical Records** (Core) — Encounter, PatientRecord, ClinicalNote, Addendum, Referral, Consent, AuditTrailEntry
+  - **Prescriptions** (Core) — Prescription, Medication, DrugInteraction, Validity, RecurringPrescription
+  - **Pharmacy** — Dispensation, QRVerification, DeliveryOrder
+  - **Billing & Finance** — Invoice, Claim, Payment, InsurancePolicy, VATReport
+  - **Labs** — Analyte, LabTest, Bundle, ReferenceRange, LabOrder, Specimen, AnalyteResult, QCRun, ReflexRule, ResultShareLink
+  - **Radiology** — ImagingOrder, Study, RadiologyReport
+  - **Care Delivery** — Admission, BedOccupancy, DischargeSummary, TeleconsultSession, VirtualWaitingRoom
   - **Charitable Donations** — Charity, DonationCase, Donation, CaseUpdate
+  - *Platform plane (Balsm-owned, non-PHI):*
+  - **Balsm Network** — FederationPairing, SharingPolicy, Subscription, Entitlement, TunnelRegistration, InstanceRegistration
+  - **Platform Access** — OAuthClient, ConsentGrant, ApiKey, RateLimitPolicy, WebhookSubscription
   - **Marketplace** — AddOn, AddOnDeveloper, AddOnReview, AddOnListing
+  - *Cross-plane:*
+  - **Identity & Access** — User, Account, Session, Device, DeletionRequest, WorkspaceMembership, Permission, PermissionGroup, Team, InviteCode, Caregiver, Guardianship, GeofencePolicy, DisclosureAcceptance
+  - **Messaging & Notifications** — Conversation, Message, Notification, Announcement
+  - *Provisional (P021 gate — modules must not map to these yet):* **Community**, **Population Insights**
+  - note: `PharmacyInventory` moved from Pharmacy to Inventory (`StockLevel`) — one context owns stock
+- every module/package MUST carry a `README.md` with YAML frontmatter declaring `context:` (exact canonical name, or `shared-kernel` / `infrastructure` / `app-shell` / `tooling`), `plane:`, and `features:` (one line per roadmap deliverable, phase-prefixed) — convention spec in [`architecture/bounded-contexts/README.md`](../../architecture/bounded-contexts/README.md#module-readme-convention-binding); a module without a valid mapping is an architecture defect
 
 ### 2.3 Ubiquitous Language
 
@@ -81,12 +95,13 @@ Balsm is a healthcare platform consisting of multiple repositories:
 ### 2.4 Cross-Context Communication
 
 - use domain events for communication between bounded contexts — never create direct dependencies between contexts
+- sole sanctioned exception (constitution v1.8.0, Principle IV): Point of Sale → Inventory `DeductStock`/`RestoreStock` is a synchronous published-interface command inside one local transaction, because P007 requires atomic stock deduction; the never-below-zero invariant stays inside Inventory's `StockLevel` aggregate
 - implement anti-corruption layers when integrating with external systems (HL7/FHIR, DICOM, insurance APIs)
 - each bounded context owns its database schema — no shared tables between contexts
 
 ### 2.5 Tactical Patterns
 
-- apply tactical DDD patterns (aggregates, domain events, value objects, repositories, domain services) in complex contexts: Clinical Records, Prescriptions, Billing, Labs, Radiology
+- apply tactical DDD patterns (aggregates, domain events, value objects, repositories, domain services) in complex contexts: Personal Health, Clinical Records, Prescriptions, Billing & Finance, Labs, Radiology
 - keep simple CRUD contexts (User Profile, Announcements) lightweight — do not over-engineer them with unnecessary patterns
 
 ---

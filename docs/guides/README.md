@@ -1,10 +1,10 @@
 # User Guides
 
-Welcome to the Balsm.IO user guides! These tutorials will help you get the most out of the platform.
+Welcome to the Balsm user guides! These tutorials will help you get the most out of the platform.
 
 ## Getting Started
 
-- [Platform Overview](./platform-overview.md) - Understanding Balsm.IO
+- [Platform Overview](./platform-overview.md) - Understanding Balsm
 - [Quick Start Guide](./quick-start.md) - Your first 10 minutes
 - [Account Setup](./account-setup.md) - Configuring your organization
 

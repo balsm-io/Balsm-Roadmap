@@ -9,6 +9,30 @@
 
 [Extract from feature spec: primary requirement + technical approach from research]
 
+## Module & Bounded Context Mapping
+
+*REQUIRED — detected by `/speckit.plan` before Phase 0. Identify every bounded
+context, repository module, and sub-module this feature touches. Sources:
+Constitution Principle IV (20 canonical contexts + 2 provisional),
+`architecture/bounded-contexts/` (context map + one canvas per context), and
+the affected repos' actual module layout (`../Balsm-API-DotNet/src/Modules/`,
+`../balsm_app_flutter/modules/` + `packages/`, `../supabase/`, `admin-ui/`).*
+
+| Bounded Context | Plane (ADR-10) | Repo | Module | Sub-module / Layer | New/Existing |
+|-----------------|----------------|------|--------|--------------------|--------------|
+| [e.g., Prescriptions] | [Consumer / Provider / Platform / Cross-plane] | [e.g., Balsm-API-DotNet] | [e.g., src/Modules/Prescription] | [e.g., Application/Commands] | [Existing] |
+
+**Primary (owning) context**: [exactly one context owns the feature's core invariants]
+**Cross-context interactions**: [domain events / published language per interaction, or "None"]
+**Detection notes**: [why this mapping — key entities → context reasoning; cite the consulted canvas file(s)]
+
+- A module that cannot be mapped to a canonical context is an architecture
+  defect (Principle IV) — STOP and resolve before Phase 0
+- Provisional contexts (Community, Population Insights) MUST NOT own modules
+  until their gate passes
+- A new module or sub-module requires justification here and a canvas update
+  in the same change
+
 ## Technical Context
 
 <!--
@@ -68,7 +92,9 @@
 - [ ] Precedence honored on conflict: constitution > repo-local rules > skills
 
 **Domain modeling gate** *(Principles IV & IX — required for any feature adding or changing domain logic)*:
-- [ ] Owning bounded context identified (one of the 13); no cross-context table or internal-class access
+- [ ] "Module & Bounded Context Mapping" section above completed — every touched module, sub-module, and bounded context listed with its data plane
+- [ ] Owning bounded context identified (one of the 20 canonical contexts; Community / Population Insights are provisional and may not own modules); no cross-context table or internal-class access
+- [ ] Relevant context canvas(es) in `architecture/bounded-contexts/` read and cited; mapping consistent with the context map in its README
 - [ ] Subdomain type classified — Core / Supporting / Generic — and modeling depth matched to it
 - [ ] Aggregate(s) and aggregate root(s) identified; aggregates kept small (root + minimal cluster), cross-aggregate references by ID only
 - [ ] Consistency boundaries stated: transactional within an aggregate, eventual (via domain events) between aggregates

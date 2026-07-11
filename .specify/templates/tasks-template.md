@@ -12,6 +12,18 @@ description: "Task list template for feature implementation"
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
+## Module & Context Scope
+
+*Copied from plan.md "Module & Bounded Context Mapping" — tasks MUST stay
+inside these modules and contexts. A task touching an undeclared module or
+bounded context is a generation error: update plan.md first, then regenerate.*
+
+| Bounded Context | Repo | Module | Sub-module / Layer |
+|-----------------|------|--------|--------------------|
+| [from plan.md]  |      |        |                    |
+
+**Primary (owning) context**: [from plan.md]
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -77,6 +89,8 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: [Brief description of what this story delivers]
 
+**Bounded Context / Module**: [context] → [repo]/[module]/[sub-module]
+
 **Independent Test**: [How to verify this story works on its own]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
@@ -103,6 +117,8 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: [Brief description of what this story delivers]
 
+**Bounded Context / Module**: [context] → [repo]/[module]/[sub-module]
+
 **Independent Test**: [How to verify this story works on its own]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
@@ -124,6 +140,8 @@ Examples of foundational tasks (adjust based on your project):
 ## Phase 5: User Story 3 - [Title] (Priority: P3)
 
 **Goal**: [Brief description of what this story delivers]
+
+**Bounded Context / Module**: [context] → [repo]/[module]/[sub-module]
 
 **Independent Test**: [How to verify this story works on its own]
 
@@ -249,3 +267,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- Every task's file path MUST fall inside a module declared in "Module & Context Scope" — undeclared module/context = regenerate after fixing plan.md

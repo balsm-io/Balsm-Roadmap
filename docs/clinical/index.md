@@ -1,6 +1,6 @@
 # Clinical Workflows
 
-Healthcare-specific processes, compliance documentation, and clinical best practices for Balsm.IO platform.
+Healthcare-specific processes, compliance documentation, and clinical best practices for Balsm platform.
 
 ## Clinical Processes
 - [Patient Intake](./processes/patient-intake.md)
@@ -47,4 +47,4 @@ Healthcare-specific processes, compliance documentation, and clinical best pract
 
 ---
 
-*For clinical support, contact clinical-support@balsm.io*
+*For clinical support, contact clinical-support@balsm.health*

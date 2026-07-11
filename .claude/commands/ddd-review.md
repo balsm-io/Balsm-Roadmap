@@ -8,20 +8,29 @@ Review all changed or staged files for DDD and modular monolith violations in th
 2. Read each changed file and analyze for the following:
 
 ### Bounded Context Boundaries
-The system has 13 bounded contexts — verify no boundary violations:
-- **Identity & Access** — User, Account, Permission, PermissionGroup, Team, Session
-- **Entity Management** — Entity, Branch, Department, Room, Bed
+The system has 20 canonical bounded contexts (+2 provisional) — the authoritative list with aggregates lives in `agents/rules/AGENTS.md` §2.2 and `architecture/bounded-contexts/README.md`. Verify no boundary violations:
+- **Personal Health** (Core) — HealthProfile, TimelineEntry, MedicationSchedule, EmergencyCardSnapshot
+- **Provider Directory** — ProviderListing, CatalogProjection
+- **Entity Management** — Workspace, Entity, Branch, Department, Room, Bed
+- **Inventory** — CatalogItem, StockLevel, PurchaseEntry, ControlledSubstanceClassification
+- **Point of Sale** — Sale, Basket, SaleReturn, CashDrawerSession, Receipt
+- **Customer Relations** — Customer, PaperPrescriptionNote
 - **Appointment** — Appointment, Slot, Schedule, WaitingList, HouseVisit
-- **Clinical Records** — PatientRecord, Entry, CareTeam, Referral, Consent
-- **Prescriptions** — Prescription, Medication, DrugInteraction
-- **Pharmacy** — Pharmacy, PharmacyInventory, Dispensation
-- **Labs** — LabOrder, Specimen, TestResult, QualityControl
-- **Radiology** — ImagingOrder, Study, RadiologyReport, PACS
-- **Billing & Finance** — Bill, Claim, Payment, InsurancePolicy
-- **Inventory** — Item, PurchaseOrder, Vendor, StockLevel
-- **Messaging & Notifications** — Conversation, Message, Notification
+- **Clinical Records** (Core) — Encounter, PatientRecord, ClinicalNote, Referral, Consent, AuditTrailEntry
+- **Prescriptions** (Core) — Prescription, Medication, DrugInteraction, RecurringPrescription
+- **Pharmacy** — Dispensation, QRVerification, DeliveryOrder
+- **Billing & Finance** — Invoice, Claim, Payment, InsurancePolicy, VATReport
+- **Labs** — Analyte, LabTest, Bundle, ReferenceRange, LabOrder, Specimen, AnalyteResult
+- **Radiology** — ImagingOrder, Study, RadiologyReport
+- **Care Delivery** — Admission, BedOccupancy, DischargeSummary, TeleconsultSession
 - **Charitable Donations** — Charity, DonationCase, Donation
+- **Balsm Network** — FederationPairing, SharingPolicy, Subscription, Entitlement
+- **Platform Access** — OAuthClient, ConsentGrant, ApiKey, WebhookSubscription
 - **Marketplace** — AddOn, AddOnDeveloper, AddOnReview
+- **Identity & Access** — User, Account, Session, DeletionRequest, Permission, PermissionGroup, Guardianship
+- **Messaging & Notifications** — Conversation, Message, Notification
+
+Sole sanctioned synchronous cross-context call: Point of Sale → Inventory `DeductStock`/`RestoreStock` (constitution v1.8.0 Principle IV). Everything else crossing a boundary must be an integration event.
 
 ### Module Structure Violations
 - Cross-module project references (modules must depend on shared contracts only)

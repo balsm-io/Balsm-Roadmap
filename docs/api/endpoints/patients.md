@@ -29,7 +29,7 @@ GET /api/v1/patients
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-     "https://api.balsm.io/v1/patients?page=1&limit=10&status=active"
+     "https://api.balsm.health/v1/patients?page=1&limit=10&status=active"
 ```
 
 ### Example Response
@@ -74,7 +74,7 @@ GET /api/v1/patients/{id}
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-     https://api.balsm.io/v1/patients/pat_1234567890
+     https://api.balsm.health/v1/patients/pat_1234567890
 ```
 
 ### Example Response
@@ -147,7 +147,7 @@ POST /api/v1/patients
 ### Example Request
 
 ```bash
-curl -X POST https://api.balsm.io/v1/patients \
+curl -X POST https://api.balsm.health/v1/patients \
      -H "Authorization: Bearer YOUR_API_KEY" \
      -H "Content-Type: application/json" \
      -d '{
@@ -179,4 +179,4 @@ curl -X POST https://api.balsm.io/v1/patients \
 
 ---
 
-*For support, contact api-support@balsm.io*
+*For support, contact api-support@balsm.health*
