@@ -4,6 +4,9 @@ description: "P001 tasks — Flutter track"
 
 # P001 Tasks — Flutter Track
 
+> **Module & Context Scope**: Personal Health (**Core**) → `modules/{profile, medications, emergency_card}`; Identity & Access → `modules/{auth, sessions, account, deletion, disclosure, geofence_block}`; shared kernel → `packages/core`, `app`, `home`, `balsm_boundary_lint`; published language → `packages/balsm_api`. Full mapping: [../tasks.md §Module & Context Scope](../tasks.md) / [../plan.md](../plan.md). Tasks outside these modules require a plan.md mapping update first.
+
+
 Filtered from `../tasks.md`. Phase + section headers preserved. Only `[Flutter]` rows kept.
 
 Format: `[ID] [P?] [Story?] [Project] Description with absolute file path`

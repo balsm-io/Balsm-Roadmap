@@ -19,6 +19,33 @@ Phase 0 extends the existing `Balsm-API-DotNet` repository, which is already pas
 
 The delta required by the spec is therefore: (1) fill the empty Entity + Identity Domain / Application layers with Workspace, EntityRoot, EntityType, Branch, AdminUserMirror, RecoveryCode aggregates and the CQRS handlers + validators + controllers; (2) add cross-cutting `Balsm.Infrastructure.{Lifecycle, Backup, Audit, Localization}` namespaces + an `AuditSaveChangesInterceptor` + a `MigrationGateMiddleware` + WAL PRAGMA wiring in `DatabaseServiceExtensions`; (3) extend `AdminAuthService` from PBKDF2 to Argon2id (lazy migration on next login) and add a one-time recovery code surface; (4) add system-tray UI cards / pages (Entities, Backups, Audit, Recovery) to `admin-ui/` plus i18n bundles for English + Arabic with RTL; (5) wire two new hosted services (`BackupScheduler`, `AuditRetentionJob`) into the existing `AddSharedInfrastructure` registration.
 
+## Module & Bounded Context Mapping
+
+*Retrofitted 2026-07-11 per Constitution 1.8.0 Principle IV (20 canonical contexts,
+three data-ownership planes) and `architecture/bounded-contexts/` canvases
+([entity-management.md](../../architecture/bounded-contexts/entity-management.md),
+[identity-access.md](../../architecture/bounded-contexts/identity-access.md)).*
+
+| Bounded Context | Plane (ADR-10) | Repo | Module | Sub-module / Layer | New/Existing |
+|-----------------|----------------|------|--------|--------------------|--------------|
+| Entity Management | Provider | Balsm-API-DotNet | src/Modules/Entity | Domain (Workspace, EntityRoot, EntityType, Branch aggregates) + Application (CQRS) + Api (controllers) | Existing skeleton, filled in-place |
+| Identity & Access | Cross-plane | Balsm-API-DotNet | src/Modules/Identity | Domain (AdminUserMirror, RecoveryCode) + Application | Existing skeleton, filled in-place |
+| Identity & Access | Cross-plane | Balsm-API-DotNet | src/Balsm.Supervisor | Auth (AdminAuthService PBKDF2→Argon2id, FileCredentialStore, AdminSessionService) + Middleware | Existing, extended |
+| — (shared kernel / infra, no context ownership) | — | Balsm-API-DotNet | src/Balsm.Infrastructure | Lifecycle, Backup, Audit, Localization namespaces; AuditSaveChangesInterceptor; MigrationGateMiddleware; WAL wiring | New namespaces |
+| — (admin surface of the two contexts above) | Provider | Balsm-API-DotNet | admin-ui/ | pages/ + components/ (Entities, Backups, Audit, Recovery) + ar/en i18n RTL | Existing, extended |
+
+**Primary (owning) context**: **Entity Management** (Supporting, Provider
+plane) — Workspace / Entity / Branch is the phase's domain deliverable;
+Identity & Access carries the single-admin auth surface.
+**Cross-context interactions**: `AdminUserMirror` mirrors the file-backed admin
+credential (Identity & Access) for audit-join purposes only — referenced by ID
+from audit entries; no cross-module DB access; no domain events cross the two
+modules in this phase.
+**Detection notes**: matches Structure Decision ("no new module, no new
+bounded context, no new process"); dormant module skeletons (Customer,
+Inventory, POS, Prescription) stay untouched and map to their own contexts in
+later phases (P006–P013).
+
 ## Technical Context
 
 **Language/Version**: .NET 10.0 (C#) for `Balsm.API`, `Balsm.Supervisor`, `Balsm.Infrastructure`, `Balsm.SharedKernel`, and all `Modules/*` projects. TypeScript 5.8 + React 19 for `admin-ui/`. PowerShell for `packaging/windows/install*.ps1`. Bash for `packaging/macos/build-pkg.sh` and `packaging/linux/build-deb.sh`.
@@ -68,7 +95,7 @@ The delta required by the spec is therefore: (1) fill the empty Entity + Identit
 | I. Patient Safety First | N/A | No clinical data at Phase 0 |
 | II. Security & Privacy by Design | PASS | `AdminAuthService` already enforces 5/15 lockout. Soft-delete enforced by `BaseDbContext`. PBKDF2 → Argon2id swap satisfies FR-017 |
 | III. Regulatory Compliance | PASS | DPG + PDPL covered. Audit JSONL archive provides data-portability |
-| IV. Modular Monolith with DDD | PASS | New work strictly inside existing module boundaries (`Modules/Entity`, `Modules/Identity`) plus cross-cutting infra namespaces; no cross-module DB access |
+| IV. Modular Monolith with DDD | PASS | New work strictly inside existing module boundaries (`Modules/Entity`, `Modules/Identity`) plus cross-cutting infra namespaces; no cross-module DB access. Contexts mapped in §Module & Bounded Context Mapping — Entity Management (primary, Provider plane) + Identity & Access (Cross-plane) per `architecture/bounded-contexts/` canvases; aggregates small (Workspace, EntityRoot, Branch, AdminUserMirror, RecoveryCode), cross-aggregate refs by ID, invariants on the model |
 | V. Offline-First, Cloud-Enhanced | PASS | Standalone default. `CloudflareTunnelService` already provides Public mode |
 | VI. Test-First Discipline | PASS | Existing test projects extended with real in-process SQLite |
 | VII. Performance as a Feature | PASS | SC-002, SC-006 quantified; `AsNoTracking()` and pagination enforced by repo standards |

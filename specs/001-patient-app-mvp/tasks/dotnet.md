@@ -4,6 +4,9 @@ description: "P001 tasks — .NET backend track (Balsm-API-DotNet)"
 
 # P001 Tasks — .NET Backend Track
 
+> **Module & Context Scope**: Identity & Access → `src/Modules/{Auth, Account, Sessions, Deletion, Disclosure, Geofence}`; Personal Health → `src/Modules/EmergencyQr` (PHI-free token surface only). Full mapping: [../tasks.md §Module & Context Scope](../tasks.md) / [../plan.md](../plan.md). Tasks outside these modules require a plan.md mapping update first.
+
+
 Filtered from `../tasks.md`. Phase + section headers preserved. Only `[DotNet]` rows kept.
 
 > **Replaces the former `tasks/supabase.md`** (2026-06-17 pivot). Backend is ASP.NET Core 10 + EF Core 10 + Npgsql. Auth = custom JWT + OTP + Google/Apple OIDC. Authorization = ASP.NET Core policies (no RLS). DOB = AES-256-GCM at the application layer. See `../research.md §26–§33` + `../contracts/dotnet-api-endpoints.md`.

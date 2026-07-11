@@ -9,6 +9,25 @@ description: "P001 task list — Patient App MVP (.NET backend)"
 
 > **Backend pivot 2026-06-17**: Cloud backend is **.NET 10.0 ASP.NET Core** (NOT Supabase Edge Functions + Supabase Auth). PostgreSQL accessed via **EF Core 10 + Npgsql**. Auth is custom JWT + OTP + Google/Apple OIDC validation. Authorization is ASP.NET Core policies (no PostgreSQL RLS). DOB encrypted at the .NET application layer (AES-256-GCM, not pgcrypto). Flutter client calls the .NET API via `dio` (the `supabase_flutter` SDK is removed). See `research.md §26–§33` + `contracts/dotnet-api-endpoints.md`.
 
+## Module & Context Scope
+
+*From [plan.md §Module & Bounded Context Mapping](./plan.md) — retrofitted
+2026-07-11 per Constitution 1.8.0 Principle IV and the
+`architecture/bounded-contexts/` canvases. Tasks MUST stay inside these
+modules; a task touching an undeclared module/context requires a plan.md
+mapping update first.*
+
+| Bounded Context | Repo | Module | Sub-module / Layer |
+|-----------------|------|--------|--------------------|
+| Personal Health (Consumer plane, **Core**) | balsm_app_flutter | modules/profile, medications, emergency_card | domain / application / presentation |
+| Personal Health (Consumer plane, **Core**) | Balsm-Core (backend) | src/Modules/EmergencyQr | Commands / Queries / Infrastructure (PHI-free token surface) |
+| Identity & Access (Cross-plane, Generic) | Balsm-Core (backend) | src/Modules/{Auth, Account, Sessions, Deletion, Disclosure, Geofence} | Commands / Queries / Domain / Infrastructure |
+| Identity & Access (Cross-plane, Generic) | balsm_app_flutter | modules/{auth, sessions, account, deletion, disclosure, geofence_block} | application/use_cases + presentation |
+| — shared kernel / orchestration / tooling | both | Balsm.SharedKernel, Balsm.Infrastructure; packages/core, app, home, balsm_boundary_lint | value objects, http/db/backup infra, event bus |
+| — published language (client ACL) | balsm_app_flutter | packages/balsm_api | typed API contracts + DTOs (pure Dart) |
+
+**Primary (owning) context**: Personal Health
+
 ## Per-project split (for cheap-model dispatch)
 
 This file is the canonical, phase-ordered master list. For agents focused on one repo, use the filtered per-project files — same task IDs, same `[P]` markers, fewer distractions:
@@ -381,6 +400,8 @@ balsm_app_flutter/          # Flutter melos monorepo — mobile + web targets
 
 **Goal**: Patient signs up with email OTP / Google / Apple, country picker pre-selects, denied countries blocked, disclosure accepted, lands on home. Signup-to-home ≤90s P50 (SC-001a).
 
+**Bounded Context / Module**: Identity & Access → Balsm-Core/src/Modules/{Auth, Geofence, Disclosure} + balsm_app_flutter/modules/{auth, geofence_block, disclosure}
+
 **Independent Test**: Fresh install → country picker → enter email → receive OTP → enter OTP → disclosure → Continue → home renders with name.
 
 ### 3.1 .NET: Auth module + endpoints
@@ -456,6 +477,8 @@ balsm_app_flutter/          # Flutter melos monorepo — mobile + web targets
 
 **Goal**: Patient claims a unique handle, completes health profile (blood type, allergies, conditions, contacts). On-device PHI storage only.
 
+**Bounded Context / Module**: Identity & Access (handle → Balsm-Core/src/Modules/Account + balsm_app_flutter/modules/account) + Personal Health (profile → balsm_app_flutter/modules/profile, on-device PHI only)
+
 **Independent Test**: Complete US1 → claim handle → "Available" → claim → complete profile → restart → data persists.
 
 ### 4.1 .NET: handle endpoints
@@ -487,6 +510,8 @@ balsm_app_flutter/          # Flutter melos monorepo — mobile + web targets
 ## Phase 5: US2 — Emergency Card & QR (Priority: P2)
 
 **Goal**: Patient fills emergency card, mints QR (configurable TTL), public web page resolves QR. Lock-screen widget (iOS) + quick-settings tile (Android). SC-014 revocation ≤2s.
+
+**Bounded Context / Module**: Personal Health → balsm_app_flutter/modules/emergency_card + Balsm-Core/src/Modules/EmergencyQr (PHI-free token surface)
 
 **Independent Test**: Fill card → mint QR TTL 24h → scan with second device → public page opens → revoke → scan again → "Expired" ≤2s.
 
@@ -525,6 +550,8 @@ balsm_app_flutter/          # Flutter melos monorepo — mobile + web targets
 
 **Goal**: Patient adds medications (daily/weekly/custom), notifications fire offline ≥7 days (SC-004). Dose events append-only. Missed-dose detection on foreground. **No backend — all PHI on-device.**
 
+**Bounded Context / Module**: Personal Health → balsm_app_flutter/modules/medications (Medication aggregate + DoseEvent append-only; no backend)
+
 **Independent Test**: Add 3 meds → airplane mode → advance clock → notification ±60s → tap Taken → dose event appears.
 
 ### 6.1 Flutter: medications module
@@ -552,6 +579,8 @@ balsm_app_flutter/          # Flutter melos monorepo — mobile + web targets
 ## Phase 7: US4 — Self-Service Deletion (Priority: P3)
 
 **Goal**: Patient deletes account in-app or web. FSM: request → 7-day grace → purge. Cancel from grace restores. SC-012 ≤2 taps.
+
+**Bounded Context / Module**: Identity & Access → Balsm-Core/src/Modules/Deletion + balsm_app_flutter/modules/deletion
 
 **Independent Test**: Settings → Delete → re-auth → confirm → sign out → sign in within grace → cancel-only flow → cancel → restored. Web path: open `/account/delete`.
 
@@ -596,6 +625,8 @@ balsm_app_flutter/          # Flutter melos monorepo — mobile + web targets
 
 **Goal**: 5 failed attempts / 10-min rolling → 15-min lockout. Lockout screen exposes a support channel reachable without auth (FR-046a).
 
+**Bounded Context / Module**: Identity & Access → Balsm-Core/src/Modules/{Auth (AccountLockout), Sessions} + balsm_app_flutter/modules/sessions
+
 **Independent Test**: 5 wrong OTPs → "Locked" screen with countdown + mailto + status link → wait 15 min → sign in.
 
 ### 8.1 Flutter: auth lockout UI
@@ -620,6 +651,8 @@ balsm_app_flutter/          # Flutter melos monorepo — mobile + web targets
 ## Phase 9: US6 — Country & Language Change (Priority: P4)
 
 **Goal**: Patient changes country post-signup (re-auth + re-disclosure), changes language with RTL toggle. Single global account (FR-300…FR-305).
+
+**Bounded Context / Module**: Identity & Access → Balsm-Core/src/Modules/Account + balsm_app_flutter/modules/account
 
 **Independent Test**: Sign up EG → change to KSA → re-auth → re-accept SDAIA disclosure → country=SA, data preserved. Change language → RTL renders ≤200ms.
 

@@ -11,6 +11,23 @@ description: "Phase 0 task list — Local Server Foundation"
 
 **Optimization target**: tasks are sized for execution by cheap / fast models (Haiku-class). Each task names a single file (occasionally two related files) and a single change. When extension of existing code is needed, the task cites the exact file path from `Balsm-API-DotNet/`. The task ID order is also the recommended execution order; `[P]` marks tasks safe to run in parallel.
 
+## Module & Context Scope
+
+*From [plan.md §Module & Bounded Context Mapping](./plan.md) — retrofitted
+2026-07-11 per Constitution 1.8.0 Principle IV. Tasks MUST stay inside these
+modules; a task touching an undeclared module/context requires a plan.md
+mapping update first.*
+
+| Bounded Context | Repo | Module | Sub-module / Layer |
+|-----------------|------|--------|--------------------|
+| Entity Management (Provider plane) | Balsm-API-DotNet | src/Modules/Entity | Domain / Application / Api |
+| Identity & Access (Cross-plane) | Balsm-API-DotNet | src/Modules/Identity | Domain / Application |
+| Identity & Access (Cross-plane) | Balsm-API-DotNet | src/Balsm.Supervisor | Auth / Middleware |
+| — shared kernel / infra | Balsm-API-DotNet | src/Balsm.Infrastructure | Lifecycle / Backup / Audit / Localization |
+| — admin surface | Balsm-API-DotNet | admin-ui/ | pages / components / i18n |
+
+**Primary (owning) context**: Entity Management
+
 ## Format
 
 `[ID] [P?] [Story?] Description with absolute file path`
@@ -113,6 +130,8 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 
 **Goal**: a pharmacy admin completes a first-run wizard, receives a one-time recovery code, and lands on the dashboard. Single-admin enforcement, password hashing, lockout, and recovery flows all work end-to-end.
 
+**Bounded Context / Module**: Identity & Access → Balsm-API-DotNet/src/Balsm.Supervisor (Auth) + src/Modules/Identity (AdminUserMirror, RecoveryCode) + admin-ui
+
 **Independent Test**: install the package on a fresh VM, open `https://localhost:5051/admin`, complete the wizard, store the recovery code, lock the account with 5 bad logins, restore it via the recovery code, log in again successfully.
 
 ### Password hashing migration
@@ -181,6 +200,8 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 ## Phase 4: User Story 2 — Workspace, Entity & Branch Management (Priority: P2)
 
 **Goal**: admin manages the single workspace and N entities × M branches under it with soft-delete only.
+
+**Bounded Context / Module**: Entity Management → Balsm-API-DotNet/src/Modules/Entity (Workspace, EntityRoot, EntityType, Branch) + admin-ui
 
 **Independent Test**: complete wizard (US1), then through `/admin/entities`, create one entity with two branches, deactivate one branch, edit the other, attempt to create a second workspace (expect 409), restart the server, verify everything persisted.
 
@@ -264,6 +285,8 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 
 **Goal**: same-LAN clients discover the server by mDNS within 5 seconds of ready, with the right TXT records, and the broadcast turns off in Standalone mode.
 
+**Bounded Context / Module**: — infrastructure (no context ownership) → Balsm-API-DotNet/src/Balsm.Supervisor (MdnsService)
+
 **Independent Test**: from a second device on the LAN, run `dns-sd -B _balsm._tcp` / `avahi-browse -r _balsm._tcp`; confirm `balsm-<slug>` resolves within 5 s with the expected TXT records; switch mode to Standalone, observe disappearance.
 
 - [ ] T122 [US3] Extend `../Balsm-API-DotNet/src/Balsm.Supervisor/Services/MdnsService.cs` to choose instance name: `balsm-setup-<short-server-id>` if `IsSetupCompleteAsync == false`, else `balsm-<workspace.slug>` (read via `IServiceScope` + `GetWorkspaceQuery`)
@@ -279,6 +302,8 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 ## Phase 6: User Story 4 — Database Backup & Recovery (Priority: P4)
 
 **Goal**: admin runs on-demand backups, schedules automatic ones with retention, and restores from a backup with the server returning 503 to non-health endpoints during the swap.
+
+**Bounded Context / Module**: — infrastructure (no context ownership) → Balsm-API-DotNet/src/Balsm.Infrastructure (Backup, Lifecycle)
 
 **Independent Test**: backup, mutate DB, restore, verify mutation gone; configure schedule + retention, fast-forward, verify pruning.
 

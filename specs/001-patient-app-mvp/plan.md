@@ -13,6 +13,44 @@ Consumer patient app for Egypt, KSA, UAE. Passwordless 3-channel auth (email OTP
 
 ---
 
+## Module & Bounded Context Mapping
+
+*Retrofitted 2026-07-11 per Constitution 1.8.0 Principle IV (20 canonical contexts,
+three data-ownership planes) and `architecture/bounded-contexts/` canvases
+([personal-health.md](../../architecture/bounded-contexts/personal-health.md),
+[identity-access.md](../../architecture/bounded-contexts/identity-access.md)).*
+
+| Bounded Context | Plane (ADR-10) | Repo | Module | Sub-module / Layer | New/Existing |
+|-----------------|----------------|------|--------|--------------------|--------------|
+| Personal Health | Consumer | balsm_app_flutter | modules/profile | domain (HealthProfile aggregate) + PHI drift tables | New |
+| Personal Health | Consumer | balsm_app_flutter | modules/medications | domain (Medication aggregate, DoseEvent append-only) + scheduler | New |
+| Personal Health | Consumer | balsm_app_flutter | modules/emergency_card | domain (EmergencyCardSnapshot) + WidgetKit / QuickSettings | New |
+| Personal Health | Consumer | Balsm-Core (backend `src/`) | Modules/EmergencyQr | Commands / Queries / Infrastructure (token surface only — zero PHI) | New |
+| Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Auth | Commands / Domain (AuthSession, AccountLockout) / Infrastructure | New |
+| Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Account | Commands / Queries / Domain / Infrastructure | New |
+| Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Sessions | ActiveSession CRUD + revoke | New |
+| Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Deletion | FSM ACTIVE → DELETION_REQUESTED → purge | New |
+| Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Disclosure | cloud mirror of disclosure_acceptance | New |
+| Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Geofence | denied_country_blocklist read-side | New |
+| Identity & Access | Cross-plane | balsm_app_flutter | modules/auth, sessions, account, deletion, disclosure, geofence_block | application/use_cases + presentation per module | New |
+| — (shared kernel, no context ownership) | — | Balsm-Core / balsm_app_flutter | Balsm.SharedKernel, Balsm.Infrastructure; packages/core, app shell, home (orchestration), balsm_boundary_lint (tooling) | value objects (UuidV7, CountryCode, Bcp47Tag), http/db/backup infra | New |
+| — (published language, no context ownership) | — | balsm_app_flutter | packages/balsm_api | typed API contracts + DTOs (pure Dart) — the client-side published language / ACL for the cloud API surface | New |
+
+**Primary (owning) context**: **Personal Health** (Core, Consumer plane) — the
+patient-owned health record is the phase's differentiating deliverable;
+Identity & Access (Generic, Cross-plane) is its enabling surface.
+**Cross-context interactions**: Flutter `home` reacts to cross-module domain
+events via the `core` event bus (e.g., `DisclosureAccepted`,
+`MedicationScheduled`); backend contexts share nothing but SharedKernel
+contracts — no cross-module DB access. Emergency QR resolve crosses
+Consumer → cloud via a tokenized, PHI-free published surface.
+**Detection notes**: mapping matches the canvases' Repo mapping rows verbatim;
+`disclosure` is Identity & Access (consent-to-terms lifecycle), while clinical
+data consent artifacts remain on-device in Personal Health. No provisional
+context touched.
+
+---
+
 ## Technical Context
 
 **Language/Version**: Dart 3.11 (3.11.5) / Flutter 3.41.9 stable (client) · C# / .NET 10.0 SDK 10.0.300 `net10.0` (backend) — latest installed SDKs as of 2026-06-17
@@ -57,6 +95,18 @@ Consumer patient app for Egypt, KSA, UAE. Passwordless 3-channel auth (email OTP
 - [x] Third-party dependencies pinned — EF Core 10.0.8, Npgsql.EntityFrameworkCore.PostgreSQL 10.0.x, MediatR 14.1, FluentValidation 12.1, all OSS-compatible licenses
 - [x] Reproducible builds: .NET SDK pinned via `global.json`; Flutter SDK pinned via `fvm`; Docker base image pinned to SHA
 - [x] DCO `Signed-off-by:` policy reaffirmed per Principle XII
+
+**Domain modeling gate** (Principles IV & IX — retrofitted 2026-07-11):
+- [x] "Module & Bounded Context Mapping" section completed — all modules mapped, no unmappable module
+- [x] Owning bounded context identified: **Personal Health** (Core, Consumer plane); secondary: Identity & Access (Generic, Cross-plane); no cross-context table or internal-class access (enforced by `balsm_boundary_lint` + per-module DbContexts)
+- [x] Canvases consulted: `architecture/bounded-contexts/personal-health.md`, `identity-access.md`; mapping consistent with context-map README
+- [x] Subdomain classification matched to modeling depth: Personal Health = Core (rich aggregates, append-only DoseEvent timeline); Identity & Access = Generic (thin CQRS, no over-engineering)
+- [x] Aggregates identified and kept small: `HealthProfile`, `Medication` (+ `DoseEvent` append-only), `EmergencyCardSnapshot` (Personal Health); `AuthSession`, `AccountLockout`, `ActiveSession`, `DeletionRequest` (FSM), `DisclosureAcceptance` (Identity & Access) — cross-aggregate references by ID only
+- [x] Consistency boundaries: transactional within each aggregate; cross-module flows eventual via domain events on the `core` event bus (Flutter) / MediatR notifications (.NET)
+- [x] Value Objects immutable: `UuidV7`, `CountryCode`, `Bcp47Tag`, `Money` in shared kernels; invariants live on the model (e.g., DeletionRequest FSM transitions), services orchestrate only
+- [x] Domain events past-tense facts (`DisclosureAccepted`, `MedicationScheduled`, `SessionRevoked`); integration events cross the Consumer→cloud boundary only via the PHI-free published API surface
+- [x] Repository interfaces in domain layer, implementations in infrastructure (drift on-device; EF Core cloud); names speak ubiquitous language
+- [x] No naming smells: no `Manager`/`Helper`/`Processor` domain types in the structure above
 
 ---
 
