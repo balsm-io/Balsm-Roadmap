@@ -216,7 +216,7 @@ In tree: libs under `packages/` — `core` (`shared-kernel`), `balsm_api` (`infr
 | Module | Context |
 |---|---|
 | `auth`, `sessions`, `account`, `deletion`, `disclosure`, `geofence_block` | Identity & Access |
-| `profile`, `medications`, `emergency_card` | Personal Health |
+| `profile`, `medications`, `emergency_card`, `records` | Personal Health |
 | `app/` (composition root) | `app-shell` (orchestration, not a context) |
 
 The former `modules/home` was folded into `app/` (2026-07-11): it was presentation-only cross-context glue (greeting, onboarding nudges, locale refresh) with no domain — app-shell's job, not a context.
