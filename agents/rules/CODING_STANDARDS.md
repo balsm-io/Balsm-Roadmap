@@ -38,6 +38,7 @@
 - models: `{Entity}Model` (e.g., `AppointmentModel`)
 - services: `{Feature}Service` (e.g., `AuthenticationService`)
 - file names: `snake_case.dart` always — never camelCase or PascalCase for file names
+- **static const identifiers: `snake_case`** — named const instances, const collections, and static const config values use `snake_case` (e.g. `CountryCode.saudi_arabia`, `Assets.brand_icon`, `ApiRoutes.account_self`), NOT `lowerCamelCase`. Add `// ignore_for_file: constant_identifier_names` at the top of the file. Rationale: these are data/config keys, kept visually distinct from methods and mutable fields; consistent with `Assets`, `ApiRoutes`, `AppBrand`, and the i18n value objects. Enum *values* stay `lowerCamelCase` (Dart requires it); this rule is for `static const` fields only.
 
 ---
 
