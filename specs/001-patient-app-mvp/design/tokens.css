@@ -1,20 +1,28 @@
 /* ============================================================
    P001 Design Tokens Snapshot
-   Locked at design sign-off time (D024).
+   Locked at design sign-off time (D024); reconciled 2026-07-01.
    ============================================================
 
-   This file is a snapshot of `Balsm-Core/brand/colors_and_type.css`
-   at design freeze. It is consumed by the prototype HTML at
-   `design/prototype/index.html` so the prototype renders identically
-   offline. It MUST NOT be edited by hand. Refresh via:
-     cp ../../brand/colors_and_type.css design/tokens.css
+   Canonical source (NEW): the claude.ai Design project
+   "Balsm Design System" (51cdbf29-13b7-4206-9328-125fade14cc3),
+   mirrored in-repo at
+   `design/_ds/balsm-design-system-51cdbf29-.../colors_and_type.css`.
+   This snapshot is that file's token layer with the design-tool's
+   `/* @kind ... */` parser annotations stripped for hand-consumption.
+
+   It is consumed by the prototype HTML at `design/prototype/index.html`
+   so the prototype renders identically offline. Refresh via:
+     (copy the :root token block from
+      _ds/balsm-design-system-51cdbf29-.../colors_and_type.css,
+      dropping the `/* @kind */` markers)
 
    At implementation time the Flutter app pulls tokens from the
-   brand source, not this snapshot. CI will diff this file against
-   the brand source on every PR touching `design/`.
+   canonical source, not this snapshot. CI diffs this file against
+   the canonical source on every PR touching `design/`.
 
-   Plus a small set of dark-mode + prototype-only chrome tokens
-   appended at the bottom (clearly marked).
+   The `[data-theme="dark"]` overrides and the reduced-motion block
+   at the bottom are REPO-ONLY additions (per MASTER.md §2.4) — the
+   design system itself ships no dark theme. Keep them across refreshes.
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cairo:wght@400;600;700;800&display=swap');
@@ -80,6 +88,8 @@
 
   --balsm-controlled: var(--petal-violet);
   --balsm-controlled-bg: var(--petal-violet-50);
+  --balsm-expiring: #D97A20;
+  --balsm-expiring-bg: #FBEEDC;
 
   --balsm-surface:        #FFFFFF;
   --balsm-surface-alt:    var(--balsm-cream-100);
@@ -96,7 +106,7 @@
   --fg-on-brand: #FFFFFF;
   --fg-link: var(--petal-blue);
 
-  --font-display: 'Montserrat', 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Montserrat', 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body:    'IBM Plex Sans', 'Montserrat', system-ui, -apple-system, sans-serif;
   --font-arabic:  'IBM Plex Sans Arabic', 'Cairo', 'Geeza Pro', 'Noto Naskh Arabic', sans-serif;
   --font-mono:    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -157,6 +167,51 @@
   --grad-violet:linear-gradient(135deg, #8E6FE0 0%, #724DD0 100%);
   --grad-ink:   linear-gradient(135deg, #3D3D34 0%, #2B2B25 100%);
   --grad-cream: linear-gradient(180deg, #FAFAF7 0%, #F4F3EC 100%);
+
+  /* ── Responsive breakpoints (px values; for JS consumption) ──── */
+  --bp-xs:    375;
+  --bp-sm:    480;
+  --bp-md:    768;
+  --bp-lg:    1024;
+  --bp-xl:    1280;
+  --bp-2xl:   1536;
+
+  /* ── Container widths ──────────────────────────────────────── */
+  --container-xs:   480px;
+  --container-sm:   640px;
+  --container-md:   768px;
+  --container-lg:   1024px;
+  --container-xl:   1200px;
+  --container-2xl:  1440px;
+
+  /* ── Adaptive gutters ──────────────────────────────────────── */
+  --gutter:     16px;
+  --gutter-md:  24px;
+  --gutter-lg:  48px;
+
+  /* ── Grid columns ──────────────────────────────────────────── */
+  --cols-mobile:   4;
+  --cols-tablet:   8;
+  --cols-desktop:  12;
+
+  /* ── Legacy aliases (old tokens → new petals; don't use in new code) ── */
+  --balsm-teal-50:  var(--petal-aqua-50);
+  --balsm-teal-100: #C9EEEB;
+  --balsm-teal-200: #98DCD8;
+  --balsm-teal-300: #5FC9C4;
+  --balsm-teal-400: #2FC0B9;
+  --balsm-teal-500: var(--petal-aqua);
+  --balsm-teal-600: var(--petal-aqua-600);
+  --balsm-teal-700: #016F6B;
+  --balsm-blue-50:  var(--petal-blue-50);
+  --balsm-blue-100: #CFE3FF;
+  --balsm-blue-200: #9CC2FF;
+  --balsm-blue-300: #5FA0FF;
+  --balsm-blue-400: #2E86F0;
+  --balsm-blue-500: var(--petal-blue);
+  --balsm-blue-600: var(--petal-blue-600);
+  --balsm-blue-700: #0A4F99;
+  --balsm-blue-900: var(--balsm-ink-900);
 }
 
 /* ── Dark mode overrides (per MASTER.md §2.4) ─────────────────
@@ -193,6 +248,8 @@
   --balsm-info-bg:    rgba(18, 131, 255, 0.16);
   --balsm-controlled: #9F84E5;
   --balsm-controlled-bg: rgba(114, 77, 208, 0.20);
+  --balsm-expiring: #E89B54;
+  --balsm-expiring-bg: rgba(217, 122, 32, 0.20);
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.30);
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.36), 0 1px 2px rgba(0, 0, 0, 0.24);

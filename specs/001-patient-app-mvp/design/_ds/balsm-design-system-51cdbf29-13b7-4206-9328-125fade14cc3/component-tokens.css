@@ -1,0 +1,92 @@
+/* ============================================================
+   Balsm Design System — Component Tokens  (Tier 3)
+   Global → Semantic (colors_and_type.css) → Component (here)
+
+   Inspired by ClickUp's three-tier token architecture.
+   Adds: elevation scale, density modes, per-component sizing.
+   ============================================================ */
+
+:root {
+  /* ── Elevation (ClickUp-inspired multi-layer, warm ink tones) ─
+     Use --elev-N variables instead of ad-hoc box-shadows.
+     Level 0 = flat/border-only  →  Level 4 = modal/overlay   */
+  --elev-0: none;
+  --elev-1: rgba(43,43,37,.04) 0px 4px 4px 0px;
+  --elev-2: rgba(43,43,37,.04) 0px 1px 1px -.5px,
+            rgba(43,43,37,.04) 0px 3px 3px -1.5px;
+  --elev-3: rgba(43,43,37,.04) 0px 1px 1px -.5px,
+            rgba(43,43,37,.04) 0px 3px 3px -1.5px,
+            rgba(43,43,37,.04) 0px 6px 6px -3px,
+            rgba(43,43,37,.04) 0px 12px 12px -6px;
+  --elev-4: rgba(43,43,37,.20) 0px 20px 40px;
+
+  /* ── Row density (compact / default / comfortable) ───────────
+     Used in tables, lists, pharmacy queues, schedule grids.   */
+  --row-h-compact:      32px;
+  --row-h-default:      40px;
+  --row-h-comfortable:  52px;
+
+  /* ── Button ──────────────────────────────────────────────── */
+  --btn-h-sm:        30px;
+  --btn-h-md:        38px;
+  --btn-h-lg:        46px;
+  --btn-px-sm:       12px;
+  --btn-px-md:       16px;
+  --btn-px-lg:       22px;
+  --btn-fs-sm:       13px;
+  --btn-fs-md:       14px;
+  --btn-fs-lg:       15px;
+  --btn-radius-sm:   var(--radius-sm);
+  --btn-radius-md:   var(--radius-md);
+  --btn-radius-lg:   var(--radius-lg);
+  --btn-fw:          600; /* @kind other */
+  --btn-gap:         8px;
+  --btn-disabled-opacity: .42; /* @kind other */
+
+  /* ── Input / Field ───────────────────────────────────────── */
+  --input-h-sm:      32px;
+  --input-h-md:      40px;
+  --input-h-lg:      48px;
+  --input-px:        12px;
+  --input-fs:        14px;
+  --input-radius:    var(--radius-md);
+  --input-leading-w: 36px;
+  --input-label-fs:  12px;
+  --input-label-fw:  600; /* @kind other */
+  --input-label-fg:  var(--balsm-ink-700);
+
+  /* ── Badge / Chip ────────────────────────────────────────── */
+  --badge-px:        10px;
+  --badge-py:        3px;
+  --badge-fs:        12px;
+  --badge-fw:        600; /* @kind other */
+  --badge-gap:       6px;
+  --badge-dot:       6px;
+  --badge-radius:    var(--radius-pill);
+
+  /* ── Select ──────────────────────────────────────────────── */
+  --select-h-sm:     32px;
+  --select-h-md:     40px;
+  --select-h-lg:     48px;
+  --select-px:       12px;
+  --select-option-h: 36px;
+  --select-z:        100; /* @kind other */
+
+  /* ── Toast ───────────────────────────────────────────────── */
+  --toast-min-w:     300px;
+  --toast-max-w:     440px;
+  --toast-px:        16px;
+  --toast-py:        14px;
+  --toast-radius:    var(--radius-lg);
+  --toast-z:         9000; /* @kind other */
+
+  /* ── Modal ───────────────────────────────────────────────── */
+  --modal-radius:    var(--radius-xl);
+  --modal-padding:   32px;
+  --modal-shadow:    rgba(43,43,37,.20) 0px 20px 40px;
+  --modal-overlay:   rgba(43,43,37,.50);
+  --modal-max-w-sm:  480px;
+  --modal-max-w-md:  600px;
+  --modal-max-w-lg:  800px;
+  --modal-z:         8000; /* @kind other */
+}

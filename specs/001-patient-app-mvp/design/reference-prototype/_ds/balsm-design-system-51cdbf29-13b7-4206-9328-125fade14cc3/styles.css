@@ -3,15 +3,15 @@
    Community-Owned Healthcare OS · Open. Arab. Owned.
 
    Import this single file to get all design tokens,
-   typography roles, responsive + adaptive utilities, and
-   semantic helpers.
+   typography roles, responsive utilities, and semantic helpers.
 
    @import order matters: tokens first, then type roles,
-   then responsive utilities (colors_and_type.css), then the
-   adaptive / container-query layer (adaptive.css).
+   then responsive utilities (all live in colors_and_type.css).
    ============================================================ */
 
 @import url('./colors_and_type.css');
-@import url('./component-tokens.css');
+
+/* Future: uncomment as additional token files are added
+@import url('./motion.css');
 @import url('./components.css');
-@import url('./adaptive.css');
+*/

@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Balsm — Loading & Progress</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    :root{
+      --petal-aqua:#02BBB5; --petal-emerald:#01C4A2; --petal-blue:#1283FF; --petal-mint:#55D77F; --petal-violet:#724DD0;
+      --petal-aqua-50:#E2F8F6; --petal-blue-50:#E4F0FF; --petal-mint-50:#E8F9EE; --petal-violet-50:#ECE6FA;
+      --balsm-primary:var(--petal-blue); --balsm-primary-hover:#0F6BCC;
+      --balsm-warning:#E5B428; --balsm-danger:#D44A3C; --balsm-expiring:#D97A20;
+      --balsm-cream-50:#FAFAF7; --balsm-cream-100:#F4F3EC;
+      --balsm-ink-900:#2B2B25; --balsm-ink-800:#3D3D34; --balsm-ink-700:#56564C; --balsm-ink-600:#6B6B60;
+      --balsm-ink-500:#8C8C82; --balsm-ink-400:#ADAEA4; --balsm-ink-300:#C9C9C0; --balsm-ink-200:#E1E1D9;
+      --balsm-ink-100:#EEEEE8; --balsm-ink-50:#F6F6F2; --balsm-surface:#fff; --balsm-border:#E1E1D9;
+      --fg1:var(--balsm-ink-900); --fg2:var(--balsm-ink-700); --fg3:var(--balsm-ink-600); --fg4:var(--balsm-ink-400);
+      --font-display:'Montserrat','IBM Plex Sans',system-ui,sans-serif;
+      --font-body:'IBM Plex Sans','Montserrat',system-ui,sans-serif;
+      --font-arabic:'IBM Plex Sans Arabic',sans-serif;
+      --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+      --radius-xs:4px; --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --radius-pill:999px;
+      --dur-base:200ms; --dur-slow:320ms; --ease-out:cubic-bezier(.16,1,.3,1);
+      --grad-petal:linear-gradient(135deg,#02BBB5 0%,#1283FF 60%,#724DD0 100%);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--balsm-cream-50);font-family:var(--font-body);color:var(--fg1);-webkit-font-smoothing:antialiased}
+    .page{max-width:1080px;margin:0 auto;padding:40px 28px 80px}
+    .head{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+    .kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--petal-emerald)}
+    .title{font-family:var(--font-display);font-weight:800;font-size:34px;letter-spacing:-.01em;margin:0}
+    .lede{font-size:15px;color:var(--fg2);max-width:64ch;line-height:1.6;margin:0}
+    .switcher{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;padding:12px 16px;background:#fff;border:1px solid var(--balsm-ink-100);border-radius:var(--radius-pill);width:max-content;max-width:100%;box-shadow:0 2px 6px rgba(43,43,37,.05)}
+    .switcher__lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;margin-right:4px}
+    .swatch{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px 0 8px;border:1px solid var(--balsm-ink-200);background:#fff;border-radius:var(--radius-pill);cursor:pointer;font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--fg2);transition:border-color 150ms,box-shadow 150ms,color 150ms}
+    .swatch:hover{border-color:var(--balsm-ink-300)}
+    .swatch__dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+    .swatch--on{border-color:var(--balsm-primary);color:var(--balsm-ink-900);box-shadow:0 0 0 3px var(--petal-blue-50)}
+    section{margin-top:42px}
+    .sect-h{font-family:var(--font-display);font-weight:700;font-size:18px;margin:0 0 4px}
+    .sect-sub{font-size:13px;color:var(--fg3);margin:0 0 18px}
+    .panel{background:#fff;border:1px solid var(--balsm-ink-100);border-radius:var(--radius-lg);padding:24px;box-shadow:0 2px 6px rgba(43,43,37,.05)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px 40px}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+    @media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
+    .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;margin-bottom:10px}
+    .col{display:flex;flex-direction:column;gap:18px;min-width:0}
+    .stack{display:flex;flex-direction:column;gap:13px}
+    .rings{display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap}
+    .ring-col,.cell{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .cap{font-size:11px;color:var(--fg3)}
+    .row{display:flex;gap:30px;align-items:flex-end;flex-wrap:wrap}
+    .rowc{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+    .rtl{direction:rtl}
+    .brand-card{display:flex;align-items:center;gap:20px;background:var(--balsm-cream-100);border:1px solid var(--balsm-ink-100);border-radius:var(--radius-lg);padding:18px 24px}
+    .brand-ttl{font-family:var(--font-display);font-weight:700;font-size:15px}
+    .brand-sub{font-size:12px;color:var(--fg3)}
+    .ar{font-family:var(--font-arabic)}
+    .sk-card{border:1px solid var(--balsm-ink-100);border-radius:var(--radius-lg);padding:18px;display:flex;flex-direction:column;gap:14px;background:#fff}
+    .sk-head{display:flex;gap:13px;align-items:center}
+    .row-item{display:flex;gap:13px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--balsm-ink-100)}
+    .row-item:last-child{border-bottom:none}
+    .row-body{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
+    .frame{position:relative;border:1px solid var(--balsm-ink-200);border-radius:var(--radius-md);overflow:hidden;background:var(--balsm-cream-50);height:84px}
+    .frame-bar{height:34px;background:#fff;border-bottom:1px solid var(--balsm-ink-100);display:flex;align-items:center;gap:6px;padding:0 12px}
+    .fdot{width:9px;height:9px;border-radius:50%;background:var(--balsm-ink-200)}
+    .frame-body{display:flex;align-items:center;justify-content:center;height:50px;font-size:12px;color:var(--fg3)}
+    .oframe{position:relative;height:220px;border:1px solid var(--balsm-ink-200);border-radius:var(--radius-lg);overflow:hidden}
+
+    /* Progress */
+    .b-progress{display:flex;flex-direction:column;gap:7px;width:100%;font-family:var(--font-body)}
+    .b-progress__head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+    .b-progress__label{font-size:13px;font-weight:600;color:var(--balsm-ink-800);line-height:1.3}
+    .b-progress__value{font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--fg3);font-variant-numeric:tabular-nums;flex-shrink:0}
+    .b-progress__track{position:relative;width:100%;height:8px;background:var(--balsm-ink-100);border-radius:var(--radius-pill);overflow:hidden}
+    .b-progress--sm .b-progress__track{height:5px} .b-progress--lg .b-progress__track{height:12px}
+    .b-progress__fill{position:absolute;inset:0 auto 0 0;height:100%;width:0;border-radius:var(--radius-pill);background:var(--balsm-primary);transition:width var(--dur-slow) var(--ease-out)}
+    .b-progress--accent .b-progress__fill{background:var(--petal-aqua)} .b-progress--success .b-progress__fill{background:var(--petal-mint)}
+    .b-progress--violet .b-progress__fill{background:var(--petal-violet)} .b-progress--brand .b-progress__fill{background:var(--grad-petal)}
+    .b-progress--accent .b-progress__track{background:var(--petal-aqua-50)} .b-progress--success .b-progress__track{background:var(--petal-mint-50)} .b-progress--violet .b-progress__track{background:var(--petal-violet-50)}
+    .b-progress--indeterminate .b-progress__fill{width:40%;animation:b-prog-slide 1.5s cubic-bezier(.65,0,.35,1) infinite}
+    @keyframes b-prog-slide{0%{left:-42%;right:100%}60%{left:100%;right:-42%}100%{left:100%;right:-42%}}
+    .b-progress--striped .b-progress__fill::after{content:'';position:absolute;inset:0;background-image:linear-gradient(-45deg,rgba(255,255,255,.28) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.28) 50%,rgba(255,255,255,.28) 75%,transparent 75%,transparent);background-size:18px 18px;animation:b-prog-stripe .7s linear infinite}
+    @keyframes b-prog-stripe{to{background-position:18px 0}}
+    .b-progress--paused .b-progress__fill{background:var(--balsm-expiring)} .b-progress--queued .b-progress__fill{background:var(--balsm-ink-300)}
+    .b-progress-ring{display:inline-flex;align-items:center;justify-content:center;position:relative;line-height:0}
+    .b-progress-ring svg{transform:rotate(-90deg);display:block}
+    .b-progress-ring__track{fill:none;stroke:var(--balsm-ink-100)}
+    .b-progress-ring__fill{fill:none;stroke:var(--balsm-primary);stroke-linecap:round;transition:stroke-dashoffset var(--dur-slow) var(--ease-out)}
+    .b-progress-ring--success .b-progress-ring__fill{stroke:var(--petal-mint)} .b-progress-ring--violet .b-progress-ring__fill{stroke:var(--petal-violet)}
+    .b-progress-ring__center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:600;font-variant-numeric:tabular-nums;color:var(--balsm-ink-800);line-height:1}
+    /* Spinners */
+    @keyframes b-spin{to{transform:rotate(360deg)}}
+    .b-ring-spinner{display:inline-block;width:28px;height:28px;border-radius:50%;background:conic-gradient(from 90deg,transparent,var(--balsm-primary));-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--ring-w,3px)),#000 calc(100% - var(--ring-w,3px)));mask:radial-gradient(farthest-side,transparent calc(100% - var(--ring-w,3px)),#000 calc(100% - var(--ring-w,3px)));animation:b-spin .85s linear infinite}
+    .b-ring-spinner--accent{background:conic-gradient(from 90deg,transparent,var(--petal-aqua))} .b-ring-spinner--success{background:conic-gradient(from 90deg,transparent,var(--petal-mint))}
+    .b-ring-spinner--violet{background:conic-gradient(from 90deg,transparent,var(--petal-violet))} .b-ring-spinner--ink{background:conic-gradient(from 90deg,transparent,var(--balsm-ink-400))}
+    .b-petal-spinner{position:relative;display:inline-block;width:48px;height:48px;animation:b-spin 3.6s linear infinite}
+    .b-petal-spinner__petal{position:absolute;top:0;left:50%;width:28%;height:28%;margin-left:-14%;border-radius:50%;transform-origin:50% 178%;opacity:.9}
+    .b-petal-spinner__petal:nth-child(1){transform:rotate(0deg);background:var(--petal-emerald);animation:b-petal-pulse 3.6s ease-in-out infinite}
+    .b-petal-spinner__petal:nth-child(2){transform:rotate(72deg);background:var(--petal-blue);animation:b-petal-pulse 3.6s ease-in-out -.72s infinite}
+    .b-petal-spinner__petal:nth-child(3){transform:rotate(144deg);background:var(--petal-mint);animation:b-petal-pulse 3.6s ease-in-out -1.44s infinite}
+    .b-petal-spinner__petal:nth-child(4){transform:rotate(216deg);background:var(--petal-violet);animation:b-petal-pulse 3.6s ease-in-out -2.16s infinite}
+    .b-petal-spinner__petal:nth-child(5){transform:rotate(288deg);background:var(--petal-aqua);animation:b-petal-pulse 3.6s ease-in-out -2.88s infinite}
+    @keyframes b-petal-pulse{0%,100%{opacity:.35}40%{opacity:1}}
+    .b-petal-spinner--sm{width:28px;height:28px} .b-petal-spinner--lg{width:72px;height:72px}
+    /* Skeleton */
+    .b-skeleton{display:block;background:linear-gradient(90deg,var(--balsm-ink-200) 25%,var(--balsm-ink-100) 37%,var(--balsm-ink-200) 63%);background-size:280% 100%;border-radius:var(--radius-sm);animation:b-shimmer 1.5s ease-in-out infinite}
+    @keyframes b-shimmer{0%{background-position:180% 0}100%{background-position:-180% 0}}
+    .b-skeleton--text{height:.72em;border-radius:var(--radius-xs);margin:.18em 0} .b-skeleton--title{height:1.25em;border-radius:var(--radius-xs)}
+    .b-skeleton--circle{border-radius:50%} .b-skeleton--pill{border-radius:var(--radius-pill)} .b-skeleton--card{border-radius:var(--radius-lg)}
+    .b-skeleton-lines{display:flex;flex-direction:column;gap:9px;width:100%}
+    /* Buttons (base) */
+    .b-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;cursor:pointer;font-family:var(--font-body);font-weight:600;white-space:nowrap;outline:none}
+    .b-btn-md{height:38px;padding:0 16px;font-size:14px;border-radius:var(--radius-md)}
+    .b-btn-primary{background:var(--balsm-primary);color:#fff}
+    .b-btn-secondary{background:#fff;color:var(--balsm-ink-900);border-color:var(--balsm-border)}
+    .b-btn-ghost{background:transparent;color:var(--balsm-ink-700)}
+    .b-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.32);border-top-color:currentColor;border-radius:50%;animation:b-spin .65s linear infinite;flex-shrink:0}
+    .b-btn-secondary .b-spinner,.b-btn-ghost .b-spinner{border-color:rgba(43,43,37,.18);border-top-color:var(--balsm-ink-700)}
+    /* Steps */
+    .b-steps{display:flex;align-items:flex-start;font-family:var(--font-body);width:100%}
+    .b-step{display:flex;align-items:center;flex:1 1 0;min-width:0}.b-step:last-child{flex:0 0 auto}
+    .b-step__node{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .b-step__marker{position:relative;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--balsm-ink-200);color:var(--fg3);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0;transition:background var(--dur-base) var(--ease-out),border-color var(--dur-base) var(--ease-out),color var(--dur-base) var(--ease-out)}
+    .b-step__marker svg{width:14px;height:14px}
+    .b-step__text{display:flex;flex-direction:column;gap:1px;min-width:0}
+    .b-step__label{font-size:13px;font-weight:600;color:var(--balsm-ink-800);line-height:1.3}
+    .b-step__desc{font-size:11px;color:var(--fg3);line-height:1.35}
+    .b-step__line{flex:1 1 auto;height:2px;margin:0 12px;background:var(--balsm-ink-200);border-radius:var(--radius-pill);position:relative;overflow:hidden;align-self:center}
+    .b-step__line::after{content:'';position:absolute;inset:0 100% 0 0;background:var(--balsm-primary);transition:inset var(--dur-slow) var(--ease-out)}
+    .b-step--done .b-step__marker{background:var(--balsm-primary);border-color:var(--balsm-primary);color:#fff}
+    .b-step--done .b-step__label{color:var(--balsm-ink-900)} .b-step--done .b-step__line::after{inset:0}
+    .b-step--active .b-step__marker{border-color:var(--balsm-primary);color:var(--balsm-primary);background:#fff;box-shadow:0 0 0 4px var(--petal-blue-50)}
+    .b-step--active .b-step__label{color:var(--balsm-primary)}
+    .b-step--active .b-step__marker::before{content:'';position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--balsm-primary);opacity:.35;animation:b-step-pulse 1.8s var(--ease-out) infinite}
+    @keyframes b-step-pulse{0%{transform:scale(1);opacity:.45}70%{transform:scale(1.5);opacity:0}100%{transform:scale(1.5);opacity:0}}
+    .b-steps--dot .b-step__marker{width:14px;height:14px;border-width:2px}
+    .b-steps--dot .b-step--done .b-step__marker,.b-steps--dot .b-step--active .b-step__marker{color:transparent}
+    .b-steps--dot .b-step__marker svg{display:none} .b-steps--dot .b-step__line{margin:0 8px}
+    .b-steps--success .b-step--done .b-step__marker{background:var(--petal-mint);border-color:var(--petal-mint)}
+    .b-steps--success .b-step--done .b-step__line::after{background:var(--petal-mint)}
+    .b-steps--success .b-step--active .b-step__marker{border-color:var(--petal-mint);color:#1f6a36;box-shadow:0 0 0 4px var(--petal-mint-50)}
+    .b-steps--vertical{flex-direction:column;align-items:stretch}
+    .b-steps--vertical .b-step{flex-direction:column;align-items:stretch;flex:0 0 auto}
+    .b-steps--vertical .b-step__node{align-items:flex-start}.b-steps--vertical .b-step__text{padding-top:4px}
+    .b-steps--vertical .b-step__line{width:2px;height:auto;min-height:26px;margin:6px 0 6px 13px;align-self:flex-start}
+    .b-steps--vertical .b-step__line::after{inset:100% 0 0 0}.b-steps--vertical .b-step--done .b-step__line::after{inset:0}
+    .rtl .b-step__line::after{inset:0 0 0 100%}.rtl .b-step--done .b-step__line::after{inset:0}
+    /* Progress button */
+    .b-progress-btn{position:relative;overflow:hidden;isolation:isolate}
+    .b-progress-btn__fill{position:absolute;inset:0 auto 0 0;width:0;background:rgba(255,255,255,.22);transition:width var(--dur-base) var(--ease-out);z-index:-1;pointer-events:none}
+    .b-progress-btn--secondary .b-progress-btn__fill,.b-progress-btn--ghost .b-progress-btn__fill{background:var(--petal-blue-50)}
+    .rtl .b-progress-btn__fill{inset:0 0 0 auto}
+    .b-progress-btn--indeterminate .b-progress-btn__fill{width:35%;animation:b-btn-sheen 1.25s cubic-bezier(.65,0,.35,1) infinite}
+    @keyframes b-btn-sheen{0%{left:-35%}100%{left:100%}}
+    .b-progress-btn__label{display:inline-flex;align-items:center;gap:8px}
+    .b-progress-btn__pct{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:.92em;opacity:.9}
+    /* Top loading bar */
+    .b-toploader{position:fixed;top:0;left:0;right:0;height:3px;z-index:9500;pointer-events:none;background:transparent}
+    .b-toploader--contained{position:absolute}
+    .b-toploader__bar{height:100%;width:0;background:var(--balsm-primary);border-radius:0 var(--radius-pill) var(--radius-pill) 0;box-shadow:0 0 8px rgba(18,131,255,.6),0 0 2px rgba(18,131,255,.9);transition:width 240ms var(--ease-out),opacity 320ms ease 120ms}
+    .b-toploader--accent .b-toploader__bar{background:var(--petal-aqua);box-shadow:0 0 8px rgba(2,187,181,.55)}
+    .b-toploader--success .b-toploader__bar{background:var(--petal-mint);box-shadow:0 0 8px rgba(85,215,127,.55)}
+    .b-toploader--brand .b-toploader__bar{background:var(--grad-petal);box-shadow:0 0 8px rgba(114,77,208,.45)}
+    .b-toploader--done .b-toploader__bar{opacity:0}
+    .b-toploader--indeterminate .b-toploader__bar{position:relative;width:32%;animation:b-top-slide 1.15s cubic-bezier(.65,0,.35,1) infinite}
+    @keyframes b-top-slide{0%{margin-left:-34%}100%{margin-left:100%}}
+    /* Meter */
+    .b-meter{display:flex;flex-direction:column;gap:12px;width:100%;font-family:var(--font-body)}
+    .b-meter__head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+    .b-meter__title{font-size:13px;font-weight:600;color:var(--balsm-ink-800)}
+    .b-meter__total{font-family:var(--font-mono);font-size:12px;color:var(--fg3);font-variant-numeric:tabular-nums}
+    .b-meter__track{display:flex;width:100%;height:12px;background:var(--balsm-ink-100);border-radius:var(--radius-pill);overflow:hidden}
+    .b-meter--sm .b-meter__track{height:8px} .b-meter--lg .b-meter__track{height:16px}
+    .b-meter--gap .b-meter__track{background:transparent;gap:3px}
+    .b-meter__seg{height:100%;width:0;background:var(--balsm-primary);transition:width var(--dur-slow) var(--ease-out)}
+    .b-meter--gap .b-meter__seg{border-radius:var(--radius-pill)}
+    .b-meter__seg--aqua{background:var(--petal-aqua)} .b-meter__seg--blue{background:var(--petal-blue)} .b-meter__seg--mint{background:var(--petal-mint)}
+    .b-meter__seg--violet{background:var(--petal-violet)} .b-meter__seg--emerald{background:var(--petal-emerald)}
+    .b-meter__seg--sun{background:var(--balsm-warning)} .b-meter__seg--danger{background:var(--balsm-danger)} .b-meter__seg--ink{background:var(--balsm-ink-300)}
+    .b-meter__legend{display:flex;flex-wrap:wrap;gap:8px 18px}
+    .b-meter__item{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--fg2)}
+    .b-meter__swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+    .b-meter__val{font-family:var(--font-mono);color:var(--fg3);font-variant-numeric:tabular-nums}
+    /* Overlay */
+    .b-overlay{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:24px;animation:b-overlay-in var(--dur-base) var(--ease-out) both}
+    @keyframes b-overlay-in{from{opacity:0}to{opacity:1}}
+    .b-overlay--cream{background:var(--balsm-cream-50)} .b-overlay--scrim{background:rgba(43,43,37,.55)}
+    .b-overlay__inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;max-width:360px}
+    .b-overlay__msg{font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--fg1);line-height:1.3}
+    .b-overlay--scrim .b-overlay__msg{color:#fff}
+    .b-overlay__sub{font-size:13px;color:var(--fg3);line-height:1.5} .b-overlay--scrim .b-overlay__sub{color:rgba(255,255,255,.8)}
+    .b-overlay__progress{width:220px;max-width:70vw;margin-top:4px}
+    /* Adaptive Steps — collapse horizontal → vertical in a narrow CONTAINER */
+    .b-steps-c--responsive{container-type:inline-size;width:100%}
+    @container (max-width:640px){
+      .b-steps-c--responsive .b-steps{flex-direction:column;align-items:stretch}
+      .b-steps-c--responsive .b-step{flex-direction:column;align-items:stretch;flex:0 0 auto}
+      .b-steps-c--responsive .b-step__node{align-items:flex-start}
+      .b-steps-c--responsive .b-step__text{padding-top:4px}
+      .b-steps-c--responsive .b-step__line{width:2px;height:auto;min-height:22px;margin:6px 0 6px 13px;align-self:flex-start}
+      .b-steps-c--responsive .b-steps--dot .b-step__line{margin-left:6px}
+      .b-steps-c--responsive .b-step__line::after{inset:100% 0 0 0}
+      .b-steps-c--responsive .b-step--done .b-step__line::after{inset:0}
+      .rtl .b-steps-c--responsive .b-step__line{margin:6px 13px 6px 0}
+    }
+    /* Device-width simulator */
+    .sim-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .sim-btn{height:32px;padding:0 14px;border:1px solid var(--balsm-ink-200);background:#fff;border-radius:var(--radius-pill);cursor:pointer;font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--fg2);display:inline-flex;align-items:center;gap:7px;transition:border-color 150ms,box-shadow 150ms,color 150ms}
+    .sim-btn:hover{border-color:var(--balsm-ink-300)}
+    .sim-btn--on{border-color:var(--balsm-primary);color:var(--balsm-ink-900);box-shadow:0 0 0 3px var(--petal-blue-50)}
+    .sim-w{font-family:var(--font-mono);font-size:11px;color:var(--fg3);margin-left:auto;font-variant-numeric:tabular-nums}
+    .sim-stage{background:var(--balsm-cream-100);border:1px solid var(--balsm-ink-100);border-radius:var(--radius-lg);padding:22px;text-align:center;overflow:hidden}
+    .sim{display:inline-block;text-align:left;vertical-align:top;width:100%;max-width:100%;background:#fff;border:1px solid var(--balsm-ink-200);border-radius:var(--radius-md);box-shadow:0 6px 20px rgba(43,43,37,.08);overflow:hidden;position:relative}
+    .sim[data-w="phone"]{width:380px} .sim[data-w="tablet"]{width:740px} .sim[data-w="desktop"]{width:1080px} .sim[data-w="fluid"]{width:100%}
+    .sim__chrome{display:flex;align-items:center;gap:6px;padding:9px 14px;border-bottom:1px solid var(--balsm-ink-100);background:var(--balsm-cream-50)}
+    .sim__chrome .fdot{width:8px;height:8px;border-radius:50%;background:var(--balsm-ink-200)}
+    .sim__chrome span.sim__url{margin-left:8px;font-family:var(--font-mono);font-size:10px;color:var(--fg3)}
+    .sim__body{padding:20px;display:flex;flex-direction:column;gap:20px;container-type:inline-size}
+    .sim__h{font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--fg1);margin:0}
+    .sim__cardrow{display:grid;grid-template-columns:1fr;gap:14px}
+    @container (min-width:560px){.sim__cardrow{grid-template-columns:1fr 1fr}}
+    .sim__card{border:1px solid var(--balsm-ink-100);border-radius:var(--radius-md);padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--balsm-cream-50)}
+    .sim__card-t{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);font-weight:600}
+    @media(prefers-reduced-motion:reduce){
+      .b-progress__fill,.b-ring-spinner,.b-petal-spinner,.b-petal-spinner__petal,.b-skeleton,.b-step--active .b-step__marker::before,.b-progress-btn--indeterminate .b-progress-btn__fill,.b-toploader--indeterminate .b-toploader__bar{animation-duration:.01ms!important;animation-iteration-count:1!important}
+      .b-petal-spinner__petal{opacity:.9}
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const StepCheck=()=><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7.5l2.5 2.5 5.5-6"/></svg>;
+  function Progress({ value, variant='primary', size='md', label, showValue=false, indeterminate, striped=false, state, format=(v)=>`${Math.round(v)}%`, ...rest }) {
+    const stateStriped=state==='syncing'; const isIndet=indeterminate ?? (value==null) ?? false;
+    const pct=isIndet?null:Math.max(0,Math.min(100,value));
+    const cls=['b-progress',`b-progress--${variant}`, size!=='md'&&`b-progress--${size}`, isIndet&&'b-progress--indeterminate', (striped||stateStriped)&&'b-progress--striped', state==='paused'&&'b-progress--paused', state==='queued'&&'b-progress--queued'].filter(Boolean).join(' ');
+    const showHead=label||showValue;
+    return <div className={cls} {...rest}>{showHead&&<div className="b-progress__head">{label&&<span className="b-progress__label">{label}</span>}{showValue&&!isIndet&&<span className="b-progress__value">{format(pct)}</span>}</div>}<div className="b-progress__track"><span className="b-progress__fill" style={isIndet?undefined:{width:`${pct}%`}}/></div></div>;
+  }
+  function ProgressRing({ value=0, size=64, thickness=6, variant='primary', showValue=true, format=(v)=>`${Math.round(v)}%`}) {
+    const pct=Math.max(0,Math.min(100,value)); const r=(size-thickness)/2; const circ=2*Math.PI*r; const offset=circ*(1-pct/100);
+    return <span className={`b-progress-ring b-progress-ring--${variant}`} style={{width:size,height:size}}><svg width={size} height={size}><circle className="b-progress-ring__track" cx={size/2} cy={size/2} r={r} strokeWidth={thickness}/><circle className="b-progress-ring__fill" cx={size/2} cy={size/2} r={r} strokeWidth={thickness} strokeDasharray={circ} strokeDashoffset={offset}/></svg>{showValue&&<span className="b-progress-ring__center" style={{fontSize:Math.round(size*0.26)}}>{format(pct)}</span>}</span>;
+  }
+  function Spinner({ size=28, thickness, variant='primary', ...rest }) {
+    const w=thickness ?? Math.max(2,Math.round(size/9));
+    return <span className={['b-ring-spinner', variant!=='primary'&&`b-ring-spinner--${variant}`].filter(Boolean).join(' ')} style={{width:size,height:size,'--ring-w':`${w}px`}} {...rest}/>;
+  }
+  function PetalSpinner({ size='md' }) {
+    const c=typeof size==='string'?`b-petal-spinner--${size}`:''; const st=typeof size==='number'?{width:size,height:size}:undefined;
+    return <span className={['b-petal-spinner',c].filter(Boolean).join(' ')} style={st}><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/></span>;
+  }
+  function Skeleton({ variant='rect', width, height, lines=1, lastWidth='62%', radius, style, ...rest }) {
+    const dim=(v)=>typeof v==='number'?`${v}px`:v;
+    if(variant==='text'&&lines>1){return <span className="b-skeleton-lines" style={{width:dim(width),...style}} {...rest}>{Array.from({length:lines}).map((_,i)=><span key={i} className="b-skeleton b-skeleton--text" style={{width:i===lines-1?lastWidth:'100%'}}/>)}</span>;}
+    const cls=['b-skeleton', variant!=='rect'&&`b-skeleton--${variant}`].filter(Boolean).join(' ');
+    const st={...style}; if(width!=null)st.width=dim(width); if(height!=null)st.height=dim(height); if(radius!=null)st.borderRadius=dim(radius); if(variant==='circle'&&height==null&&width!=null)st.height=dim(width);
+    return <span className={cls} style={st} {...rest}/>;
+  }
+  function Steps({ steps=[], current=0, variant='numbered', color='primary', orientation='horizontal', responsive=true }) {
+    const cls=['b-steps', orientation==='vertical'&&'b-steps--vertical', variant==='dot'&&'b-steps--dot', color!=='primary'&&`b-steps--${color}`].filter(Boolean).join(' ');
+    const body=<div className={cls}>{steps.map((s,i)=>{const status=s.status||(i<current?'done':i===current?'active':'upcoming');const isLast=i===steps.length-1;return <div className={`b-step b-step--${status}`} key={i}><div className="b-step__node"><span className="b-step__marker">{status==='done'?<StepCheck/>:(variant==='dot'?null:i+1)}</span>{(s.label||s.description)&&<span className="b-step__text">{s.label&&<span className="b-step__label">{s.label}</span>}{s.description&&<span className="b-step__desc">{s.description}</span>}</span>}</div>{!isLast&&<span className="b-step__line"/>}</div>;})}</div>;
+    if(responsive&&orientation!=='vertical')return <div className="b-steps-c b-steps-c--responsive">{body}</div>;
+    return body;
+  }
+  function ProgressButton({ progress, loading=false, indeterminate=false, variant='primary', size='md', showPct=false, children, ...rest }) {
+    const pct=progress==null?null:Math.max(0,Math.min(100,progress));
+    const cls=['b-btn',`b-btn-${variant}`,`b-btn-${size}`,'b-progress-btn', indeterminate&&'b-progress-btn--indeterminate', variant!=='primary'&&`b-progress-btn--${variant}`].filter(Boolean).join(' ');
+    return <button type="button" className={cls} {...rest}><span className="b-progress-btn__fill" style={indeterminate?undefined:{width:`${pct??0}%`}}/><span className="b-progress-btn__label">{loading&&<span className="b-spinner"/>}{children}{showPct&&pct!=null&&<span className="b-progress-btn__pct">{Math.round(pct)}%</span>}</span></button>;
+  }
+  function TopLoadingBar({ value=null, loading, variant='primary', height=3, contained=false, indeterminate=false }) {
+    const managed=value==null&&typeof loading==='boolean'; const [auto,setAuto]=React.useState(0); const [visible,setVisible]=React.useState(false);
+    React.useEffect(()=>{if(!managed)return;let timer;if(loading){setVisible(true);setAuto(a=>a>0?a:8);timer=setInterval(()=>setAuto(a=>a>=90?a:Math.min(90,a+(90-a)*0.06+0.4)),280);return()=>clearInterval(timer);}if(visible){setAuto(100);const t=setTimeout(()=>{setVisible(false);setAuto(0);},420);return()=>clearTimeout(t);}},[loading,managed]);
+    const pct=managed?auto:(value??0); const done=managed?!loading:pct>=100;
+    if(managed&&!visible&&!loading)return null;
+    const cls=['b-toploader', contained&&'b-toploader--contained', variant!=='primary'&&`b-toploader--${variant}`, indeterminate&&'b-toploader--indeterminate', done&&!indeterminate&&'b-toploader--done'].filter(Boolean).join(' ');
+    return <div className={cls} style={{height}}><div className="b-toploader__bar" style={indeterminate?undefined:{width:`${pct}%`}}/></div>;
+  }
+  const METER_VAR={aqua:'var(--petal-aqua)',blue:'var(--petal-blue)',mint:'var(--petal-mint)',violet:'var(--petal-violet)',emerald:'var(--petal-emerald)',sun:'var(--balsm-warning)',danger:'var(--balsm-danger)',ink:'var(--balsm-ink-300)'};
+  function SegmentedProgress({ segments=[], total, title, showTotal=false, showLegend=true, showValues=true, size='md', gap=false, format=(v)=>v, totalLabel }) {
+    const sum=segments.reduce((a,s)=>a+(s.value||0),0); const max=total??sum;
+    const cls=['b-meter', size!=='md'&&`b-meter--${size}`, gap&&'b-meter--gap'].filter(Boolean).join(' '); const swatch=(s)=>s.hex||METER_VAR[s.color]||'var(--balsm-primary)';
+    return <div className={cls}>{(title||showTotal)&&<div className="b-meter__head">{title&&<span className="b-meter__title">{title}</span>}{showTotal&&<span className="b-meter__total">{totalLabel??`${format(sum)} / ${format(max)}`}</span>}</div>}<div className="b-meter__track">{segments.map((s,i)=>{const w=max>0?(s.value/max)*100:0;return <span key={i} className={['b-meter__seg',s.color&&`b-meter__seg--${s.color}`].filter(Boolean).join(' ')} style={{width:`${w}%`,...(s.hex?{background:s.hex}:{})}}/>;})}</div>{showLegend&&<div className="b-meter__legend">{segments.map((s,i)=><span className="b-meter__item" key={i}><span className="b-meter__swatch" style={{background:swatch(s)}}/>{s.label}{showValues&&s.value!=null&&<span className="b-meter__val">{format(s.value)}</span>}</span>)}</div>}</div>;
+  }
+  function LoadingOverlay({ variant='cream', message, submessage, progress, indeterminate=false, spinner='petal' }) {
+    const showBar=progress!=null||indeterminate;
+    return <div className={`b-overlay b-overlay--${variant}`}><div className="b-overlay__inner">{spinner==='ring'?<Spinner size={40} thickness={4}/>:<PetalSpinner size="lg"/>}{message&&<div className="b-overlay__msg">{message}</div>}{submessage&&<div className="b-overlay__sub">{submessage}</div>}{showBar&&<div className="b-overlay__progress"><Progress value={indeterminate?null:progress} showValue={progress!=null}/></div>}</div></div>;
+  }
+
+  const PRIMARIES={
+    blue:{label:'Blue',c:'#1283FF',h:'#0F6BCC',wash:'#E4F0FF'},
+    aqua:{label:'Aqua',c:'#02BBB5',h:'#029E99',wash:'#E2F8F6'},
+    emerald:{label:'Emerald',c:'#01C4A2',h:'#019A7F',wash:'#E1F8F1'},
+    violet:{label:'Violet',c:'#724DD0',h:'#5C3AB0',wash:'#ECE6FA'},
+  };
+  function App() {
+    const [primary,setPrimary]=React.useState('blue');
+    React.useEffect(()=>{const p=PRIMARIES[primary];const r=document.documentElement;r.style.setProperty('--balsm-primary',p.c);r.style.setProperty('--balsm-primary-hover',p.h);r.style.setProperty('--petal-blue-50',p.wash);},[primary]);
+    const [p,setP]=React.useState(18);
+    React.useEffect(()=>{const t=setInterval(()=>setP(v=>v>=100?6:v+1),90);return()=>clearInterval(t)},[]);
+    const [bp,setBp]=React.useState(0);
+    React.useEffect(()=>{const t=setInterval(()=>setBp(v=>v>=100?0:v+2),100);return()=>clearInterval(t)},[]);
+    const [cur,setCur]=React.useState(2);
+    React.useEffect(()=>{const t=setInterval(()=>setCur(c=>(c>=4?1:c+1)),1900);return()=>clearInterval(t)},[]);
+    const [loading,setLoading]=React.useState(true);
+    React.useEffect(()=>{const t=setInterval(()=>setLoading(l=>!l),2600);return()=>clearInterval(t)},[]);
+    const [det,setDet]=React.useState(10);
+    React.useEffect(()=>{const t=setInterval(()=>setDet(v=>v>=100?12:v+3),140);return()=>clearInterval(t)},[]);
+    const SIZES={phone:{w:380,label:'Phone',sub:'375'},tablet:{w:740,label:'Tablet',sub:'768'},desktop:{w:1080,label:'Desktop',sub:'1024+'},fluid:{w:null,label:'Fluid',sub:'100%'}};
+    const [sim,setSim]=React.useState('phone');
+    const simW=SIZES[sim].w;
+    const flow=[{label:'Identify'},{label:'Verify Rx'},{label:'Dispense'},{label:'Counsel'},{label:'Done'}];
+    const arFlow=[{label:'تعريف'},{label:'مراجعة'},{label:'صرف'},{label:'إرشاد'}];
+    const onboard=[{label:'Create account',description:'Phone or NID'},{label:'Verify identity',description:'OTP sent'},{label:'Link records',description:'On your device'},{label:'You’re set',description:'Record is yours'}];
+    const gb=(v)=>`${v} GB`;
+    return (
+      <div className="page">
+        <div className="head">
+          <span className="kicker">Balsm Design System · Components</span>
+          <h1 className="title">Loading &amp; progress</h1>
+          <p className="lede">Eight indicators for progress and loading status — determinate &amp; indeterminate, the five-petal brand loader, offline-sync states, steppers, progress buttons, route bars, segmented meters, and full-screen overlays. Each animates live; variants shown side by side to choose from.</p>
+        </div>
+
+        <div className="switcher">
+          <span className="switcher__lbl">Primary action color</span>
+          {Object.keys(PRIMARIES).map(k=>(
+            <button key={k} type="button" className={['swatch',primary===k&&'swatch--on'].filter(Boolean).join(' ')} onClick={()=>setPrimary(k)}>
+              <span className="swatch__dot" style={{background:PRIMARIES[k].c}}/>{PRIMARIES[k].label}
+            </button>
+          ))}
+        </div>
+
+        <section>
+          <h2 className="sect-h">Every screen size</h2>
+          <p className="sect-sub">Indicators are fluid and container-aware. Resize the frame — the stepper collapses horizontal→vertical and the cards reflow, driven by the frame’s own width (container queries), so they adapt the same way inside a tablet two-pane or foldable. Breakpoints mirror the <code style={{fontFamily:'var(--font-mono)',fontSize:12}}>--bp</code> scale.</p>
+          <div className="panel">
+            <div className="sim-controls">
+              {Object.keys(SIZES).map(k=>(
+                <button key={k} type="button" className={['sim-btn',sim===k&&'sim-btn--on'].filter(Boolean).join(' ')} onClick={()=>setSim(k)}>
+                  {SIZES[k].label}<span style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--fg3)'}}>{SIZES[k].sub}</span>
+                </button>
+              ))}
+              <span className="sim-w">{simW?`${simW}px`:'fluid · 100%'}</span>
+            </div>
+            <div className="sim-stage">
+              <div className="sim" data-w={sim}>
+                <div className="sim__chrome"><span className="fdot"/><span className="fdot"/><span className="fdot"/><span className="sim__url">balsm.health/setup</span><TopLoadingBar value={det} contained/></div>
+                <div className="sim__body">
+                  <h3 className="sim__h">Set up your record</h3>
+                  <Steps steps={onboard} current={cur}/>
+                  <Progress value={p} variant="primary" label="Syncing to this device" showValue/>
+                  <div className="sim__cardrow">
+                    <div className="sim__card"><span className="sim__card-t">Device storage</span><SegmentedProgress size="sm" showValues={false} segments={[{label:'Records',value:18,color:'blue'},{label:'Images',value:14,color:'aqua'},{label:'Free',value:32,color:'ink'}]}/></div>
+                    <div className="sim__card"><span className="sim__card-t">Verification</span><div style={{display:'flex',alignItems:'center',gap:12}}><ProgressRing value={p} size={48} variant="success"/><span style={{fontSize:12,color:'var(--fg2)'}}>Almost done</span></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="sect-h">Progress</h2>
+          <p className="sect-sub">Linear &amp; circular · determinate / indeterminate · semantic + petal-gradient fills · offline-sync states.</p>
+          <div className="panel grid2">
+            <div className="col">
+              <div><div className="lbl">Determinate</div><Progress value={p} variant="primary" label="Uploading lab results" showValue/></div>
+              <div><div className="lbl">Sizes · semantic</div><div className="stack"><Progress value={72} variant="success" size="sm"/><Progress value={46} variant="accent"/><Progress value={88} variant="violet" size="lg"/></div></div>
+              <div><div className="lbl">Five-petal brand fill</div><Progress value={64} variant="brand" size="lg" label="Setting up your record" showValue/></div>
+            </div>
+            <div className="col">
+              <div><div className="lbl">Offline-sync states</div><div className="stack"><Progress value={p} state="syncing" label="Syncing — 3 of 8" showValue/><Progress value={40} state="paused" label="Paused"/><Progress value={null} state="queued" label="Queued · waiting for connection"/><Progress indeterminate variant="primary" label="Checking for updates"/></div></div>
+              <div><div className="lbl">Circular</div><div className="rings"><div className="ring-col"><ProgressRing value={p} size={68} variant="primary"/><span className="cap">Upload</span></div><div className="ring-col"><ProgressRing value={100} size={56} variant="success"/><span className="cap">Done</span></div><div className="ring-col"><ProgressRing value={33} size={56} variant="violet"/><span className="cap">Review</span></div></div></div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="sect-h">Spinner</h2>
+          <p className="sect-sub">Five-petal mark for brand &amp; full-screen moments · inline ring for everyday loading.</p>
+          <div className="panel" style={{display:'flex',flexDirection:'column',gap:24}}>
+            <div className="row">
+              <div><div className="lbl">Five-petal mark</div><div className="row" style={{gap:30}}><div className="cell"><PetalSpinner size="sm"/><span className="cap">sm</span></div><div className="cell"><PetalSpinner size="md"/><span className="cap">md</span></div><div className="cell"><PetalSpinner size="lg"/><span className="cap">lg</span></div></div></div>
+              <div><div className="lbl">Inline ring · semantic</div><div className="row" style={{gap:22}}><div className="cell"><Spinner size={20}/><span className="cap">primary</span></div><div className="cell"><Spinner size={26} variant="accent"/><span className="cap">accent</span></div><div className="cell"><Spinner size={26} variant="success"/><span className="cap">success</span></div><div className="cell"><Spinner size={26} variant="violet"/><span className="cap">violet</span></div><div className="cell"><Spinner size={26} variant="ink"/><span className="cap">ink</span></div></div></div>
+            </div>
+            <div className="brand-card"><PetalSpinner size={56}/><div style={{display:'flex',flexDirection:'column',gap:3}}><span className="brand-ttl">Preparing your health record</span><span className="brand-sub">On your device, by design.</span><span className="brand-sub ar">نُجهّز سجلّك الصحي — على جهازك، بالتصميم.</span></div></div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="sect-h">Steps</h2>
+          <p className="sect-sub">Onboarding &amp; dispense flows · numbered / dot / vertical · live active-step pulse · RTL.</p>
+          <div className="panel" style={{display:'flex',flexDirection:'column',gap:26}}>
+            <div><div className="lbl">Numbered · dispense flow (live)</div><Steps steps={flow} current={cur}/></div>
+            <div className="grid2">
+              <div><div className="lbl">Dot · compact</div><Steps steps={flow} current={cur} variant="dot" color="success"/></div>
+              <div><div className="lbl">Numbered · RTL · عربي</div><div className="rtl"><Steps steps={arFlow} current={2}/></div></div>
+            </div>
+            <div><div className="lbl">Vertical · onboarding</div><div style={{maxWidth:280}}><Steps steps={onboard} current={2} orientation="vertical"/></div></div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="sect-h">Progress button</h2>
+          <p className="sect-sub">The button fills with its own progress, sweeps an indeterminate sheen, or shows an inline spinner.</p>
+          <div className="panel" style={{display:'flex',flexDirection:'column',gap:22}}>
+            <div><div className="lbl">Determinate fill</div><div className="rowc"><ProgressButton progress={bp} showPct>Uploading</ProgressButton><ProgressButton progress={bp} variant="secondary" showPct>Sync now</ProgressButton><ProgressButton progress={100}>Done</ProgressButton></div></div>
+            <div><div className="lbl">Indeterminate sheen · spinner · RTL</div><div className="rowc"><ProgressButton indeterminate>Processing</ProgressButton><ProgressButton loading variant="secondary">Saving</ProgressButton><ProgressButton indeterminate variant="ghost">Checking stock</ProgressButton><div className="rtl"><ProgressButton loading>جارٍ الحفظ</ProgressButton></div></div></div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="sect-h">Top loading bar</h2>
+          <p className="sect-sub">Route / page-level bar pinned to the top edge — determinate, auto-trickle, or indeterminate slide.</p>
+          <div className="panel grid3">
+            <div><div className="lbl">Determinate</div><div className="frame"><TopLoadingBar value={det} contained/><div className="frame-bar"><span className="fdot"/><span className="fdot"/><span className="fdot"/></div><div className="frame-body">page content</div></div></div>
+            <div><div className="lbl">Auto-trickle (loading toggles)</div><div className="frame"><TopLoadingBar loading={loading} contained variant="brand"/><div className="frame-bar"><span className="fdot"/><span className="fdot"/><span className="fdot"/></div><div className="frame-body">page content</div></div></div>
+            <div><div className="lbl">Indeterminate · accent</div><div className="frame"><TopLoadingBar indeterminate contained variant="accent"/><div className="frame-bar"><span className="fdot"/><span className="fdot"/><span className="fdot"/></div><div className="frame-body">page content</div></div></div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="sect-h">Segmented meter</h2>
+          <p className="sect-sub">Multi-part proportional bar + legend — storage, queue mix, inventory by status.</p>
+          <div className="panel grid2">
+            <div className="col">
+              <div><div className="lbl">Device storage</div><SegmentedProgress title="On this device" showTotal total={64} format={gb} segments={[{label:'Records',value:18,color:'blue'},{label:'Images',value:14,color:'aqua'},{label:'Cache',value:6,color:'violet'},{label:'Free',value:26,color:'ink'}]}/></div>
+              <div><div className="lbl">Dispense queue mix</div><SegmentedProgress segments={[{label:'Ready',value:24,color:'mint'},{label:'In progress',value:9,color:'blue'},{label:'Waiting Rx',value:5,color:'sun'},{label:'Hold',value:2,color:'danger'}]}/></div>
+            </div>
+            <div className="col">
+              <div><div className="lbl">Separated pills · inventory status</div><SegmentedProgress gap size="lg" segments={[{label:'In stock',value:312,color:'mint'},{label:'Low',value:48,color:'sun'},{label:'Expiring',value:17,color:'violet'},{label:'Out',value:9,color:'danger'}]}/></div>
+              <div><div className="lbl">Compact · no legend</div><SegmentedProgress size="sm" showLegend={false} segments={[{label:'Synced',value:88,color:'mint'},{label:'Queued',value:12,color:'ink'}]}/><div style={{marginTop:18}}><SegmentedProgress size="sm" showLegend={false} segments={[{label:'A',value:40,color:'aqua'},{label:'B',value:35,color:'blue'},{label:'C',value:25,color:'violet'}]}/></div></div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="sect-h">Loading overlay</h2>
+          <p className="sect-sub">Full-screen / container loading — cream, scrim, or with progress. Petal mark or ring.</p>
+          <div className="panel grid3">
+            <div><div className="lbl">Cream · brand moment</div><div className="oframe"><LoadingOverlay variant="cream" message="Preparing your record" submessage="On your device, by design."/></div></div>
+            <div><div className="lbl">Scrim · over content</div><div className="oframe" style={{background:'var(--balsm-cream-100)'}}><div style={{padding:16,fontSize:12,color:'var(--fg3)'}}>encounter notes…</div><LoadingOverlay variant="scrim" spinner="ring" message="Saving" indeterminate/></div></div>
+            <div><div className="lbl">With progress · عربي</div><div className="oframe"><LoadingOverlay variant="cream" message="يُحمّل سجلّك" submessage="لحظات قليلة" progress={p}/></div></div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

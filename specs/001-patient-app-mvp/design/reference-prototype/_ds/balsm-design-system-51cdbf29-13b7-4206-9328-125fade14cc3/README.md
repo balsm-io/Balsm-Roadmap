@@ -262,27 +262,7 @@ The **five-petal flower mark** (`brand/logo-vertical.svg`) is the only Balsm-bes
 |---|---|
 | `README.md` | This document — canonical brand + design reference |
 | `SKILL.md` | Agent-Skill manifest — read if you are an LLM designing with Balsm |
-| `styles.css` | Root entry point — imports all token layers in order |
-| `colors_and_type.css` | Tier 1 & 2 tokens: color, type, spacing, radii, shadows, motion, responsive |
-| `component-tokens.css` | Tier 3 tokens: per-component sizing, elevation scale, density modes |
-| `adaptive.css` | Tier 4 — container-query adaptive utilities (`.cq`, `.adaptive-split/-row/-grid`, priority column-drop, `.touch-target`, RTL-safe logical helpers). §6.5 |
-| `components.css` | CSS classes for all compiled components (`.b-btn`, `.b-badge`, `.b-input`, `.b-select`, `.b-toast`) |
-| `components/Button/` | `Button.jsx` + `Button.d.ts` — primary, secondary, ghost, danger, link; sm/md/lg; loading state |
-| `components/Badge/` | `Badge.jsx` + `Badge.d.ts` — 10 clinical variants (success, warning, danger, info, controlled, expiring…) |
-| `components/Input/` | `Input.jsx` + `Input.d.ts` — text + textarea, label/hint/error, icons, RTL, all sizes |
-| `components/Select/` | `Select.jsx` + `Select.d.ts` — single dropdown, searchable, RTL |
-| `components/DatePicker/` | `DatePicker.jsx` + `DatePicker.d.ts` — calendar popover; Egypt DD/MM/YYYY; min/max range, today/clear, Mon/Sun week start; ISO value in/out; RTL (Arabic months) |
-| `components/TimePicker/` | `TimePicker.jsx` + `TimePicker.d.ts` — scrollable hour/minute (+AM/PM) columns; 12h or 24h, configurable minute step, min/max range; 24h `HH:MM` value in/out; RTL (ص/م) |
-| `components/Toast/` | `Toast.jsx` + `Toast.d.ts` — Toast, ToastContainer, addToast(), useToast() |
-| `components/Progress/` | `Progress.jsx` + `Progress.d.ts` — linear Progress + circular ProgressRing; determinate/indeterminate; semantic + petal-gradient fills; offline-sync states (syncing/paused/queued) |
-| `components/Spinner/` | `Spinner.jsx` + `Spinner.d.ts` — inline ring Spinner (semantic) + PetalSpinner (five-petal mark, slow 3.6s rotate, brand/full-screen loading) |
-| `components/Skeleton/` | `Skeleton.jsx` + `Skeleton.d.ts` — shimmer placeholders; text/title/circle/pill/card presets + multi-line |
-| `components/Steps/` | `Steps.jsx` + `Steps.d.ts` — stepper; numbered/dot, horizontal/vertical, done/active/upcoming; onboarding & dispense flows |
-| `components/ProgressButton/` | `ProgressButton.jsx` + `ProgressButton.d.ts` — button with determinate surface fill, indeterminate sheen, or inline spinner |
-| `components/TopLoadingBar/` | `TopLoadingBar.jsx` + `TopLoadingBar.d.ts` — route/page top bar; controlled value or auto-trickle on `loading`; determinate/indeterminate |
-| `components/SegmentedProgress/` | `SegmentedProgress.jsx` + `SegmentedProgress.d.ts` — multi-part meter + legend; storage / queue mix / inventory-by-status |
-| `components/LoadingOverlay/` | `LoadingOverlay.jsx` + `LoadingOverlay.d.ts` — full-screen/container loading; cream/scrim/brand; petal mark + message + optional progress |
-| `components/ProSidebar/` | `ProSidebar.jsx` + `ProSidebar.d.ts` — shared left-nav chrome for every Balsm-Pro module; brand mark, workspace switcher, grouped nav, account footer; RTL + Lucide icons |
+| `colors_and_type.css` | All CSS tokens (color, type, spacing, radii, shadows, motion) |
 | `brand/` | Logo SVG, white reverse PNG, watercolor background |
 | `uploads/baslm-brand-canvas.md` | Brand Model Canvas — mission, voice, values, positioning (canonical) |
 | `ui_kits/balsm_pharmacy/` | Pharmacy POS + admin UI kit (Slice 1) |
