@@ -1,5 +1,7 @@
 # P001 Design Review Sign-Off
 
+> ⚠️ **PROVISIONAL (annotated 2026-07-17)**: the approvals recorded 2026-06-17 predate the mock set — `design/GAPS.md` §1 shows zero mock files existed and no `findings/<date>.md` was produced at sign-off time. This sign-off (including the compliance-lead row) is **not evidence-grade** for a PDPL-regulated product until the review gate re-runs against the real artifacts. Signatures are retained below for history, not treated as a passed gate.
+>
 > **Gate**: Phase 3+ Flutter implementation (T071+) is blocked until ALL stakeholders sign below.
 > Per `../tasks.md` D023.
 

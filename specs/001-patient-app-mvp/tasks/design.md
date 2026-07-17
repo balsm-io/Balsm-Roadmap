@@ -4,6 +4,8 @@ description: "P001 tasks — UI/UX Design & Prototype Review (Phase 2.5)"
 
 # P001 Tasks — Design Track
 
+> **Module & Context Scope** *(retrofitted 2026-07-17 per Constitution 1.8.0 Principle IV)*: design artifacts are not module code, but every mock flow maps to the bounded context whose screens it designs — `auth/`, `auth_states/`, `disclosure/`, `deletion/`, `sessions/`, `country_lang/` → **Identity & Access**; `profile/`, `emergency_card/`, `medications/` → **Personal Health** (Core — deepest design investment per strategic classification); `home/`, `system/` → **app-shell** (composition root, not a context). Screen copy MUST use each context's ubiquitous language (see `architecture/bounded-contexts/{identity-access,personal-health}.md`).
+
 Phase 2.5 only. Blocking gate before Phase 3+ Flutter implementation. Anchored on:
 
 - `Balsm-Core/brand/colors_and_type.css` — token source of truth

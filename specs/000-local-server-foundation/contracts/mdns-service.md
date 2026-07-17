@@ -27,7 +27,7 @@ Clients MUST treat both instance prefixes as Balsm servers.
 
 ## Port
 
-The instance is advertised at the server's configured bind port — by default `5051` (HTTPS) per `ServerConfig.bind_https_port`. The TXT record carries the HTTP port too so older clients can fall back.
+The instance is advertised at the server's configured bind port — by default `5051` (HTTPS) per `ServerConfig.bind_https_port`. The TXT record carries the HTTP port for discovery only; the HTTP `:5050` listener serves ONLY `307 → HTTPS` redirects plus `/api/v1/health`. Clients MUST NOT send credentials, auth, or any `/admin` API call over plain HTTP — there is no cleartext fallback for the API surface.
 
 ## TXT record fields
 
@@ -39,9 +39,9 @@ The instance is advertised at the server's configured bind port — by default `
 | `mode` | Yes | `mode=Network` | Operating mode — when `Standalone`, the responder MUST NOT register the service at all |
 | `ws_name` | Post-setup | `ws_name=My%20Pharmacy` | URL-encoded workspace display name |
 | `wizard` | Pre-setup | `wizard=required` | Hints client to route to first-run wizard |
-| `http_port` | Yes | `http_port=5050` | Plain-HTTP fallback port |
+| `http_port` | Yes | `http_port=5050` | Redirect-only HTTP port (`307 → HTTPS` + `/api/v1/health`); NOT for API/credential traffic |
 | `https_port` | Yes | `https_port=5051` | HTTPS port |
-| `cert_sha256` | Yes | `cert_sha256=<base64url>` | SHA-256 fingerprint of the serving TLS cert (from `CertificateService.GetFingerprint()`); clients pin trust against this on first connection |
+| `cert_sha256` | Yes | `cert_sha256=<base64url>` | SHA-256 fingerprint of the serving TLS cert (from `CertificateService.GetFingerprint()`). **Hint only** — mDNS is unauthenticated and spoofable, so a client MUST confirm this fingerprint out-of-band (admin panel / tray / installer output) before pinning, and MUST hard-fail on a later pin change rather than silently re-learn it (defeats a rogue `_balsm._tcp` advertiser MITM). |
 
 ## Visibility timing
 

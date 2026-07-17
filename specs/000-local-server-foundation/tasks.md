@@ -21,10 +21,18 @@ mapping update first.*
 | Bounded Context | Repo | Module | Sub-module / Layer |
 |-----------------|------|--------|--------------------|
 | Entity Management (Provider plane) | Balsm-API-DotNet | src/Modules/Entity | Domain / Application / Api |
-| Identity & Access (Cross-plane) | Balsm-API-DotNet | src/Modules/Identity | Domain / Application |
-| Identity & Access (Cross-plane) | Balsm-API-DotNet | src/Balsm.Supervisor | Auth / Middleware |
-| — shared kernel / infra | Balsm-API-DotNet | src/Balsm.Infrastructure | Lifecycle / Backup / Audit / Localization |
+| Identity & Access (Cross-plane) | Balsm-API-DotNet | src/Modules/Identity | Domain (AdminUserMirror, LockoutRecord) / Application / Infrastructure |
+| Identity & Access (Cross-plane) | Balsm-API-DotNet | src/Balsm.Supervisor | Auth (incl. RecoveryCodeService) / Middleware |
+| — shared kernel / infra (sanctioned non-context value: `infrastructure`) | Balsm-API-DotNet | src/Balsm.Infrastructure | Lifecycle / Backup / Audit / Operations / Localization |
 | — admin surface | Balsm-API-DotNet | admin-ui/ | pages / components / i18n |
+
+> **Ubiquitous-language note**: the local server's own operational state
+> (config, backups, audit, migration state) lives under
+> `Balsm.Infrastructure/Operations/` (EF schema `ops`) — deliberately NOT named
+> "Platform", which canonically denotes the Platform *plane* (Balsm Cloud:
+> Balsm Network, Platform Access, Marketplace) per
+> [`architecture/bounded-contexts/README.md`](../../architecture/bounded-contexts/README.md).
+> Lockout state is Identity & Access language and lives in `Modules/Identity`.
 
 **Primary (owning) context**: Entity Management
 
@@ -55,7 +63,7 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 
 - [ ] T001 Add `Konscious.Security.Cryptography.Argon2` 1.3.1 and `NCrontab` 3.3.3 `<PackageVersion>` entries to `../Balsm-API-DotNet/Directory.Packages.props`
 - [ ] T002 [P] Add `react-i18next` ^14, `i18next` ^23, `i18next-browser-languagedetector` ^8 to `dependencies` in `../Balsm-API-DotNet/admin-ui/package.json` and run `npm install` to update lockfile
-- [ ] T003 [P] Create empty directories: `../Balsm-API-DotNet/src/Balsm.Infrastructure/Lifecycle/`, `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/`, `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/`, `../Balsm-API-DotNet/src/Balsm.Infrastructure/Platform/`, `../Balsm-API-DotNet/src/Balsm.Infrastructure/Localization/`, `../Balsm-API-DotNet/src/Balsm.Supervisor/Tray/`, `../Balsm-API-DotNet/src/Balsm.Supervisor/Cli/`, `../Balsm-API-DotNet/admin-ui/src/i18n/en/`, `../Balsm-API-DotNet/admin-ui/src/i18n/ar/`
+- [ ] T003 [P] Create empty directories: `../Balsm-API-DotNet/src/Balsm.Infrastructure/Lifecycle/`, `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/`, `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/`, `../Balsm-API-DotNet/src/Balsm.Infrastructure/Operations/`, `../Balsm-API-DotNet/src/Balsm.Infrastructure/Localization/`, `../Balsm-API-DotNet/src/Balsm.Supervisor/Tray/`, `../Balsm-API-DotNet/src/Balsm.Supervisor/Cli/`, `../Balsm-API-DotNet/admin-ui/src/i18n/en/`, `../Balsm-API-DotNet/admin-ui/src/i18n/ar/`
 - [ ] T004 [P] Reference `Konscious.Security.Cryptography.Argon2` in `../Balsm-API-DotNet/src/Balsm.Supervisor/Balsm.Supervisor.csproj` (`<PackageReference Include="Konscious.Security.Cryptography.Argon2" />`)
 - [ ] T005 [P] Reference `NCrontab` in `../Balsm-API-DotNet/src/Balsm.Infrastructure/Balsm.Infrastructure.csproj`
 
@@ -72,30 +80,31 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 - [ ] T008 [P] Create `AuditEnricherMiddleware` (`InvokeAsync` populates `AuditContext.Current` from session cookie + `HttpContext.Connection.RemoteIpAddress` + correlation id) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Middleware/AuditEnricherMiddleware.cs`
 - [ ] T009 [P] Create `MigrationGateMiddleware` (returns HTTP 503 with JSON `{ "ready": false, "reason": "<gate.Reason>" }` when `!ReadinessGate.IsReady` AND path is neither `/api/v1/health` nor `/api/v1/server-info`) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Middleware/MigrationGateMiddleware.cs`
 
-### Platform schema (config + audit + backup + migration + lockout)
+### Operations schema (config + audit + backup + migration) + Identity lockout state
 
-- [ ] T010 [P] Create `WorkspaceStatus`, `BackupTrigger`, `BackupStatus` enums in `../Balsm-API-DotNet/src/Balsm.Infrastructure/Platform/Enums.cs`
-- [ ] T011 [P] Create `ServerConfigEntry` entity (`Key`, `Value` from `BaseEntity`) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Platform/ServerConfigEntry.cs`
+- [ ] T010 [P] Create `BackupTrigger`, `BackupStatus` enums in `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/Enums.cs` (`WorkspaceStatus` is Entity-domain language — it is created with the `Workspace` aggregate in T077, NOT here)
+- [ ] T011 [P] Create `ServerConfigEntry` entity (`Key`, `Value` from `BaseEntity`) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Operations/ServerConfigEntry.cs`
 - [ ] T012 [P] Create `BackupFile` entity (`Filename`, `Path`, `SizeBytes`, `Sha256`, `Trigger`, `Status`) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/BackupFile.cs`
 - [ ] T013 [P] Create `AuditLog` entity (`Sequence`, `OccurredAt`, `Actor`, `SourceIp`, `Module`, `Action`, `TargetType`, `TargetId`, `DetailsJson`, `CorrelationId`) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/AuditLog.cs`
 - [ ] T014 [P] Create `AuditArchive` entity at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/AuditArchive.cs`
 - [ ] T015 [P] Create `MigrationStateRecord` entity at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Lifecycle/MigrationStateRecord.cs`
-- [ ] T016 [P] Create `LockoutRecord` entity at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Platform/LockoutRecord.cs`
-- [ ] T017 Create `PlatformDbContext` with `DbSet`s for the six entities above and `HasDefaultSchema("platform")` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Platform/PlatformDbContext.cs` — derive from `Balsm.Infrastructure.Data.BaseDbContext`
-- [ ] T018 [P] Create EF Core `IEntityTypeConfiguration<ServerConfigEntry>` with unique index on `Key` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Platform/Configurations/ServerConfigEntryConfiguration.cs`
+- [ ] T016 [P] Create `LockoutRecord` entity at `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Domain/LockoutRecord.cs` — lockout is Identity & Access ubiquitous language (Constitution §II), so the entity lives in the Identity module, not shared infrastructure (see data-model.md A.11)
+- [ ] T017 Create `OperationsDbContext` with `DbSet`s for the five infrastructure entities above (`ServerConfigEntry`, `BackupFile`, `AuditLog`, `AuditArchive`, `MigrationStateRecord`) and `HasDefaultSchema("ops")` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Operations/OperationsDbContext.cs` — derive from `Balsm.Infrastructure.Data.BaseDbContext` (`LockoutRecord` belongs to `IdentityDbContext`, T057)
+- [ ] T018 [P] Create EF Core `IEntityTypeConfiguration<ServerConfigEntry>` with unique index on `Key` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Operations/Configurations/ServerConfigEntryConfiguration.cs`
 - [ ] T019 [P] Create `IEntityTypeConfiguration<BackupFile>` with descending index on `CreatedAt` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/Configurations/BackupFileConfiguration.cs`
 - [ ] T020 [P] Create `IEntityTypeConfiguration<AuditLog>` with autoincrement on `Sequence` + indexes on `(OccurredAt DESC, Sequence DESC)` and `(Module, Action)` AND `HasQueryFilter(_ => true)` to disable global soft-delete filter at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/Configurations/AuditLogConfiguration.cs`
 - [ ] T021 [P] Create `IEntityTypeConfiguration<AuditArchive>` with unique index on `Filename` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/Configurations/AuditArchiveConfiguration.cs`
 - [ ] T022 [P] Create `IEntityTypeConfiguration<MigrationStateRecord>` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Lifecycle/Configurations/MigrationStateRecordConfiguration.cs`
-- [ ] T023 [P] Create `IEntityTypeConfiguration<LockoutRecord>` with unique index on `(AdminEmail, SourceIp)` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Platform/Configurations/LockoutRecordConfiguration.cs`
-- [ ] T024 Add seed-data method `SeedDefaultConfig(ModelBuilder)` covering all 13 `ServerConfig` keys (see data-model.md A.10) in `../Balsm-API-DotNet/src/Balsm.Infrastructure/Platform/PlatformSeedData.cs`; call from `PlatformDbContext.OnModelCreating`
-- [ ] T025 Generate initial EF migration `InitialPlatformSchema` for `PlatformDbContext` via `dotnet ef migrations add InitialPlatformSchema --project src/Balsm.Infrastructure --startup-project src/Balsm.API --context PlatformDbContext` (commit migration files under `../Balsm-API-DotNet/src/Balsm.Infrastructure/Migrations/Platform/`)
+- [ ] T023 [P] Create `IEntityTypeConfiguration<LockoutRecord>` with unique index on `(AdminEmail, SourceIp)` at `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Infrastructure/Data/Configurations/LockoutRecordConfiguration.cs`
+- [ ] T024 Add seed-data method `SeedDefaultConfig(ModelBuilder)` covering all 13 `ServerConfig` keys (see data-model.md A.10) in `../Balsm-API-DotNet/src/Balsm.Infrastructure/Operations/OperationsSeedData.cs`; call from `OperationsDbContext.OnModelCreating`
+- [ ] T025 Generate initial EF migration `InitialOperationsSchema` for `OperationsDbContext` via `dotnet ef migrations add InitialOperationsSchema --project src/Balsm.Infrastructure --startup-project src/Balsm.API --context OperationsDbContext` (commit migration files under `../Balsm-API-DotNet/src/Balsm.Infrastructure/Migrations/Operations/`)
 
 ### Audit pipeline
 
 - [ ] T026 Create `IAuditLogWriter` interface (`Task WriteAsync(AuditLog row, CancellationToken ct)`) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/IAuditLogWriter.cs`
-- [ ] T027 Create `AuditLogWriter` class persisting rows via injected `PlatformDbContext` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/AuditLogWriter.cs`
+- [ ] T027 Create `AuditLogWriter` class persisting rows via injected `OperationsDbContext` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/AuditLogWriter.cs`
 - [ ] T028 Create `AuditSaveChangesInterceptor` (`SavingChangesAsync` walks `ChangeTracker.Entries<BaseEntity>()`, builds an `AuditLog` per Added/Modified/IsDeleted-flipped entry, calls `IAuditLogWriter.WriteAsync`) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/AuditSaveChangesInterceptor.cs`
+- [ ] T028a Enforce audit-log immutability technically (not just by convention): in the `InitialOperationsSchema` migration (T025), add SQLite `BEFORE UPDATE` and `BEFORE DELETE` triggers on `AuditLog` that `RAISE(ABORT, 'audit log is append-only')`. The retention job (T133) is the sole authorized deleter — it runs its prune over a dedicated connection that drops+recreates these triggers around the delete batch (document the exact bracket in T133), so no ordinary application path can UPDATE/DELETE an audit row.
 
 ### Database options + PRAGMA wiring
 
@@ -109,18 +118,21 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 
 ### Dependency-injection composition root
 
-- [ ] T033 Extend `../Balsm-API-DotNet/src/Balsm.Infrastructure/DependencyInjection.cs` `AddSharedInfrastructure`: register `ReadinessGate` (singleton), `IAuditLogWriter` → `AuditLogWriter` (scoped), `AuditSaveChangesInterceptor` (scoped), `PlatformDbContext` via `AddDbContext`, and the two hosted services (`MigrationRecoveryService` then `MigrationRunner`)
+- [ ] T033 Extend `../Balsm-API-DotNet/src/Balsm.Infrastructure/DependencyInjection.cs` `AddSharedInfrastructure`: register `ReadinessGate` (singleton), `IAuditLogWriter` → `AuditLogWriter` (scoped), `AuditSaveChangesInterceptor` (scoped), `OperationsDbContext` via `AddDbContext`, and the two hosted services (`MigrationRecoveryService` then `MigrationRunner`)
 
 ### Existing-controller extensions
 
 - [ ] T034 Extend `../Balsm-API-DotNet/src/Balsm.API/Controllers/HealthController.cs` payload to include `ready`, `version`, `uptime_seconds`, optional `not_ready_reason` — reading from injected `ReadinessGate`
 - [ ] T035 Add public `string GetFingerprint()` returning `SHA-256(cert.RawData)` base64-url-encoded to `../Balsm-API-DotNet/src/Balsm.Supervisor/Security/CertificateService.cs`
-- [ ] T036 Create `../Balsm-API-DotNet/src/Balsm.API/Controllers/ServerInfoController.cs` with `[Route("api/v1/server-info")]` returning `{ version, mode, workspace_name, certificate_sha256, uptime_seconds }` — `workspace_name` lookup via MediatR `GetWorkspaceQuery` (or returns empty when no workspace yet)
+- [ ] T036 Create `../Balsm-API-DotNet/src/Balsm.API/Controllers/ServerInfoController.cs` with `[Route("api/v1/server-info")]` returning `{ version, mode, workspace_name, certificate_sha256, uptime_seconds }` — `workspace_name` lookup via MediatR `GetWorkspaceQuery` (or returns empty when no workspace yet). **When `mode == Public`** (server is internet-reachable) OMIT `workspace_name` (return null) and coarsen `version` to `major.minor` so an anonymous internet caller cannot fingerprint an exact-version healthcare server tied to a named business; return the full payload only on LAN (Standalone/Network).
 
 ### Program.cs pipeline wiring
 
 - [ ] T037 Insert `app.UseMiddleware<MigrationGateMiddleware>()` immediately after the existing `app.UseMiddleware<ExceptionHandlingMiddleware>()` line in `../Balsm-API-DotNet/src/Balsm.API/Program.cs`
 - [ ] T038 Insert `app.UseMiddleware<AuditEnricherMiddleware>()` immediately after `app.UseRouting()` in `../Balsm-API-DotNet/src/Balsm.API/Program.cs`
+- [ ] T038a Harden the HTTP↔HTTPS boundary in `../Balsm-API-DotNet/src/Balsm.API/Program.cs`: the HTTP `:5050` listener MUST serve ONLY `307 → https://<host>:5051<path>` redirects plus `/api/v1/health` — never the `/admin` or auth surface (use `UseHttpsRedirection` scoped so credentials can never transit cleartext); add HSTS (`UseHsts`, `max-age≥31536000`) on the HTTPS pipeline. (FR — closes the mDNS-advertised plaintext-fallback path.)
+- [ ] T038b CSRF + cookie hardening: (1) issue `balsm_admin_session` with `HttpOnly; Secure; SameSite=Strict; Path=/` (set in `AdminSessionService`); (2) extend `AdminAuthMiddleware` to reject (403) any state-changing (non-GET/HEAD/OPTIONS) `/api/v1/admin/*` request that lacks the header `X-Balsm-Csrf: 1` — a custom header cannot be attached by a cross-site form/simple request, so its presence is the CSRF defense. The unauthenticated whitelist endpoints (setup/login/status/recovery/use) are exempt from the header check but stay behind `RateLimitMiddleware`.
+- [ ] T038c Configure `ForwardedHeadersMiddleware` in `../Balsm-API-DotNet/src/Balsm.API/Program.cs` to trust ONLY the tunnel hop when `mode == Public` (Cloudflare `CF-Connecting-IP`); every IP-derived control (`RateLimitMiddleware` T052, `LockoutRecord` keying, audit `SourceIp`) MUST read the client IP, never the loopback proxy address — otherwise in Public mode all remote traffic collapses to one IP (lockout DoS + broken audit attribution). In Standalone/Network, forwarded headers are NOT trusted.
 
 **Checkpoint**: foundation ready. All user stories below may now proceed in parallel by different developers.
 
@@ -141,13 +153,14 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 - [ ] T041 [P] [US1] Create `Argon2idHasher` (params `memorySize=65536`, `iterations=3`, `parallelism=2`, 16-byte salt, 32-byte tag) using `Konscious.Security.Cryptography.Argon2id` at `../Balsm-API-DotNet/src/Balsm.Supervisor/Auth/Argon2idHasher.cs`
 - [ ] T042 [US1] Extend `../Balsm-API-DotNet/src/Balsm.Supervisor/Auth/AdminCredentials.cs` with five new string/DateTime fields: `PasswordHashAlgorithm` (default `"pbkdf2"` on read), `RecoveryCodeHash`, `RecoveryCodeCreatedAt`, `RecoveryCodeUsedAt`, `RecoveryCodeRetiredAt`
 - [ ] T043 [US1] Extend `../Balsm-API-DotNet/src/Balsm.Supervisor/Auth/FileCredentialStore.cs` JSON read path to default-fill the five new fields when absent; write path always emits them
+- [ ] T043a [US1] Harden `FileCredentialStore` on-disk protection (the file holds the password hash + salt + recovery-code hash + backup key): write via atomic temp-file + rename; set file mode `0600` service-user ownership on Unix and a SYSTEM+Administrators-only ACL on Windows; verify the mode/ACL at startup and log a warning + re-tighten if the file is world/group-readable.
 - [ ] T044 [US1] Refactor `../Balsm-API-DotNet/src/Balsm.Supervisor/Auth/AdminAuthService.cs` to depend on `IEnumerable<IPasswordHasher>` (keyed by `AlgorithmId`); on `LoginAsync` use the hasher matching `creds.PasswordHashAlgorithm`; on successful verify with a non-`argon2id` hasher, immediately re-hash with the Argon2id hasher and persist
 - [ ] T045 [US1] Register `Pbkdf2Hasher` + `Argon2idHasher` as `IPasswordHasher` singletons in `../Balsm-API-DotNet/src/Balsm.Supervisor/SupervisorRegistration.cs` and inject them into `AdminAuthService`
 
 ### Recovery code
 
 - [ ] T046 [P] [US1] Create `RecoveryCodeService.GenerateAsync(CancellationToken)` returning a 16-char Base32 (`A-Z2-7`) code, hashing it with Argon2id, storing hash + created-at on the loaded `AdminCredentials` at `../Balsm-API-DotNet/src/Balsm.Supervisor/Services/RecoveryCodeService.cs`
-- [ ] T047 [US1] Add `RecoveryCodeService.ConsumeAsync(string code, string newPassword)` to the same file: constant-time compare, set `RecoveryCodeUsedAt`, call `AdminAuthService.SetPasswordAsync(newPassword)`, clear lockout, return `LoginResult`
+- [ ] T047 [US1] Add `RecoveryCodeService.ConsumeAsync(string email, string code, string newPassword)` to the same file, enforcing single-use so a code cannot be replayed to reset the password repeatedly: (1) reject (return failure → 401) BEFORE any comparison when `RecoveryCodeUsedAt != null || RecoveryCodeRetiredAt != null`; (2) verify `email` matches the stored admin username; (3) constant-time compare (`CryptographicOperations.FixedTimeEquals`) the code hash; (4) in the SAME credential-file write that calls `AdminAuthService.SetPasswordAsync(newPassword)`, atomically set BOTH `RecoveryCodeUsedAt` and `RecoveryCodeRetiredAt`; (5) clear lockout; return `LoginResult`
 - [ ] T048 [US1] Register `RecoveryCodeService` as singleton in `../Balsm-API-DotNet/src/Balsm.Supervisor/SupervisorRegistration.cs`
 - [ ] T049 [US1] Add `POST /api/v1/admin/auth/recovery/use` handler to `../Balsm-API-DotNet/src/Balsm.Supervisor/Controllers/AuthController.cs`: accepts `RecoveryUseRequest`, calls `RecoveryCodeService.ConsumeAsync`, sets the `balsm_admin_session` cookie on success
 - [ ] T050 [US1] Add `POST /api/v1/admin/auth/recovery/regenerate` (cookie-auth) handler to the same `AuthController.cs` calling `RecoveryCodeService.GenerateAsync` and returning the plaintext code once
@@ -155,20 +168,21 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 
 ### Composite (email, IP) rate limit
 
-- [ ] T052 [US1] Create `RateLimitMiddleware` keyed by `(emailFromBody, RemoteIpAddress)` backed by `IMemoryCache`, with 5/15 policy mirroring `AdminAuthService` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Middleware/RateLimitMiddleware.cs`
+- [ ] T052 [US1] Create `RateLimitMiddleware` keyed by `(emailFromBody, RemoteIpAddress)`, with 5/15 policy mirroring `AdminAuthService`, at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Middleware/RateLimitMiddleware.cs` — persist trip state to the `LockoutRecord` rows in `IdentityDbContext` (resolve a scope per request; `IMemoryCache` is a read-through cache only) so lockout survives process restart per data-model.md A.11
 - [ ] T053 [US1] Insert `app.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/api/v1/admin/auth"), b => b.UseMiddleware<RateLimitMiddleware>());` before `AdminAuthMiddleware` in `../Balsm-API-DotNet/src/Balsm.API/Program.cs`
 - [ ] T054 [US1] Update the lockout response in `../Balsm-API-DotNet/src/Balsm.Supervisor/Controllers/AuthController.cs` `Login` to return HTTP 423 (not 401) when `LoginResult.IsLockedOut`
 
 ### First-run wizard extension (server)
 
-- [ ] T055 [US1] Extend `POST /api/v1/admin/auth/setup` in `../Balsm-API-DotNet/src/Balsm.Supervisor/Controllers/AuthController.cs` to: (a) call `AdminAuthService.SetupAsync`, (b) dispatch MediatR `CreateWorkspaceCommand` from the request payload (will exist after US2 T067 — temporarily stub via injected `IMediator` and return 503 if the command type is not yet registered), (c) call `RecoveryCodeService.GenerateAsync`, (d) return `FirstRunResponse` with recovery code
+- [ ] T055 [US1] Extend `POST /api/v1/admin/auth/setup` in `../Balsm-API-DotNet/src/Balsm.Supervisor/Controllers/AuthController.cs` to: (a) **anti-hijack gate** — when `Connection.RemoteIpAddress` is NOT loopback, require `FirstRunRequest.setup_token` and constant-time compare it against the one-time token generated at first run (see T055a); return 401 on missing/mismatch (loopback requests may omit it); (b) call `AdminAuthService.SetupAsync`, (c) dispatch MediatR `CreateWorkspaceCommand` from the request payload (will exist after US2 T090 — temporarily stub via injected `IMediator` and return 503 if the command type is not yet registered), (d) call `RecoveryCodeService.GenerateAsync`, (e) return `FirstRunResponse` with recovery code
+- [ ] T055a [US1] Extend `FirstRunService` (`../Balsm-API-DotNet/src/Balsm.Supervisor/Services/FirstRunService.cs`) to generate a one-time 128-bit `setup_token` at first run when no admin exists yet, persist it to `<install-dir>/var/setup.token` (`0400`/service-user-only), and surface it to the operator: print to the server console/stdout, the tray "Show setup token" item, and the installer completion output. Cleared once setup completes. Add `setup_token` (nullable string) to `FirstRunRequest`.
 
 ### Admin-user mirror (Identity module fill-in)
 
 - [ ] T056 [P] [US1] Create `AdminUserMirror` aggregate (no password material — see data-model.md A.5) at `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Domain/AdminUserMirror.cs`
-- [ ] T057 [US1] Extend `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Infrastructure/Data/IdentityDbContext.cs` with `DbSet<AdminUserMirror>` and `HasDefaultSchema("identity")`
-- [ ] T058 [P] [US1] Create `IEntityTypeConfiguration<AdminUserMirror>` with filtered unique index `IX_AdminUserMirror_Active_Single` on `Id` `HasFilter("\"IsDeleted\" = 0")` at `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Infrastructure/Data/Configurations/AdminUserMirrorConfiguration.cs`
-- [ ] T059 [US1] Generate EF migration `InitialIdentitySchema` for `IdentityDbContext` (commit migration files under `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Infrastructure/Migrations/`)
+- [ ] T057 [US1] Extend `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Infrastructure/Data/IdentityDbContext.cs` with `DbSet<AdminUserMirror>` + `DbSet<LockoutRecord>` (entity from T016) and `HasDefaultSchema("identity")`
+- [ ] T058 [P] [US1] Create `IEntityTypeConfiguration<AdminUserMirror>` at `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Infrastructure/Data/Configurations/AdminUserMirrorConfiguration.cs`. Enforce the FR-018 single-admin cap the same way the Workspace singleton is enforced (data-model A.1): add a constant discriminator column `SingletonKey` (fixed value `"AdminUser"`) and a filtered unique index `IX_AdminUserMirror_Active_Single` on `SingletonKey` `HasFilter("\"IsDeleted\" = 0")`. A filtered unique index on `Id` is a no-op (the PK is already unique) and would NOT cap active rows at 1.
+- [ ] T059 [US1] Generate EF migration `InitialIdentitySchema` for `IdentityDbContext` covering `AdminUserMirror` + `LockoutRecord` (commit migration files under `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Infrastructure/Migrations/`)
 - [ ] T060 [P] [US1] Create `IAdminUserMirrorRepository` interface (extends `IRepository<AdminUserMirror>`, adds `Task<AdminUserMirror?> GetByEmailAsync(string, CancellationToken)`) at `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Domain/Repositories/IAdminUserMirrorRepository.cs`
 - [ ] T061 [US1] Create `AdminUserMirrorRepository` deriving from `Balsm.Infrastructure.Data.BaseRepository<AdminUserMirror, IdentityDbContext>` at `../Balsm-API-DotNet/src/Modules/Identity/Balsm.Identity.Infrastructure/Repositories/AdminUserMirrorRepository.cs`
 - [ ] T062 [US1] Wire `AdminAuthService.SetupAsync` / `ChangePasswordAsync` / `LoginAsync` in `../Balsm-API-DotNet/src/Balsm.Supervisor/Auth/AdminAuthService.cs` to also insert/update the `AdminUserMirror` row via `IAdminUserMirrorRepository` (resolve from `IServiceProvider.CreateScope()` since `AdminAuthService` is singleton, mirror repo is scoped)
@@ -187,7 +201,7 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 - [ ] T072 [US1] Extend `../Balsm-API-DotNet/admin-ui/src/pages/LoginPage.tsx` to render the lockout banner on HTTP 423 (countdown until `LockedUntil`)
 - [ ] T073 [US1] Create `../Balsm-API-DotNet/admin-ui/src/pages/RecoveryPage.tsx` with form: email, recovery code, new password, confirm; POSTs `/api/v1/admin/auth/recovery/use`
 - [ ] T074 [US1] Add route `/admin/recovery` → `RecoveryPage` in `../Balsm-API-DotNet/admin-ui/src/App.tsx` and add a "Forgot password / locked out?" link on `LoginPage`
-- [ ] T075 [US1] Extend `../Balsm-API-DotNet/admin-ui/src/api.ts` with typed clients: `authSetup(req)`, `authLogin(req)`, `authLogout()`, `recoveryUse(req)`, `recoveryRegenerate()`, `getMe()`, `patchMe(req)`
+- [ ] T075 [US1] Extend `../Balsm-API-DotNet/admin-ui/src/api.ts` with typed clients: `authSetup(req)`, `authLogin(req)`, `authLogout()`, `recoveryUse(req)`, `recoveryRegenerate()`, `getMe()`, `patchMe(req)`. The shared fetch wrapper MUST send `credentials: 'same-origin'` and attach the header `X-Balsm-Csrf: 1` to every non-GET request (the CSRF token `AdminAuthMiddleware` requires per T038b).
 
 ### CLI — admin reset
 
@@ -207,11 +221,11 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 
 ### Domain layer (Entity module fill-in)
 
-- [ ] T077 [P] [US2] Create `Workspace` aggregate at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Domain/Workspace.cs` (properties per data-model A.1; constructor `private`; static factory `Workspace.Create(name, slug, locale)`; `Rename(string newName)` method)
+- [ ] T077 [P] [US2] Create `Workspace` aggregate at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Domain/Workspace.cs` (properties per data-model A.1; constructor `private`; static factory `Workspace.Create(name, slug, locale)` enforcing invariants; `Rename(string newName)` raising `WorkspaceUpdatedEvent`; `ChangeSlug(string newSlug)` validating `^[a-z0-9-]{3,40}$` and raising `WorkspaceSlugChangedEvent` — slug drives the mDNS instance name, so it is domain-significant) + `WorkspaceStatus` enum in the same directory (`WorkspaceStatus.cs`)
 - [ ] T078 [P] [US2] Create `EntityType` entity at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Domain/EntityType.cs`
 - [ ] T079 [P] [US2] Create `EntityRoot` aggregate at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Domain/EntityRoot.cs` (per data-model A.3; `Update`, `Deactivate`, `Reactivate` methods that flip `IsDeleted` / `DeletedAt`)
 - [ ] T080 [P] [US2] Create `Branch` aggregate at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Domain/Branch.cs` (per data-model A.4)
-- [ ] T081 [P] [US2] Create domain events: `WorkspaceUpdatedEvent`, `EntityCreatedEvent`, `EntityUpdatedEvent`, `EntityDeactivatedEvent`, `EntityReactivatedEvent`, `BranchCreatedEvent`, `BranchUpdatedEvent`, `BranchDeactivatedEvent`, `BranchReactivatedEvent` — one record per file under `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Domain/Events/`
+- [ ] T081 [P] [US2] Create domain events: `WorkspaceUpdatedEvent`, `WorkspaceSlugChangedEvent`, `EntityCreatedEvent`, `EntityUpdatedEvent`, `EntityDeactivatedEvent`, `EntityReactivatedEvent`, `BranchCreatedEvent`, `BranchUpdatedEvent`, `BranchDeactivatedEvent`, `BranchReactivatedEvent` — one record per file under `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Domain/Events/`; all past-tense immutable facts raised by the aggregate methods (never by handlers)
 - [ ] T082 [P] [US2] Create `IWorkspaceRepository`, `IEntityRepository`, `IBranchRepository`, `IEntityTypeRepository` interfaces in `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Domain/Repositories/`
 
 ### Infrastructure layer
@@ -228,15 +242,15 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 - [ ] T089 [P] [US2] Create `WorkspaceDto` at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Application/DTOs/WorkspaceDto.cs`
 - [ ] T090 [P] [US2] Create `CreateWorkspaceCommand : IRequest<Result<WorkspaceDto>>` + handler (checks `IWorkspaceRepository.AnyAsync` → returns `Result.Failure(Error.Conflict("Workspace.AlreadyExists"))` if exists) at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Application/Commands/CreateWorkspaceCommand.cs`
 - [ ] T091 [P] [US2] Create `CreateWorkspaceCommandValidator` (slug regex `^[a-z0-9-]{3,40}$`, name 1..100) at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Application/Validators/CreateWorkspaceCommandValidator.cs`
-- [ ] T092 [P] [US2] Create `UpdateWorkspaceCommand` + handler + validator under `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Application/`
+- [ ] T092 [P] [US2] Create `RenameWorkspaceCommand` + `ChangeWorkspaceSlugCommand` + handlers + validators under `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Application/` — intent-revealing commands whose handlers call `Workspace.Rename(...)` / `Workspace.ChangeSlug(...)` (never property-set); a locale change goes through `Workspace.Create`-style validation in a `ChangeWorkspaceLocaleCommand` if the PATCH carries it
 - [ ] T093 [P] [US2] Create `GetWorkspaceQuery : IRequest<Result<WorkspaceDto>>` + handler at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Application/Queries/GetWorkspaceQuery.cs`
 
 ### Application layer — Entity
 
 - [ ] T094 [P] [US2] Create `EntityDto` at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Application/DTOs/EntityDto.cs`
 - [ ] T095 [P] [US2] Create `CreateEntityCommand` + handler + validator under `Commands/` + `Validators/`
-- [ ] T096 [P] [US2] Create `UpdateEntityCommand` + handler + validator
-- [ ] T097 [P] [US2] Create `DeactivateEntityCommand` + handler (sets `IsDeleted=true`, `DeletedAt`)
+- [ ] T096 [P] [US2] Create `UpdateEntityCommand` + handler + validator — handler mutates via `EntityRoot.Update(...)` (raises `EntityUpdatedEvent`), never via property mapping
+- [ ] T097 [P] [US2] Create `DeactivateEntityCommand` + `ReactivateEntityCommand` + handlers — call `EntityRoot.Deactivate()` / `EntityRoot.Reactivate()` (which flip `IsDeleted`/`DeletedAt` and raise `EntityDeactivatedEvent` / `EntityReactivatedEvent`)
 - [ ] T098 [P] [US2] Create `GetEntityByIdQuery` + handler
 - [ ] T099 [P] [US2] Create `ListEntitiesQuery : IRequest<Result<PagedList<EntityDto>>>` + handler honouring `include_inactive` + paging
 
@@ -244,8 +258,8 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 
 - [ ] T100 [P] [US2] Create `BranchDto`
 - [ ] T101 [P] [US2] Create `CreateBranchCommand` + handler + validator (phone regex Egyptian +20)
-- [ ] T102 [P] [US2] Create `UpdateBranchCommand` + handler + validator
-- [ ] T103 [P] [US2] Create `DeactivateBranchCommand` + handler
+- [ ] T102 [P] [US2] Create `UpdateBranchCommand` + handler + validator — handler mutates via `Branch.Update(...)` (raises `BranchUpdatedEvent`)
+- [ ] T103 [P] [US2] Create `DeactivateBranchCommand` + `ReactivateBranchCommand` + handlers — call `Branch.Deactivate()` / `Branch.Reactivate()` (raise `BranchDeactivatedEvent` / `BranchReactivatedEvent`)
 - [ ] T104 [P] [US2] Create `ListBranchesQuery` + handler
 
 ### Application layer — EntityType
@@ -257,9 +271,9 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 ### API layer — Result mapping + controllers
 
 - [ ] T108 [US2] Create `Result` → `IActionResult` extension `ToActionResult<T>(this Result<T>)` mapping `Error.Code` prefixes (`NotFound` → 404, `Conflict` → 409, `Validation` → 422, default 400) at `../Balsm-API-DotNet/src/Balsm.API/Extensions/ResultExtensions.cs`
-- [ ] T109 [US2] Create `WorkspaceController` (`[Route("api/v1/admin/workspace")]`) at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Api/Controllers/WorkspaceController.cs` with `Get`, `Post`, `Patch` actions calling MediatR
-- [ ] T110 [US2] Create `EntitiesController` (`[Route("api/v1/admin/entities")]`) at the same module's `Controllers/` with `Get` list, `Post` create, `Get/{id}`, `Patch/{id}`, `Post/{id}/deactivate`
-- [ ] T111 [US2] Create `BranchesController` (`[Route("api/v1/admin")]`) handling `/entities/{id}/branches` GET+POST and `/branches/{id}` PATCH+DELETE-405 and `/branches/{id}/deactivate` POST
+- [ ] T109 [US2] Create `WorkspaceController` (`[Route("api/v1/admin/workspace")]`) at `../Balsm-API-DotNet/src/Modules/Entity/Balsm.Entity.Api/Controllers/WorkspaceController.cs` with `Get`, `Post`, `Patch` actions calling MediatR — `Patch` decomposes the request body into the intent-revealing commands (`RenameWorkspaceCommand` for `name`, `ChangeWorkspaceSlugCommand` for `slug`), dispatching only the commands whose fields are present
+- [ ] T110 [US2] Create `EntitiesController` (`[Route("api/v1/admin/entities")]`) at the same module's `Controllers/` with `Get` list, `Post` create, `Get/{id}`, `Patch/{id}`, `Post/{id}/deactivate`, `Post/{id}/reactivate`
+- [ ] T111 [US2] Create `BranchesController` (`[Route("api/v1/admin")]`) handling `/entities/{id}/branches` GET+POST and `/branches/{id}` PATCH+DELETE-405 and `/branches/{id}/deactivate` + `/branches/{id}/reactivate` POST
 - [ ] T112 [US2] Create `EntityTypesController` (`[Route("api/v1/admin/entity-types")]`) — GET + POST
 
 ### Wire-up + integration
@@ -277,7 +291,7 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 - [ ] T120 [US2] Extend `../Balsm-API-DotNet/admin-ui/src/api.ts` with typed clients for `workspace`, `entities`, `branches`, `entity-types`
 - [ ] T121 [US2] Add Entities link to the dashboard navigation in `../Balsm-API-DotNet/admin-ui/src/pages/DashboardPage.tsx`
 
-**Checkpoint**: workspace + entity + branch CRUD complete via API and admin SPA. Soft-delete enforced, 409 on duplicate workspace, 405 on hard-delete branch.
+**Checkpoint**: workspace + entity + branch management complete via API and admin SPA — every mutation goes through an aggregate method and raises its domain event. Soft-delete enforced, 409 on duplicate workspace, 405 on hard-delete branch.
 
 ---
 
@@ -285,7 +299,7 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 
 **Goal**: same-LAN clients discover the server by mDNS within 5 seconds of ready, with the right TXT records, and the broadcast turns off in Standalone mode.
 
-**Bounded Context / Module**: — infrastructure (no context ownership) → Balsm-API-DotNet/src/Balsm.Supervisor (MdnsService)
+**Bounded Context / Module**: — `infrastructure` (sanctioned non-context value) → Balsm-API-DotNet/src/Balsm.Supervisor (MdnsService). Local LAN discovery is infrastructure-host plumbing per [`architecture/bounded-contexts/README.md`](../../architecture/bounded-contexts/README.md) §Module → Context Mapping; Supervisor *federation/pairing/sharing-policy* features map to Balsm Network, but none of those are in Phase 0 scope.
 
 **Independent Test**: from a second device on the LAN, run `dns-sd -B _balsm._tcp` / `avahi-browse -r _balsm._tcp`; confirm `balsm-<slug>` resolves within 5 s with the expected TXT records; switch mode to Standalone, observe disappearance.
 
@@ -293,7 +307,7 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 - [ ] T123 [US3] Extend `MdnsService` TXT records: `v=1`, `srv_id=<SupervisorOptions.ServerInstanceId>`, `app_ver=<assembly version>`, `mode=<ServerStatusService.GetStatus().Mode>`, `ws_name=<url-encoded>`, `wizard=required|absent`, `http_port=5050`, `https_port=5051`, `cert_sha256=<CertificateService.GetFingerprint()>`
 - [ ] T124 [US3] In `../Balsm-API-DotNet/src/Balsm.Supervisor/Services/NetworkDiscoveryService.cs`, subscribe to `NetworkChange.NetworkAddressChanged` and invoke a new `MdnsService.RestartAsync()` to re-broadcast within 10 s of any IP change
 - [ ] T125 [US3] Add `public async Task RestartAsync(CancellationToken ct = default)` to `MdnsService.cs` — tears down `_serviceDiscovery` + `_mdns`, recreates them
-- [ ] T126 [US3] Update `../Balsm-API-DotNet/src/Balsm.Supervisor/Services/ServerStatusService.cs` `SwitchModeAsync` to: (a) write `appsettings.Production.json` (existing behaviour), (b) emit an audit log entry `Module="Mode" Action="ModeChanged"`, (c) call `IHostApplicationLifetime.StopApplication()` so systemd / launchd / Windows Service Manager auto-restart cycles the process with the new mode
+- [ ] T126 [US3] Update `../Balsm-API-DotNet/src/Balsm.Supervisor/Services/ServerStatusService.cs` `SwitchModeAsync` to: (a) **step-up re-auth when the target mode is `Public`** — require `ModeChange.current_password` and re-validate it via `AdminAuthService` before proceeding (internet-exposure is a privileged action; return 401 on missing/wrong password); (b) write `appsettings.Production.json` (existing behaviour), (c) emit an audit log entry `Module="Mode" Action="ModeChanged"`, (d) call `IHostApplicationLifetime.StopApplication()` so systemd / launchd / Windows Service Manager auto-restart cycles the process with the new mode
 
 **Checkpoint**: mDNS discovery contract from `contracts/mdns-service.md` fully observable.
 
@@ -303,28 +317,29 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 
 **Goal**: admin runs on-demand backups, schedules automatic ones with retention, and restores from a backup with the server returning 503 to non-health endpoints during the swap.
 
-**Bounded Context / Module**: — infrastructure (no context ownership) → Balsm-API-DotNet/src/Balsm.Infrastructure (Backup, Lifecycle)
+**Bounded Context / Module**: — `infrastructure` (sanctioned non-context value) → Balsm-API-DotNet/src/Balsm.Infrastructure (Backup, Lifecycle, Operations)
 
 **Independent Test**: backup, mutate DB, restore, verify mutation gone; configure schedule + retention, fast-forward, verify pruning.
 
 ### Backup core
 
-- [ ] T127 [P] [US4] Create `BackupOptions` POCO (`Directory`, `MaxConcurrentBackups = 1`) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/BackupOptions.cs`
+- [ ] T127 [P] [US4] Create `BackupOptions` POCO (`Directory`, `MaxConcurrentBackups = 1`, `EncryptAtRest = true`) at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/BackupOptions.cs`. The backup directory MUST be created `0700` / service-user-only ACL (Windows: SYSTEM+Administrators). The same directory holds audit JSONL archives, which inherit the ACL.
 - [ ] T128 [P] [US4] Create `IBackupService` interface at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/IBackupService.cs`: `Task<Result<BackupFile>> BackupNowAsync(BackupTrigger trigger, CancellationToken ct)`
-- [ ] T129 [US4] Create `SqliteOnlineBackupService` implementing `IBackupService` — opens source `SqliteConnection` against `DatabaseOptions.ConnectionString`, opens destination against `<BackupOptions.Directory>/balsm-<yyyyMMdd-HHmmss>.db`, calls `source.BackupDatabase(destination)`, computes SHA-256, writes `BackupFile` row via `PlatformDbContext` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/SqliteOnlineBackupService.cs`
+- [ ] T129 [US4] Create `SqliteOnlineBackupService` implementing `IBackupService` — opens source `SqliteConnection` against `DatabaseOptions.ConnectionString`, opens destination against `<BackupOptions.Directory>/balsm-<yyyyMMdd-HHmmss>.db`, calls `source.BackupDatabase(destination)`, computes SHA-256, writes `BackupFile` row via `OperationsDbContext` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/SqliteOnlineBackupService.cs`. **Encrypt at rest**: when `BackupOptions.EncryptAtRest`, AES-256-GCM-encrypt the finished backup file with the `backupKeyBase64` key from the credential store (data-model B) and write `.db.enc` (never leave a plaintext `.db` copy on disk); `RestoreOrchestrator` (T131) decrypts with the same key before the integrity check. If a deployment opts out, the task MUST document full-disk-encryption as a prerequisite. The backup directory is created `0700`/service-user-only.
 
 ### Backup scheduler
 
-- [ ] T130 [P] [US4] Create `BackupScheduler` `IHostedService` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/BackupScheduler.cs` — reads `server_config.backup_cron` via `PlatformDbContext`, uses `NCrontab.CrontabSchedule` to compute next fire, `Task.Delay`s to it, calls `IBackupService.BackupNowAsync(BackupTrigger.Scheduled, ...)`, then prunes per `backup_retention` (delete oldest files until count ≤ retention; never delete the most recent OK file)
+- [ ] T130 [P] [US4] Create `BackupScheduler` `IHostedService` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/BackupScheduler.cs` — reads `server_config.backup_cron` via `OperationsDbContext`, uses `NCrontab.CrontabSchedule` to compute next fire, `Task.Delay`s to it, calls `IBackupService.BackupNowAsync(BackupTrigger.Scheduled, ...)`, then prunes per `backup_retention` (delete oldest files until count ≤ retention; never delete the most recent OK file)
 
 ### Restore orchestrator
 
-- [ ] T131 [US4] Create `RestoreOrchestrator` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/RestoreOrchestrator.cs` with `Task<Result> RestoreAsync(Guid backupFileId, CancellationToken ct)`: (a) look up `BackupFile` row + verify SHA-256, (b) copy to `<install>/balsm.db.restoring`, (c) run `PRAGMA integrity_check` + `PRAGMA foreign_key_check`, (d) `ReadinessGate.SetNotReady("restore")`, (e) `File.Replace(restoringPath, livePath, livePath + ".rollback")`, (f) recreate `DbContext` scopes via `IServiceScopeFactory`, (g) emit audit `RestoreCompleted` with backup SHA-256, (h) `ReadinessGate.SetReady()`. On any failure: swap back from `.rollback`, emit `RestoreFailed`, clear gate.
+- [ ] T131 [US4] Create `RestoreOrchestrator` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Backup/RestoreOrchestrator.cs` with `Task<Result> RestoreAsync(Guid backupFileId, CancellationToken ct)`: (a) look up `BackupFile` row + verify SHA-256, (b) copy to `<install>/balsm.db.restoring`, (c) run `PRAGMA integrity_check` + `PRAGMA foreign_key_check`, (d) `ReadinessGate.SetNotReady("restore")`, (e) **preserve audit history before the swap** — the live `AuditLog` lives inside `balsm.db`, so `File.Replace` would erase every audit row recorded since the backup; export all `AuditLog` rows with `OccurredAt` newer than the backup's `CreatedAt` to a dated JSONL archive via `AuditExportSink` and register the `AuditArchive` row FIRST, (f) `File.Replace(restoringPath, livePath, livePath + ".rollback")`, (g) register the retained `.rollback` file as a `PreRestore` `BackupFile` row, (h) recreate `DbContext` scopes via `IServiceScopeFactory`, (i) emit audit `RestoreCompleted` with backup SHA-256, (j) `ReadinessGate.SetReady()`. On any failure: swap back from `.rollback`, emit `RestoreFailed`, clear gate.
 
 ### Audit retention job
 
 - [ ] T132 [P] [US4] Create `AuditExportSink` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/AuditExportSink.cs`: `Task<AuditArchive> WriteAsync(IEnumerable<AuditLog> rows, string filename, CancellationToken ct)` — JSONL serialization, fsync, SHA-256 sum, register `AuditArchive` row
-- [ ] T133 [US4] Create `AuditRetentionJob` `IHostedService` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/AuditRetentionJob.cs` — `NCrontab` schedule from `server_config.audit_retention_cron`, queries `AuditLog` older than `audit_retention_years`, writes them to a dated JSONL archive via `AuditExportSink`, then deletes from `AuditLog`
+- [ ] T133 [US4] Create `AuditRetentionJob` `IHostedService` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Audit/AuditRetentionJob.cs` — `NCrontab` schedule from `server_config.audit_retention_cron`, queries `AuditLog` older than `audit_retention_years`, writes them to a dated JSONL archive via `AuditExportSink`, then deletes from `AuditLog` over a dedicated connection that drops+recreates the append-only triggers (T028a) around the delete batch (the only authorized delete path).
+- [ ] T133a [US4] Add PDPL data-minimization pruning to `AuditRetentionJob` (or a sibling swept on the same schedule): (a) delete `LockoutRecord` rows whose `LastFailureAt` is older than 30 days; (b) delete `AuditArchive`-referenced JSONL files (and their rows) older than `audit_retention_years + 1` year so exported personal data (emails, IPs) is not retained forever after leaving the live table.
 
 ### Register hosted services
 
@@ -367,17 +382,18 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 - [ ] T152 Refactor `../Balsm-API-DotNet/src/Balsm.Supervisor/Services/CloudflareTunnelService.cs` to implement `ITunnelProvider`
 - [ ] T153 [P] Add `NullTunnelProvider` (no-op) at `../Balsm-API-DotNet/src/Balsm.Supervisor/Services/NullTunnelProvider.cs`
 - [ ] T154 Update `../Balsm-API-DotNet/src/Balsm.Supervisor/Controllers/TunnelController.cs` to depend on `ITunnelProvider`; register the impl selected by `server_config.tunnel_provider` in `SupervisorRegistration.cs`
-- [ ] T155 [P] Create `LocalCliTokenService` at `../Balsm-API-DotNet/src/Balsm.Supervisor/Services/LocalCliTokenService.cs` that writes a fresh 32-byte token to `<install-dir>/var/local-cli.token` (`chmod 0400` / equivalent ACL on Windows) at startup
-- [ ] T156 [P] Create `LocalOsTrustMiddleware` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Middleware/LocalOsTrustMiddleware.cs` that recognizes the `X-Balsm-Local-Token` header and bypasses cookie auth for loopback CLI traffic
+- [ ] T155 [P] Create `LocalCliTokenService` at `../Balsm-API-DotNet/src/Balsm.Supervisor/Services/LocalCliTokenService.cs` that writes a fresh 32-byte token to `<install-dir>/var/local-cli.token` (`chmod 0400` / equivalent ACL on Windows) at startup AND rotates it every 24 h (timer/hosted-service), not only once at process start
+- [ ] T156 [P] Create `LocalOsTrustMiddleware` at `../Balsm-API-DotNet/src/Balsm.Infrastructure/Middleware/LocalOsTrustMiddleware.cs`. It grants CLI trust ONLY when ALL hold, else it does nothing (falls through to cookie auth): (a) `HttpContext.Connection.RemoteIpAddress.IsLoopback` is true; (b) the `X-Balsm-Local-Token` header constant-time-matches (`CryptographicOperations.FixedTimeEquals`) the `local-cli.token` file contents; (c) the request path is on an explicit allowlist of read-only CLI routes matching `contracts/cli-commands.md` (`GET /admin/status`, `GET /admin/backups`, `GET /admin/audit/logs`) — privileged CLI operations (restore, mode switch, password) MUST NOT be reachable through this header and stay on the in-process OS-privilege path; (d) the request carries NO `CF-Connecting-IP` / `X-Forwarded-*` header (in Public mode the tunnel forwards internet traffic via loopback, so loopback stops being a trust signal) — presence of those headers hard-rejects the trust path
 - [ ] T157 [P] Tray surface — Windows: create `WindowsTrayHost` at `../Balsm-API-DotNet/src/Balsm.Supervisor/Tray/WindowsTrayHost.cs` (NotifyIcon, STA thread, gated by `--ui` flag)
 - [ ] T158 [P] Tray surface — macOS: create `MacOsTrayHost.cs` invoking a small Cocoa helper binary
 - [ ] T159 [P] Tray surface — Linux: create `LinuxTrayHost.cs` using `libappindicator3` via P/Invoke
-- [ ] T160 [P] Add Argon2id / lockout / recovery-code integration tests under `../Balsm-API-DotNet/tests/Balsm.Supervisor.Tests/Auth/` using real in-process SQLite (Constitution §VI)
+- [ ] T160 [P] Add Argon2id / lockout / recovery-code integration tests under `../Balsm-API-DotNet/tests/Balsm.Supervisor.Tests/Auth/` using real in-process SQLite (Constitution §VI). MUST include: (a) recovery-code **replay** rejected — a second `recovery/use` with an already-consumed code returns 401 and does NOT change the password (T047); (b) recovery `email` mismatch returns 401; (c) `/admin/auth/status` returns `admin_email: null` when unauthenticated and the real email only when authenticated (T036/AuthStatus); (d) redaction — Serilog output for `/admin/auth/{setup,login,recovery/use}` contains no password / recovery-code / recovery-code-response value (T165a).
 - [ ] T161 [P] Add Workspace/Entity/Branch integration tests under `../Balsm-API-DotNet/tests/Balsm.API.Tests/Entity/` using `WebApplicationFactory`
 - [ ] T162 [P] Add Backup/Restore/Audit integration tests under `../Balsm-API-DotNet/tests/Balsm.API.Tests/Backup/`
 - [ ] T163 [P] Add Playwright end-to-end tests for the wizard + recovery flow under `../Balsm-API-DotNet/admin-ui/tests/e2e/wizard.spec.ts`
 - [ ] T164 Run the `quickstart.md` walkthrough end-to-end on macOS, Linux, and Windows; record pass/fail per SC-001..SC-008
-- [ ] T165 Update `../Balsm-API-DotNet/CLAUDE.md` notes section to mention the new infrastructure namespaces (`Lifecycle`, `Backup`, `Audit`, `Localization`) and the file-store + SQLite mirror split
+- [ ] T165 Update `../Balsm-API-DotNet/CLAUDE.md` notes section to mention the new infrastructure namespaces (`Lifecycle`, `Backup`, `Audit`, `Operations`, `Localization`), the file-store + SQLite mirror split, and the naming rule that "Platform" is reserved for the canonical Platform plane (use `Operations` for local-server ops state)
+- [ ] T165a Configure Serilog request logging in `../Balsm-API-DotNet/src/Balsm.API/Program.cs` to NEVER capture request or response bodies for `/api/v1/admin/auth/*` (setup, login, recovery/use) — those carry passwords and one-time recovery codes; add an explicit destructuring/redaction filter and cover it with the T160(d) redaction assertion.
 
 ---
 
@@ -386,7 +402,7 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 ### Phase order
 
 - Phase 1 (Setup) → Phase 2 (Foundational) → Phases 3..6 (User Stories in parallel after Foundational) → Phase 7 (Polish).
-- Foundational must be 100% complete before any US task starts: it ships the `PlatformDbContext`, `AuditSaveChangesInterceptor`, `ReadinessGate`, `MigrationGateMiddleware`, and `AuditEnricherMiddleware` that every US task depends on.
+- Foundational must be 100% complete before any US task starts: it ships the `OperationsDbContext`, `AuditSaveChangesInterceptor`, `ReadinessGate`, `MigrationGateMiddleware`, and `AuditEnricherMiddleware` that every US task depends on.
 
 ### Within each user story
 
@@ -398,6 +414,7 @@ Endpoints cited in tasks follow [`architecture/routing-best-practices.md`](../..
 ### Cross-story dependencies
 
 - US1 T055 (first-run wizard creates workspace) consumes US2 T090 (`CreateWorkspaceCommand`). If US2 is not staffed in parallel, leave the T055 stub returning 503 until T090 lands.
+- US1 T052 (`RateLimitMiddleware` persistence) consumes T016 (`LockoutRecord`, Phase 2) + T057/T059 (`IdentityDbContext` DbSet + migration) — wire the in-memory path first if T057 has not landed.
 - US4 T131 (restore) requires Phase 2 T031 (`MigrationRunner`) + Phase 2 T009 (`MigrationGateMiddleware`).
 
 ### Parallel opportunities
@@ -427,7 +444,7 @@ Task: T077 Workspace.cs
 Task: T078 EntityType.cs
 Task: T079 EntityRoot.cs
 Task: T080 Branch.cs
-Task: T081 Events/ (nine event records)
+Task: T081 Events/ (ten event records)
 Task: T082 Repositories/ (four interfaces)
 ```
 

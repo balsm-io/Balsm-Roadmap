@@ -15,7 +15,21 @@ info:
     (`/api/v1/health`, `/api/v1/server-info`) sit outside `/admin` and are
     open by design.
 
+    Cookie + CSRF: `balsm_admin_session` MUST be set `HttpOnly; Secure;
+    SameSite=Strict; Path=/`. Because the panel is a cookie-authenticated SPA,
+    `AdminAuthMiddleware` MUST additionally require the custom header
+    `X-Balsm-Csrf: 1` on EVERY state-changing (non-GET/HEAD/OPTIONS)
+    `/api/v1/admin/*` request and reject those without it (403). A custom
+    header cannot be attached by a cross-site form/`<img>`/simple request, so
+    its presence is the CSRF defense; the SPA (`admin-ui/src/api.ts`) attaches
+    it to all mutations. The unauthenticated whitelist endpoints are exempt
+    from the cookie check but setup/recovery are additionally throttled by
+    `RateLimitMiddleware`.
+
     Default bind: HTTP `:5050`, HTTPS `:5051` (per `Balsm.API/Program.cs`).
+    HTTP `:5050` serves ONLY `307 → https://…:5051` redirects plus
+    `/api/v1/health`; it MUST NOT carry the admin/auth surface or any
+    credential. HTTPS responses carry an HSTS header.
 
     API subdomains: `local.balsm.health` resolves to the local server in LAN/Public mode;
     `api.balsm.health` is reserved for future cloud SaaS.
@@ -62,7 +76,15 @@ paths:
     get:
       tags: [Lifecycle]
       summary: Server identity + version + cert fingerprint (FR-009)
-      description: New endpoint in `Balsm.API.Controllers.ServerInfoController`; aggregates `CertificateService.GetFingerprint()` and the workspace name.
+      description: |
+        New endpoint in `Balsm.API.Controllers.ServerInfoController`;
+        aggregates `CertificateService.GetFingerprint()` and the workspace
+        name. Public by design (unauthenticated). When `mode=Public` (server
+        reachable from the internet) the response MUST omit `workspace_name`
+        (the pharmacy's identity) and coarsen `version` to `major.minor` so an
+        internet caller cannot fingerprint an exact-version healthcare server
+        tied to a named business; the full payload is returned only on LAN
+        (Standalone/Network).
       security: []
       responses:
         '200':
@@ -79,6 +101,13 @@ paths:
         MediatR `CreateWorkspaceCommand`), generates a one-time recovery code
         (new `RecoveryCodeService.GenerateAsync`), and returns the recovery
         code exactly once.
+
+        Anti-hijack: the wizard is unauthenticated, so a non-loopback caller
+        (LAN/Public — the pre-setup instance is advertised over mDNS with
+        `wizard=required`) MUST supply the one-time `setup_token` printed to
+        the server console / tray / installer output at first run. Requests
+        from `Connection.RemoteIpAddress.IsLoopback` MAY omit it. A missing or
+        wrong token from a remote origin returns 401.
       security: []
       requestBody:
         required: true
@@ -89,6 +118,7 @@ paths:
         '201':
           description: Wizard completed; recovery code returned exactly once
           content: { application/json: { schema: { $ref: '#/components/schemas/FirstRunResponse' } } }
+        '401': { description: Missing or invalid setup_token from a non-loopback origin }
         '409': { description: Wizard already completed }
         '422': { description: Validation failure }
 
@@ -134,7 +164,15 @@ paths:
     post:
       tags: [Recovery]
       summary: Use one-time recovery code to set new password + clear lockout (FR-018a)
-      description: New endpoint; added to AdminAuthMiddleware public-path whitelist.
+      description: |
+        New endpoint; added to AdminAuthMiddleware public-path whitelist and
+        fronted by `RateLimitMiddleware`. Single-use: the server MUST reject
+        (401) BEFORE any comparison when the stored `RecoveryCodeUsedAt` or
+        `RecoveryCodeRetiredAt` is already set, MUST constant-time compare the
+        code, MUST verify the request `email` matches the stored admin
+        username, and MUST set `RecoveryCodeUsedAt` + `RecoveryCodeRetiredAt`
+        atomically in the same credential-file write as the password change so
+        the code cannot be replayed to reset the password a second time.
       security: []
       requestBody:
         required: true
@@ -143,7 +181,8 @@ paths:
             schema: { $ref: '#/components/schemas/RecoveryUseRequest' }
       responses:
         '204': { description: Password reset; recovery code retired; cookie set }
-        '401': { description: Invalid or already-used code }
+        '401': { description: Invalid, already-used, or email-mismatched code }
+        '429': { description: Rate limited }
 
   /admin/auth/recovery/regenerate:
     post:
@@ -352,7 +391,13 @@ paths:
     put:
       tags: [Mode]
       summary: Switch mode; service auto-restarts within ~10 seconds (FR-013)
-      description: Existing `ControlController.SwitchMode` extended to support tunnel provider selection.
+      description: |
+        Existing `ControlController.SwitchMode` extended to support tunnel
+        provider selection. Switching the target mode to `Public` exposes the
+        server to the internet via the tunnel, so it is a step-up action: the
+        request MUST include `current_password`, which the server re-validates
+        against `AdminAuthService` before accepting the change (mirrors the
+        typed-phrase confirmation on restore).
       requestBody:
         required: true
         content:
@@ -364,6 +409,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ModeState' }
+        '401': { description: Missing or wrong current_password when switching to Public }
 
   /admin/status:
     get:
@@ -520,11 +566,11 @@ components:
 
     ServerInfo:
       type: object
-      required: [version, mode, workspace_name, certificate_sha256, uptime_seconds]
+      required: [version, mode, certificate_sha256, uptime_seconds]
       properties:
-        version: { type: string }
+        version: { type: string, description: "Full x.y.z on LAN; coarsened to major.minor when mode=Public" }
         mode: { type: string, enum: [Standalone, Network, Public] }
-        workspace_name: { type: string }
+        workspace_name: { type: string, nullable: true, description: "Omitted (null) when mode=Public" }
         certificate_sha256: { type: string }
         uptime_seconds: { type: integer }
 
@@ -546,7 +592,14 @@ components:
       properties:
         setup_complete: { type: boolean }
         authenticated: { type: boolean }
-        admin_email: { type: string, nullable: true }
+        admin_email:
+          type: string
+          nullable: true
+          description: >-
+            MUST be null unless `authenticated=true`. This endpoint is on the
+            unauthenticated whitelist, so returning the admin email to an
+            anonymous LAN/Public caller would disclose half the credential pair
+            and PDPL personal data.
 
     FirstRunRequest:
       type: object
@@ -558,6 +611,14 @@ components:
         workspace_name: { type: string }
         workspace_slug: { type: string, pattern: '^[a-z0-9-]{3,40}$' }
         locale: { type: string, enum: [en, ar] }
+        setup_token:
+          type: string
+          nullable: true
+          description: >-
+            One-time token printed to the server console / tray / installer
+            output at first run. REQUIRED when the request originates from a
+            non-loopback address (LAN/Public); MAY be omitted from a loopback
+            request. Prevents a LAN actor from claiming the admin account.
 
     FirstRunResponse:
       type: object
@@ -713,6 +774,12 @@ components:
       properties:
         mode: { type: string, enum: [Standalone, Network, Public] }
         tunnel_provider: { type: string }
+        current_password:
+          type: string
+          nullable: true
+          description: >-
+            REQUIRED when `mode=Public` (step-up re-auth for internet
+            exposure); re-validated server-side. Ignored for Standalone/Network.
 
     AdminUserMe:
       type: object

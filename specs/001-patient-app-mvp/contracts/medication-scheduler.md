@@ -52,15 +52,20 @@ A daily `zonedSchedule` at 03:00 device-local rebuilds the next 30 days of OS-na
 
 ## Notification payload
 
-Title (localized): "Time for your {medication.name}"
-Body: dose string from `medication.dose`.
+**PHI rule (binding — data-model.md §5b Q2 + FR-018)**: the visible notification MUST NOT contain the medication name, dose, schedule, or any clinical detail. Drug names appear only inside the app after unlock.
 
-Action buttons (localized; FR-021):
+Title (localized, fixed string): "Time for your medication" / «موعد دوائك».
+Body (localized, fixed string): "Open Balsm to see what's due." / «افتح بلسم لعرض المستحق».
+`medication.name` and `medication.dose` MUST NEVER appear in `title`, `body`, `subtitle`, `summary`, or any watchOS / Android Wear preview.
+
+Deep-link payload (data only, not shown on the lock screen): `meds.today?highlightDoseId=<doseId>` — routes to the Today screen with the due dose highlighted (FR-018a). When several doses collide at the same time, the payload routes to Today, which lists them behind the unlock.
+
+Action buttons (localized; FR-021) — labels are generic and MUST NOT echo the medication name:
 - `taken` → "Taken"
-- `skipped` → "Skip" (opens reason picker)
+- `skipped` → "Skip" (opens reason picker after unlock)
 - `snoozed_15m` → "Snooze 15 min"
 
-Tapping outside the action buttons opens the in-app medication detail screen.
+Tapping outside the action buttons opens the in-app Today / medication detail screen (behind the device lock).
 
 ## Reason picker (US3 #2)
 

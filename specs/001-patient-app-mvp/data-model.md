@@ -9,7 +9,7 @@ Cross-references use `[[name]]` style for related tables in the same plane; cros
 
 ---
 
-## 1. Cloud plane (Supabase Postgres — non-PHI)
+## 1. Cloud plane (PostgreSQL — non-PHI; .NET-managed since the 2026-06-17 pivot)
 
 ### 1.1 `public.user_identities` *(replaces Supabase-managed `auth.users` — 2026-06-17 pivot)*
 
@@ -41,7 +41,9 @@ Spec entities: **User Account (cloud, non-PHI)** + global-account invariants fro
 | `handle` | citext | UNIQUE, NULLABLE | FR-002 — 3–30 chars, `[a-z0-9_.]`, case-insensitive, country-agnostic. NULL until post-signup claim. |
 | `display_name` | text | NULLABLE | FR-006. |
 | `bio` | text | NULLABLE | FR-006. |
-| `date_of_birth_ciphertext` | bytea | NULLABLE | **PHI** per 2026-06-15 Path-ii clarification. Field-level encrypted via **AES-256-GCM in .NET application layer** (`DobEncryptionService`; key from `DOB_ENCRYPTION_KEY` env var, rotated annually); replaces pgcrypto pgp_sym per research §30. Decrypted on demand by .NET endpoints (`POST /auth/otp/verify` age-gate, `GET /account/self`); NEVER appears as plaintext in DB logs, replication, or backups. Captured lazily on first age-gated action. |
+| `date_of_birth_ciphertext` | bytea | NULLABLE | **PHI** per 2026-06-15 Path-ii clarification. Field-level encrypted via **AES-256-GCM in the .NET application layer** (`DobEncryptionService`); replaces pgcrypto pgp_sym per research §30. Key hierarchy: a **master key from a managed secret store** (never a committed env file), a **per-user subkey = HKDF(master, userId)**, and a **random 96-bit GCM nonce generated per encryption and stored alongside the ciphertext** (never derived from a counter — a repeated nonce under one key is catastrophic). The key/nonce NEVER enter Postgres session state, logs, replication, or backups. Decrypted on demand only where the date is needed (age-gate); `GET /account/self` reads the derived `dob_year` column instead. Captured lazily on first age-gated action. |
+| `dob_year` | smallint | NULLABLE | Derived non-PHI year-of-birth, written at DOB-set time so `GET /account/self` never decrypts on read. |
+| `dob_key_version` | smallint | NULLABLE | Version of the master key that sealed this row; lets annual key rotation proceed incrementally (rotate-on-read re-seals with the current version). |
 | `country_code` | char(2) | NOT NULL | FR-202 — ISO 3166-1 alpha-2; per-user **attribute**, not partition. |
 | `preferred_language` | text | NOT NULL | FR-205 — BCP 47 tag (`ar-EG`, `ar-SA`, `ar-AE`, `en` first-class; any other valid BCP 47 → falls back to `en` if not in catalog). |
 | `deletion_state` | text | NOT NULL DEFAULT 'ACTIVE', CHECK (deletion_state IN ('ACTIVE','DELETION_REQUESTED','DELETION_CANCELLED')) | Research §12 FSM. |
@@ -92,7 +94,9 @@ Spec entity: **Account Lockout** (FR-007 + SC-013).
 | `rolling_window_started_at` | timestamptz | NOT NULL DEFAULT now() | 10-min sliding window. |
 | `locked_until` | timestamptz | NULLABLE | Set when attempts ≥ 5; lockout = 15 min. |
 
-**Lifecycle**: incremented by `auth-attempt-record` Edge Function on every failed credential or OTP entry; consulted by `auth-gate` Edge Function before delegating to Supabase Auth.
+**Lifecycle**: incremented by the .NET auth pipeline (`OtpService` / OIDC handlers) on every failed credential or OTP entry; consulted before each verify.
+
+**Targeted-lockout DoS guard (2026-07-17)**: because a lockout keys on the victim's identifier, an attacker could submit 5 bad codes per window to keep a victim locked out. Mitigation: a failed attempt from an *unverified* source (new IP band / no prior verified session) requires passing CAPTCHA before it counts toward `failed_attempts`; verified-context failures count normally. Additionally, a lockout event MUST NOT shift a `deletion_grace_until` deadline (FR-046 interaction is capped) — otherwise the same attack manipulates deletion timing.
 
 ### 1.5 `public.username_reservation`
 
@@ -124,9 +128,11 @@ Spec entity: **Emergency QR Token** (FR-016, FR-017, FR-018, FR-034).
 | `revoked_at` | timestamptz | NULLABLE | Set on user-initiated revoke OR on new-mint (FR-018). |
 | `created_at` | timestamptz | NOT NULL DEFAULT now() | |
 
-**Lifecycle**: new mint sets `revoked_at = now()` on the user's prior active row in the same transaction. Resolve query (Edge Function): `WHERE jti = $1 AND revoked_at IS NULL AND expires_at > now()`.
+`jti` is a 128-bit CSPRNG UUIDv4 (never a timestamp-prefixed v7 — the resolve surface is public, so the id must carry no structure). See `contracts/emergency-token.md`.
 
-**Index**: `(user_id) WHERE revoked_at IS NULL AND expires_at > now()` — uniqueness-style (one active token per user, FR-018).
+**Lifecycle**: new mint sets `revoked_at = now()` on the user's prior active row in the same transaction. Resolve query (.NET resolve endpoint): `WHERE jti = $1 AND revoked_at IS NULL AND expires_at > now()`.
+
+**Index**: partial unique index `(user_id) WHERE revoked_at IS NULL` — one active token per user (FR-018). The expiry is checked in the resolve query/app layer, NOT in the index predicate: `now()` is not IMMUTABLE and cannot appear in a Postgres partial-index predicate (the earlier `... AND expires_at > now()` form is invalid — corrected in `supabase-schema.sql`).
 
 ### 1.7 `public.deletion_log`
 
@@ -206,24 +212,19 @@ Lifecycle: inserted by an `AFTER SELECT` analogue (Postgres can't trigger on SEL
 
 **Index**: `(target_user_id, read_at DESC)` — covers compliance-audit queries.
 
-### 1.13 Residency partitioning (UAE) — **NEW 2026-06-15 (Path-ii / FR-049)**
+### 1.13 Residency partitioning (UAE / FR-049) — **DESCOPED IN P001 (2026-07-17)**
 
-The cloud schema is **identical** across regions but the Supabase project that hosts a user's row depends on the user's `country_code`:
+> **Status after the 2026-06-17 .NET pivot**: the per-country residency routing described below was carried only by the removed Supabase `auth-gate` Edge Function. The .NET backend implements **no** regional connection routing — P001 runs a **single EU-region PostgreSQL**. Per-country residency (a UAE-resident database for `country_code = 'AE'`) is therefore **NOT implemented in P001**; FR-049 is formally descoped and the UAE Federal Law 2/2019 exposure is tracked as a compliance risk (RR-003 in `docs/compliance-risks.md`). Implementing it in P002 requires a residency router service (per-region Npgsql connection + signup routing in the Auth module) — it is not a client-side EU→UAE 404 fallback.
 
-- `country_code = 'AE'` → UAE-resident self-hosted Supabase project (UAE Federal Law 2/2019 Health Data Law residency).
-- All other `country_code` values → single EU-region Supabase project.
-
-Application-layer routing: at signup, `auth-gate` reads the resolved country code and routes the new account to the appropriate project. Sign-in: client tries EU first; on 404, retries against UAE. (Future P002: a residency router service replaces this client-side fallback.)
-
-Cross-region constraints in P001:
-- Username uniqueness is **NOT** federated across regions in P001 — usernames live per-project. A handle claimed in EU is unavailable to UAE users and vice-versa; collisions surface as 409 at second-claim time. P002 ships a central username service.
-- Sessions, deletion logs, audit logs, emergency-QR tokens all stay regional (no federation needed in P001).
+Original P001 intent (retained for P002 reference, NOT implemented): cloud schema identical across regions; a user's row hosted on an EU or a UAE-resident project keyed by `country_code`; username uniqueness per-project (not federated); sessions / deletion logs / audit logs / emergency-QR tokens regional.
 
 ---
 
 ## 2. On-device plane (SQLite via drift, SQLCipher-encrypted, PHI)
 
-All tables below have `id BLOB(16) PRIMARY KEY NOT NULL` populated with **UUID v7** at insert (Q4 resolution + ADR-12 + research §9). All timestamps are stored as `INTEGER` UTC milliseconds since epoch; display zone resolved per country at render time (FR-215).
+**UUID storage — normative (2026-07-17)**: EVERY UUID column across EVERY on-device PHI table below — primary keys AND foreign keys (`id`, `health_profile_id`, `medication_id`, `parent_event_id`, `user_id`, etc.) — is stored as **TEXT** in the canonical lowercase hyphenated form (e.g. `018f...-...`), populated with **UUID v7** at insert. The earlier `BLOB(16)` notation is superseded: the implemented DAOs diverged (profile wrote BLOB into TEXT-affinity columns while medications wrote TEXT — see `gaps.md` G13), which silently breaks joins and can orphan the `medication_dose_event.parent_event_id` correction chain, defeating the append-only integrity guarantee. One encoding, TEXT, everywhere; a round-trip integrity test (write → read → compare + join across tables) is required. Column-type cells below that say `BLOB(16)` mean "TEXT holding a canonical UUID v7". All timestamps are stored as `INTEGER` UTC milliseconds since epoch; display zone resolved per country at render time (FR-215).
+
+**Emergency lock-screen snapshot (opt-in)**: the `emergency_qr_local_snapshot` / native app-group copy that feeds the iOS WidgetKit widget and Android tile shows PHI (blood type, top allergies/conditions, primary contact) WITHOUT device unlock, in storage weaker than the SQLCipher DB. It is therefore **disabled by default**; enabling requires an explicit in-app opt-in that records a disclosure snapshot, and the iOS app-group container uses file protection class `.completeUntilFirstUserAuthentication`.
 
 ### 2.1 `health_profile`
 
@@ -448,22 +449,23 @@ Correction events come later via the `parent_event_id` link.
 
 ---
 
-## 5a. DDD aggregate root + domain-event mapping (per 2026-06-15 directives)
+## 5a. DDD aggregate root + domain-event mapping (per 2026-06-15 directives; module→context mapping aligned 2026-07-17 to Constitution 1.8.0)
 
-Per `contracts/module-package-boundaries.md`, every PHI-touching context owns a Dart package (named after the context, no `feature_` prefix) with an aggregate root. The on-device drift tables described above are owned exclusively by the listed module; cross-module reads go through the read-side repository interface published from the owner's `domain/repositories/` barrel.
+Per `contracts/module-package-boundaries.md`, every PHI-touching Flutter module is its own Dart package under `modules/` (named after its concern, no `feature_` prefix) with an aggregate root, and maps to exactly one canonical bounded context per `architecture/bounded-contexts/README.md` §Module → Context Mapping. The on-device drift tables described above are owned exclusively by the listed module; cross-module reads go through the read-side repository interface published from the owner's `domain/repositories/` barrel.
 
-| Owner module | Aggregate root | Internal entities | Drift tables owned | Domain events emitted on mutation |
-|---|---|---|---|---|
-| `profile` | `HealthProfile` | `Allergy`, `ChronicCondition`, `EmergencyContact` | `health_profile`, `allergy`, `chronic_condition`, `emergency_contact` | `HealthProfileUpdated` |
-| `medications` | `Medication` | append-only `DoseEvent` | `medication`, `medication_dose_event` | `MedicationAdded`, `DoseTaken`, `DoseSkipped`, `DoseSnoozed`, `DoseMissed`, `DoseCorrected` |
-| `disclosure` | `DisclosureAcceptance` | — | `disclosure_acceptance` | `DisclosureAccepted` |
-| `emergency_card` | `EmergencyCardSnapshot` + `EmergencyQrToken` | — | `emergency_qr_local_snapshot` (on-device); cloud `emergency_qr_token` accessed via cross-plane adapter | `EmergencyQrTokenMinted`, `EmergencyQrTokenRevoked` |
-| `auth` | `AuthSession` | — | (cloud `auth.users` + `account_lockout` via Edge Function) | `UserSignedUp`, `UserSignedIn`, `UserSignedOut`, `LockoutTriggered` |
-| `sessions` | `ActiveSession` | — | (cloud `active_session`) | `SessionRevoked` |
-| `account` | (no aggregate — value-object only on `CountryCode`, `Bcp47Tag`) | — | (cloud `user_account.country_code` + `preferred_language` only) | `CountryChanged`, `LanguageChanged` |
-| `deletion` | `DeletionRequest` | — | (cloud `user_account.deletion_state` + `deletion_log`) | `DeletionRequested`, `DeletionCancelled`, `DeletionPurged` |
-| `geofence_block` | (read-only) | — | (cloud `denied_country_blocklist`) | `BlockedSignupAttempted` |
-| `home` | (orchestration only) | — | (none) | (consumer of cross-module events) |
+| Owner module | Bounded context | Aggregate root | Internal entities | Drift tables owned | Domain events emitted on mutation |
+|---|---|---|---|---|---|
+| `profile` | Personal Health (**Core**) | `HealthProfile` | `Allergy`, `ChronicCondition`, `EmergencyContact` | `health_profile`, `allergy`, `chronic_condition`, `emergency_contact` | `HealthProfileUpdated` |
+| `medications` | Personal Health (**Core**) | `Medication` | append-only `DoseEvent` | `medication`, `medication_dose_event` | `MedicationAdded`, `DoseTaken`, `DoseSkipped`, `DoseSnoozed`, `DoseMissed`, `DoseCorrected` |
+| `disclosure` | Identity & Access | `DisclosureAcceptance` | — | `disclosure_acceptance` | `DisclosureAccepted` |
+| `emergency_card` | Personal Health (**Core**) | `EmergencyCardSnapshot` + `EmergencyQrToken` | — | `emergency_qr_local_snapshot` (on-device); cloud `emergency_qr_token` accessed via cross-plane adapter | `EmergencyQrTokenMinted`, `EmergencyQrTokenRevoked` |
+| `auth` | Identity & Access | `AuthSession` | — | (cloud `user_identities` + `account_lockout` via `Balsm.Modules.Auth` — .NET API since the 2026-06-17 pivot) | `UserSignedUp`, `UserSignedIn`, `UserSignedOut`, `LockoutTriggered` |
+| `sessions` | Identity & Access | `ActiveSession` | — | (cloud `active_session`) | `SessionRevoked` |
+| `account` | Identity & Access | (no aggregate — value-object only on `CountryCode`, `Bcp47Tag`) | — | (cloud `user_account.country_code` + `preferred_language` only) | `CountryChanged`, `LanguageChanged` |
+| `deletion` | Identity & Access | `DeletionRequest` | — | (cloud `user_account.deletion_state` + `deletion_log`) | `DeletionRequested`, `DeletionCancelled`, `DeletionPurged` |
+| `geofence_block` | Identity & Access | (read-only) | — | (cloud `denied_country_blocklist`) | `BlockedSignupAttempted` |
+
+> The former `home` module (orchestration-only, no aggregate, no tables) was folded into `app/` (app-shell) on 2026-07-11 — cross-module event consumption is composition-root wiring, not a context.
 
 **Invariants enforced inside aggregates** (not in DB):
 

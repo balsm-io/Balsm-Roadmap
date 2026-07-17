@@ -4,6 +4,8 @@ description: "P001 UI tasks — Flutter widget + screen implementation. Self-con
 
 # P001 Tasks — Flutter UI Track (Cheaper-Model Edition)
 
+> ⚠️ **SUPERSEDED (2026-07-17).** This file is an alternate UI decomposition that was never executed at these paths. Its capability is delivered by the executed BalsmKit T-track (`core/kit/_tokens.dart` = `BalsmColors`, `theme.dart`, `kit/widgets/balsm_*.dart`, `shared_widgets.dart`) + the module screens in `tasks/flutter.md`. Its structure also predates the 2026-07-11 bounded-context amendment: P001 domain modules live under `modules/` (not `packages/`), and `home` was folded into `app/` (app-shell) — the tree below is historical. Do NOT execute UI001–UI054 from this file; UI055 (app-wide `flutter analyze` gate) was met via the T-track. Kept for traceability only.
+
 **Design source**: Derived from `design/MASTER.md` + all `design/pages/*.md` (values inlined below — implementor does NOT need to read those files).
 
 **Flutter project root**: `../balsm_app_flutter/` (relative to this file = `balsm_app_flutter/` sibling to `Balsm-Core/`).

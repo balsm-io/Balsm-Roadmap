@@ -1,6 +1,21 @@
--- Patient App MVP (P001) — Supabase Postgres schema (non-PHI only)
--- All clinical PHI lives on-device per ADR-10 + ADR-11; this file MUST NOT add any PHI column.
--- Per Q2 resolution 2026-06-14: single EU region; per Q4 resolution: PHI tables (on-device) use UUID v7, cloud tables use gen_random_uuid() except auth.users.
+-- Patient App MVP (P001) — Postgres schema (non-PHI only)
+--
+-- ⚠️ SUPERSEDED (2026-06-17 .NET pivot; annotated 2026-07-17): the schema
+--    source of truth is now the EF Core migrations in Balsm-API-DotNet. This
+--    file is retained for historical reference only. Known-stale points:
+--      * `id uuid REFERENCES auth.users(id)` — the Supabase-managed auth.users
+--        table was removed in the pivot; identities live in `user_identities`.
+--      * pgp_sym DOB encryption with `current_setting('app.dob_key')` — replaced
+--        by AES-256-GCM at the .NET layer; the DOB key NEVER enters Postgres
+--        session state or statement logs. See DobEncryptionService + data-model §1.2.
+--      * Missing tables: `user_identities`, `user_refresh_token`.
+--      * The one-active-token index below uses a non-IMMUTABLE `now()` predicate
+--        (invalid in Postgres) — enforce the invariant in the app layer instead.
+--
+-- Non-PHI only. The ONE documented exception is `date_of_birth_ciphertext`
+-- (classified PHI per 2026-06-15 Path-ii / FR-047), stored as ciphertext the
+-- cloud cannot decrypt; no other PHI column may be added here.
+-- Per Q2 resolution 2026-06-14: single EU region; per Q4 resolution: PHI tables (on-device) use UUID v7, cloud tables use gen_random_uuid().
 
 -- =============================================================================
 -- Extensions
@@ -120,9 +135,14 @@ CREATE TABLE public.emergency_qr_token (
 
 CREATE INDEX emergency_qr_token_resolve_idx
   ON public.emergency_qr_token (jti, revoked_at, expires_at);
+-- NOTE (2026-07-17): the original predicate `WHERE revoked_at IS NULL AND
+-- expires_at > now()` is INVALID — `now()` is not IMMUTABLE and cannot appear
+-- in an index predicate. The one-active-token invariant is enforced with a
+-- partial index on non-revoked rows plus expiry checked in the query/app layer
+-- (mint revokes the prior active row in the same transaction).
 CREATE UNIQUE INDEX emergency_qr_token_one_active_per_user
   ON public.emergency_qr_token (user_id)
-  WHERE revoked_at IS NULL AND expires_at > now();
+  WHERE revoked_at IS NULL;
 
 -- =============================================================================
 -- public.deletion_log
@@ -193,10 +213,14 @@ CREATE INDEX user_account_audit_log_target_idx
   ON public.user_account_audit_log (target_user_id, read_at DESC);
 
 -- =============================================================================
--- Encryption key bootstrap (Path-ii FR-047)
+-- Encryption key bootstrap (Path-ii FR-047) — REMOVED 2026-07-17
 -- =============================================================================
-
--- Server-side symmetric key for date_of_birth_ciphertext lives in Supabase secrets
--- (env var DOB_ENCRYPTION_KEY). Rotated annually. Edge Functions decrypt on demand:
---   SELECT pgp_sym_decrypt(date_of_birth_ciphertext, current_setting('app.dob_key'))
--- Direct SELECT from the client returns the ciphertext bytea; client cannot decrypt.
+--
+-- The prior pgp_sym_decrypt(..., current_setting('app.dob_key')) pattern is
+-- DELETED: passing the DOB key through a Postgres session GUC exposes it in
+-- session state and statement logs — an unacceptable placement for a PHI key.
+-- Post-pivot, `date_of_birth_ciphertext` is AES-256-GCM sealed and unsealed
+-- ONLY at the .NET layer by DobEncryptionService (master key from the secret
+-- manager, per-user HKDF subkey, per-row dob_key_version). The key NEVER enters
+-- Postgres. Direct SELECT of the ciphertext bytea remains undecryptable client-side.
+-- See data-model.md §1.2.

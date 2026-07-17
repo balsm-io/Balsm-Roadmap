@@ -50,14 +50,14 @@ Built from `packaging/linux/build-deb.sh`; installs and enables `balsm-api.servi
 - Installer completion dialog shows the admin panel URL `https://localhost:5051/admin`.
 - Tray / menu-bar icon present and reports "Running".
 - `balsm status` from a new shell prints `up`, version, mode `Standalone`, uptime.
-- `curl -k https://localhost:5051/api/v1/health` returns `{"status":"up","ready":true,"version":"…","uptime_seconds":…}`.
-- `curl -k https://localhost:5051/api/v1/server-info` returns version, mode `Standalone`, empty workspace_name (wizard pending), and the cert SHA-256.
+- On loopback the self-signed cert is expected; verify its fingerprint against the value the installer/tray/`balsm status` printed to the server console (a trusted local source) — do NOT trust a fingerprint fetched over the same unverified TLS connection. Then `curl --cacert <server-cert.pem> https://localhost:5051/api/v1/health` returns `{"status":"up","ready":true,"version":"…","uptime_seconds":…}`.
+- `curl --cacert <server-cert.pem> https://localhost:5051/api/v1/server-info` returns version, mode `Standalone`, empty workspace_name (wizard pending), and the cert SHA-256. (`-k`/`--insecure` skips verification and is acceptable only for a throwaway smoke check, never for pinning trust.)
 
 ---
 
 ## Step 2 — First-run wizard
 
-1. Open `https://localhost:5051/admin` in a browser (accept the self-signed cert — fingerprint matches `/api/v1/server-info`).
+1. Open `https://localhost:5051/admin` in a browser. Accept the self-signed cert only after confirming its fingerprint matches the one the installer / tray / `balsm status` printed on the server console (trusted local source) — not one re-fetched over the same unverified connection.
 2. The wizard is the only accessible UI (FR-004 via existing `AdminSetupRedirectMiddleware`). `FirstRunService` opens the browser automatically on first launch.
 3. Pick a locale (English or العربية) — RTL applies immediately on selection.
 4. Create the admin account: email, display name, password (≥12 chars).

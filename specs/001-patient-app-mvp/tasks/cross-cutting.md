@@ -4,6 +4,8 @@ description: "P001 tasks — cross-cutting (no single project)"
 
 # P001 Tasks — Cross-Cutting Track
 
+> **Module & Context Scope** *(retrofitted 2026-07-17 per Constitution 1.8.0 Principle IV)*: cross-cutting by nature — tasks here touch multiple contexts (Identity & Access, Personal Health) or none (docs, verification). None may introduce cross-context coupling: docs/runbooks describe per-context behavior through published language only.
+
 Filtered from `../tasks.md`. Tasks without a single project label (touch multiple repos or pure verification).
 
 ## Phase 1.7: Patient App-aligned absorption — Q1-Q5 (Session 2026-06-17)
