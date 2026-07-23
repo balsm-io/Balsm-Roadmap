@@ -84,6 +84,8 @@ On-device PHI stores round-trip correctly, DOB encryption is rotation-safe with 
 2. **Given** a DOB set twice, **When** encrypted, **Then** each ciphertext carries a distinct random 96-bit nonce (never counter-derived) and a `dob_key_version` enabling incremental rotation.
 3. **Given** the P001 single-EU-region deployment, **When** an auditor reviews FR-049, **Then** the descope and residual-blob risks are recorded (RR-003/RR-004) and the superseded Postgres schema no longer prescribes a Postgres-session DOB key.
 
+> **Scope note (dependants forward-compat, non-security)**: the US5 PHI-table pass also added a nullable `health_profile_id` column (+ index, convergent backfill) to `medications` and `health_record`, anchoring them to `health_profile` like the other PHI tables. This is schema-only forward-compat for the dependants feature (P00X); no query filters on it and no behavior changes until that spec. Done here solely to avoid a second data migration over encrypted PHI tables later.
+
 ### User Story 6 - Residual defense-in-depth hardening (Priority: P3)
 
 Remaining LOW-severity gaps are closed: on-device key protection class, OTP pepper, public-endpoint rate limits + no-store, ciphertext size caps, web-build surface scoping, and secrets loaded from a managed store.
