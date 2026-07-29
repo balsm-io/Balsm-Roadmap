@@ -84,3 +84,12 @@
 Performance is a first-class requirement in every repo. Targets, tooling, and
 platform-specific rules (EF Core, Flutter frame budget, web vitals) live in
 the per-project standards files.
+
+## 10. Formatting & Commit Hygiene
+
+- **auto-format the whole tree before every commit** — never hand-reflow lines or mix manual whitespace edits into a feature diff. Each repo pins ONE canonical formatter at its default width (do not invent a custom `line-length`/`page_width`):
+  - Dart/Flutter → `dart format .` (dart default 80 cols; no `page_width` override)
+  - C#/.NET → `dotnet format`
+  - TS/JS → the repo's Prettier config
+- **a `pre-commit` hook enforces it** — the hook runs the formatter in check mode (`--set-exit-if-changed` for dart) over staged files and blocks the commit on any drift. Ship it in a versioned hooks dir and enable per clone with `git config core.hooksPath .githooks`; CI runs the same check.
+- **keep pure-format commits separate** from semantic changes so review stays legible, and tag them `[skip-docs]` (mechanical → no doc impact).
