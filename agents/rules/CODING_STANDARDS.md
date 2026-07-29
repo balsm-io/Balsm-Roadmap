@@ -87,8 +87,8 @@ the per-project standards files.
 
 ## 10. Formatting & Commit Hygiene
 
-- **auto-format the whole tree before every commit** — never hand-reflow lines or mix manual whitespace edits into a feature diff. Each repo pins ONE canonical formatter at its default width (do not invent a custom `line-length`/`page_width`):
-  - Dart/Flutter → `dart format .` (dart default 80 cols; no `page_width` override)
+- **auto-format the whole tree before every commit** — never hand-reflow lines or mix manual whitespace edits into a feature diff. Each repo pins ONE canonical formatter + width in committed config; per-file overrides are never allowed:
+  - Dart/Flutter → `dart format .`; width pinned by `formatter: page_width: 120` in `analysis_options.yaml`
   - C#/.NET → `dotnet format`
   - TS/JS → the repo's Prettier config
 - **a `pre-commit` hook enforces it** — the hook runs the formatter in check mode (`--set-exit-if-changed` for dart) over staged files and blocks the commit on any drift. Ship it in a versioned hooks dir and enable per clone with `git config core.hooksPath .githooks`; CI runs the same check.
