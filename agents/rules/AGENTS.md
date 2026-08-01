@@ -12,12 +12,12 @@ Balsm is a healthcare platform consisting of multiple repositories:
 |------|-------|-------------|
 | `Balsm-Core` | Markdown | Product roadmap, phased delivery plans, business features, and AI governance docs |
 | `Balsm-API-DotNet` | .NET (C#) | Backend API — modular monolith with clean architecture and DDD |
-| `balsm_app_flutter` | Flutter (Dart) | Cross-platform mobile/desktop client application |
+| `balsm_app` | Flutter (Dart) | Cross-platform mobile/desktop client application |
 | `website` | Web | Marketing and public-facing website |
 
 ### P001 Patient App MVP — architecture notes
 
-- **Backend is .NET 10 (ASP.NET Core + EF Core 10 + Npgsql/PostgreSQL).** There is **no Supabase** — the 2026-06-17 pivot removed it. Auth is custom JWT (HS256, 15-min access / 30-day refresh) + email OTP + Google/Apple OIDC. Cloud DB holds non-PHI only; PHI lives on-device (SQLite/SQLCipher via drift). `date_of_birth` is the one cloud PHI field — AES-256-GCM at the .NET application layer, audited on every write (FR-048).
+- **Backend is .NET 10 (ASP.NET Core + EF Core 10 + Npgsql/PostgreSQL).** There is **no Supabase** — the 2026-06-17 pivot removed it. Auth is custom JWT (HS256, 15-min access / 30-day refresh) + password + Google/Apple OIDC; email OTP is used only for registration and password reset (email-OTP login was removed to conserve email quota — 2026-08-02). Cloud DB holds non-PHI only; PHI lives on-device (SQLite/SQLCipher via drift). `date_of_birth` is the one cloud PHI field — AES-256-GCM at the .NET application layer, audited on every write (FR-048).
 - **Backend layout**: `Balsm.API` + 7 modules (`Auth`, `Account`, `EmergencyQr`, `Deletion`, `Sessions`, `Disclosure`, plus shared) over `Balsm.Infrastructure`/`Balsm.SharedKernel`. Handlers that touch a DbContext live in `*.Infrastructure` (not `*.Application`) to avoid circular project deps.
 - **Flutter** is a **melos monorepo: 13 packages** — `core` shared kernel + `balsm_api` API-contract package + 10 DDD module packages (`auth`, `disclosure`, `home`, `account`, `profile`, `emergency_card`, `medications`, `sessions`, `deletion`, `geofence_block`) + `balsm_boundary_lint` + runnable `app` shell. Modules depend only on `core` and `balsm_api` (boundary lint's module list stays module-only, so both are importable). The client talks to the .NET API exclusively through `packages/balsm_api` — abstract per-area interfaces (`AuthApi`, `SessionsApi`, …) + dio implementations + hand-written DTOs, wired via core `Provider<XxxApi>`s; raw `dio` never appears in feature modules. Never Supabase.
 - **Build flavors**: `dev` / `staging` / `prod` (`main_<flavor>.dart` + `--dart-define-from-file=env/<flavor>.json`, key `API_BASE_URL`). Dev flavor enables the in-app server selector.
