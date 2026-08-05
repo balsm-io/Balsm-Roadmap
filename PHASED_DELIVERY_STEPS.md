@@ -36,7 +36,7 @@ This document outlines the essential steps and deliverables for the Balsm MVP an
 - Address role-based view switching
 
 ## 6. Project Scaffolding
-- Establish initial structure for Balsm-API-DotNet and balsm_app_flutter
+- Establish initial structure for Balsm-API-DotNet and balsm_app
 - Ensure modular monolith architecture alignment
 - Set up folder structure, build scripts, and CI/CD basics
 

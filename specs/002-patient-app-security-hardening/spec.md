@@ -3,7 +3,7 @@
 **Feature Branch**: `002-patient-app-security-hardening`
 **Created**: 2026-07-17
 **Status**: Draft
-**Input**: Remediation of the 2026-07-17 security review of the P001 patient-app spec set. The review produced 1 CRITICAL, 11 HIGH, 15 MEDIUM, 10 LOW findings against `specs/001-patient-app-mvp/`. This feature turns those findings into implemented changes in the **already-built** P001 code: `../balsm_app_flutter/` (Flutter) and `../Balsm-API-DotNet/` (.NET patient API).
+**Input**: Remediation of the 2026-07-17 security review of the P001 patient-app spec set. The review produced 1 CRITICAL, 11 HIGH, 15 MEDIUM, 10 LOW findings against `specs/001-patient-app-mvp/`. This feature turns those findings into implemented changes in the **already-built** P001 code: `../balsm_app/` (Flutter) and `../Balsm-API-DotNet/` (.NET patient API).
 
 > **Why a new feature and not an edit to 001**: P001's tasks are largely `[x]` (implemented). In SpecKit, a change reaches code only as an *unchecked* task; rewording a done task does not re-trigger it. This feature isolates the security deltas as their own spec → plan → tasks → implement cycle against existing code, keeping P001 intact and giving the change-set its own compliance checklist + analyze gate. The corrected P001 contracts/data-model (committed on the 001 branch) are the design baseline; the `SEC-D01–09` (dotnet) and `SEC-F01–10` (flutter) task stubs appended to `001/tasks/{dotnet,flutter}.md` are the seed for this feature's `tasks.md`.
 
@@ -186,7 +186,7 @@ Residual hardening (US6):
 
 ## Assumptions
 
-- The P001 code in `../balsm_app_flutter/` and `../Balsm-API-DotNet/` is the implementation target; this feature edits existing code rather than greenfield.
+- The P001 code in `../balsm_app/` and `../Balsm-API-DotNet/` is the implementation target; this feature edits existing code rather than greenfield.
 - The corrected P001 contracts + data-model (committed on the `001-patient-app-mvp` branch) are the authoritative design baseline; where this spec and those artifacts agree, the artifacts are canonical.
 - The `SEC-D01–09` and `SEC-F01–10` task stubs in `001/tasks/{dotnet,flutter}.md` seed this feature's `tasks.md` and are superseded by it once `/speckit.tasks` runs.
 - A managed secret store (KMS / platform secret facility) is available in staging/prod for FR-054; local dev may use an untracked file.

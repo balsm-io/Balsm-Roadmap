@@ -22,7 +22,7 @@ This section contains technical documentation for developers working on or integ
 ### Repositories
 
 - [Balsm-API-DotNet](https://github.com/balsm-health/Balsm-API-DotNet) - Backend API (.NET)
-- [balsm_app_flutter](https://github.com/balsm-health/balsm_app_flutter) - Mobile app (Flutter)
+- [balsm_app](https://github.com/balsm-health/balsm_app) - Mobile app (Flutter)
 - [website](https://github.com/balsm-health/website) - Marketing website
 - [Balsm-Core](https://github.com/balsm-health/Balsm-Core) - Product roadmap
 

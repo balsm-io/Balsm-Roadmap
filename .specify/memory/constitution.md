@@ -50,7 +50,7 @@
   Surfaces) added, plus materially expanded guidance in Principles II, IV, VI,
   X, XII, XIII, the Technology Stack, and the Development Workflow, derived
   from a full survey of every sibling repository in the workspace
-  (Balsm-API-DotNet, balsm_app_flutter, website, docs, Balsm-AI, supabase,
+  (Balsm-API-DotNet, balsm_app, website, docs, Balsm-AI, supabase,
   OpenWA, Balsm-Draft, db_benchmark, root workspace meta). No principle
   weakened or removed; LOCKED Principle I (Patient Safety First) untouched.
 
@@ -107,7 +107,7 @@
     - Publish the implemented-module → bounded-context mapping for
       Balsm-API-DotNet (Account, Auth, Customer, Deletion, Disclosure,
       EmergencyQr, Entity, Geofence, Identity, Inventory, POS, Prescription,
-      Sessions) and balsm_app_flutter modules
+      Sessions) and balsm_app modules
     - website still depends on supabase-js despite the 2026-06-17 backend
       pivot note in docs — verify and reconcile
 -->
@@ -399,7 +399,7 @@ Code without tests for new business logic MUST NOT be submitted.
     100%; Infrastructure + Api ≥90% line / ≥80% branch; overall ≥95% line —
     plus the quality-bar checks (async-only, no-PHI-in-logs, `Result<T>` on
     handlers)
-  - Flutter (`balsm_app_flutter`): `balsm_boundary_lint` module-boundary rules
+  - Flutter (`balsm_app`): `balsm_boundary_lint` module-boundary rules
     (no module→module imports, core never depends on modules, domain never
     imports Flutter, no aggregate leak into presentation, no test_kit in
     release), PHI-leak fuzz tests, translation-completeness tests, and golden
@@ -481,7 +481,7 @@ database schemas, documentation, and UI.
   expected and acceptable; do not force a single shared definition across
   contexts, translate at the boundary instead (see Principle IV)
 - Naming MUST be consistent across all repositories: Balsm-API-DotNet,
-  balsm_app_flutter, website, Balsm-Core, and docs
+  balsm_app, website, Balsm-Core, and docs
 - .NET naming follows: `Create{Entity}Command`, `Get{Entity}ByIdQuery`,
   `{Entity}{Action}Event`, `I{Entity}Repository`, `{Entity}Dto`
 - Flutter naming follows: `{Feature}{Purpose}Widget`, `{Feature}Screen`,
@@ -549,13 +549,13 @@ Balsm is an open-source health-tech ecosystem. Open-source is a foundational
 commitment — not a marketing badge.
 
 - **License**: All core repositories (Balsm-Core, Balsm-API-DotNet,
-  balsm_app_flutter, website, docs) MUST be released under AGPL-3.0-or-later.
+  balsm_app, website, docs) MUST be released under AGPL-3.0-or-later.
   License downgrades, re-licensing, or proprietary forks are forbidden without
   a constitutional amendment
 - **License registry** — the per-repo license reality MUST be tracked and kept
   reconciled with this principle:
   - Currently AGPL-3.0-or-later: Balsm-Core, Balsm-API-DotNet,
-    balsm_app_flutter
+    balsm_app
   - Known divergences requiring reconciliation (explicit amendment or
     relicense): website ships AGPL **plus a Balsm Anti-White-Label/SaaS
     addendum** (the addendum's restrictions are not OSI-open); docs is
@@ -605,7 +605,7 @@ project directory first, and pulling from the git remote only as a fallback.
   - **Backend — `Balsm-API-DotNet`** (.NET modular monolith): `AGENTS.md`,
     `CLAUDE.md`, `.cursor/rules/*.mdc`, and the project-scoped `dotnet-skills`
     plugin
-  - **Flutter apps — `balsm_app_flutter`** (Balsm, Balsm Pro, Balsm Connect):
+  - **Flutter apps — `balsm_app`** (Balsm, Balsm Pro, Balsm Connect):
     `AGENTS.md`, `CLAUDE.md`, and the `flutter-*` skills in `.claude/skills/`
   - **Website — `website`** (Next.js): `AGENTS.md`, `.cursorrules`, and the
     `impeccable` skill
@@ -633,7 +633,7 @@ project directory first, and pulling from the git remote only as a fallback.
     non-governing, but storage-engine decisions MUST cite its findings
 - **Local working directory is the source of truth** — the sibling repos are
   checked out locally alongside `Balsm-Core` (e.g. `../Balsm-API-DotNet`,
-  `../balsm_app_flutter`, `../website`). Planning MUST read each affected repo's
+  `../balsm_app`, `../website`). Planning MUST read each affected repo's
   rules and skills from its **local relative project directory first**; the
   local working tree (including uncommitted local edits) takes priority over any
   git remote, because it reflects what is actually being built here and now

@@ -22,9 +22,9 @@ three data-ownership planes) and `architecture/bounded-contexts/` canvases
 
 | Bounded Context | Plane (ADR-10) | Repo | Module | Sub-module / Layer | New/Existing |
 |-----------------|----------------|------|--------|--------------------|--------------|
-| Personal Health | Consumer | balsm_app_flutter | modules/profile | domain (HealthProfile aggregate) + PHI drift tables | New |
-| Personal Health | Consumer | balsm_app_flutter | modules/medications | domain (Medication aggregate, DoseEvent append-only) + scheduler | New |
-| Personal Health | Consumer | balsm_app_flutter | modules/emergency_card | domain (EmergencyCardSnapshot) + WidgetKit / QuickSettings | New |
+| Personal Health | Consumer | balsm_app | modules/profile | domain (HealthProfile aggregate) + PHI drift tables | New |
+| Personal Health | Consumer | balsm_app | modules/medications | domain (Medication aggregate, DoseEvent append-only) + scheduler | New |
+| Personal Health | Consumer | balsm_app | modules/emergency_card | domain (EmergencyCardSnapshot) + WidgetKit / QuickSettings | New |
 | Personal Health | Consumer | Balsm-Core (backend `src/`) | Modules/EmergencyQr | Commands / Queries / Infrastructure (token surface only — zero PHI) | New |
 | Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Auth | Commands / Domain (AuthSession, AccountLockout) / Infrastructure | New |
 | Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Account | Commands / Queries / Domain / Infrastructure | New |
@@ -32,9 +32,9 @@ three data-ownership planes) and `architecture/bounded-contexts/` canvases
 | Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Deletion | FSM ACTIVE → DELETION_REQUESTED → purge | New |
 | Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Disclosure | cloud mirror of disclosure_acceptance | New |
 | Identity & Access | Cross-plane | Balsm-Core (backend `src/`) | Modules/Geofence | denied_country_blocklist read-side | New |
-| Identity & Access | Cross-plane | balsm_app_flutter | modules/auth, sessions, account, deletion, disclosure, geofence_block | application/use_cases + presentation per module | New |
-| — (shared kernel, no context ownership) | — | Balsm-Core / balsm_app_flutter | Balsm.SharedKernel, Balsm.Infrastructure; packages/core, app shell, home (orchestration), balsm_boundary_lint (tooling) | value objects (UuidV7, CountryCode, Bcp47Tag), http/db/backup infra | New |
-| — (published language, no context ownership) | — | balsm_app_flutter | packages/balsm_api | typed API contracts + DTOs (pure Dart) — the client-side published language / ACL for the cloud API surface | New |
+| Identity & Access | Cross-plane | balsm_app | modules/auth, sessions, account, deletion, disclosure, geofence_block | application/use_cases + presentation per module | New |
+| — (shared kernel, no context ownership) | — | Balsm-Core / balsm_app | Balsm.SharedKernel, Balsm.Infrastructure; packages/core, app shell, home (orchestration), balsm_boundary_lint (tooling) | value objects (UuidV7, CountryCode, Bcp47Tag), http/db/backup infra | New |
+| — (published language, no context ownership) | — | balsm_app | packages/balsm_api | typed API contracts + DTOs (pure Dart) — the client-side published language / ACL for the cloud API surface | New |
 
 **Primary (owning) context**: **Personal Health** (Core, Consumer plane) — the
 patient-owned health record is the phase's differentiating deliverable;
@@ -205,7 +205,7 @@ tests/
 └── Shared/
     └── TestFixtures/
 
-# Flutter Client — balsm_app_flutter/
+# Flutter Client — balsm_app/
 packages/
 ├── core/                  # Shared kernel: event bus, i18n, HTTP client (dio), value objects
 │   ├── lib/src/
@@ -245,7 +245,7 @@ supabase/
     └── migrations/        # SQL migration files applied to PostgreSQL (EF migrations primary)
 ```
 
-**Structure Decision**: Option 3 (Mobile + API). .NET backend in `Balsm-Core/src/` + `Balsm-Core/tests/`. Flutter monorepo at `balsm_app_flutter/`. `supabase_flutter` SDK replaced by `core` package `BalsmApiClient` (dio). Supabase Auth replaced by `Balsm.Infrastructure.Auth` (custom JWT + OTP + OIDC validation). RLS replaced by ASP.NET Core policy-based authorization. `supabase/migrations/` directory retained as the SQL source-of-truth for schema migrations run against the managed PostgreSQL instance.
+**Structure Decision**: Option 3 (Mobile + API). .NET backend in `Balsm-Core/src/` + `Balsm-Core/tests/`. Flutter monorepo at `balsm_app/`. `supabase_flutter` SDK replaced by `core` package `BalsmApiClient` (dio). Supabase Auth replaced by `Balsm.Infrastructure.Auth` (custom JWT + OTP + OIDC validation). RLS replaced by ASP.NET Core policy-based authorization. `supabase/migrations/` directory retained as the SQL source-of-truth for schema migrations run against the managed PostgreSQL instance.
 
 ---
 

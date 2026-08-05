@@ -32,7 +32,7 @@ A running Flutter app on iOS Simulator + Android Emulator, talking to a local Su
 ## Repo layout (three repos, this dir hosts only specs)
 
 ```
-balsm_app_flutter/        # Flutter melos monorepo — this quickstart's primary
+balsm_app/        # Flutter melos monorepo — this quickstart's primary
   ├── melos.yaml          # workspace + scripts
   ├── packages/
   │   ├── core/                  # shared core layer (subdirs: domain / event_bus / db / network / localization / crash / secure_storage / notifications / kit / test_kit)
@@ -118,7 +118,7 @@ pnpm dev   # → http://localhost:3000
 ### 8. Bring up the Flutter monorepo
 
 ```bash
-cd ../balsm_app_flutter
+cd ../balsm_app
 fvm install                                   # honors .fvmrc (pins Flutter 3.41)
 fvm flutter --version                         # → Flutter 3.41.x stable, Dart 3.10.x
 dart pub global activate melos 7.0.0          # one-time
@@ -203,7 +203,7 @@ Repeat for "Skip" (verify reason picker) and "Snooze 15 min".
 
 1. Run the CI fuzz harness locally:
    ```bash
-   cd balsm_app_flutter
+   cd balsm_app
    fvm flutter test test/phi_leak_fuzz_test
    ```
 2. Test exercises ≥50 synthetic PHI payloads through:

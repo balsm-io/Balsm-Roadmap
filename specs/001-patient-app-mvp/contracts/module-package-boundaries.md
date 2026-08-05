@@ -218,6 +218,6 @@ No cross-module FKs in P001. `core.db` runs the union drift migration.
 
 ## Versioning
 
-- All packages live in the same `balsm_app_flutter` git repo and ship in lockstep.
+- All packages live in the same `balsm_app` git repo and ship in lockstep.
 - `melos version --all` bumps everything together.
 - Not published to pub.dev in P001.

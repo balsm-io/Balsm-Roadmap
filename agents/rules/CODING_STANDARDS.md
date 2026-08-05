@@ -9,7 +9,7 @@
 > | Project | Standards file |
 > |---|---|
 > | Balsm-API-DotNet (.NET API) | `Balsm-API-DotNet/CODING_STANDARDS.md` |
-> | balsm_app_flutter (patient app) | `balsm_app_flutter/CODING_STANDARDS.md` |
+> | balsm_app (patient app) | `balsm_app/CODING_STANDARDS.md` |
 > | website (Next.js) | `website/CODING_STANDARDS.md` |
 >
 > When working in a repo, read the shared file AND that repo's file. On

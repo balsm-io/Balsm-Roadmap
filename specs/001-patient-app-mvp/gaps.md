@@ -1,8 +1,8 @@
 # P001 — Requirements ↔ Flutter Implementation Gap Analysis
 
 > **Generated**: 2026-06-28
-> **Scope**: Cross-check of the P001 spec set (`spec.md`, `data-model.md`, `plan.md`, `tasks.md`, `design/SCREEN-INVENTORY.md`, `contracts/`) against the **actual Flutter code** in `Balsm-Draft/balsm_app_flutter/` (melos monorepo: `packages/{account,auth,core,deletion,disclosure,emergency_card,geofence_block,home,medications,profile,sessions}` + `app/`).
-> **Method**: Read every requirement (FR-*/SC-*/US-*), located the corresponding code, and recorded where code is **missing**, **stubbed (throws / returns null / TODO)**, or **diverges** from the requirement. File:line citations are to `balsm_app_flutter/`.
+> **Scope**: Cross-check of the P001 spec set (`spec.md`, `data-model.md`, `plan.md`, `tasks.md`, `design/SCREEN-INVENTORY.md`, `contracts/`) against the **actual Flutter code** in `Balsm-Draft/balsm_app/` (melos monorepo: `packages/{account,auth,core,deletion,disclosure,emergency_card,geofence_block,home,medications,profile,sessions}` + `app/`).
+> **Method**: Read every requirement (FR-*/SC-*/US-*), located the corresponding code, and recorded where code is **missing**, **stubbed (throws / returns null / TODO)**, or **diverges** from the requirement. File:line citations are to `balsm_app/`.
 > **Not in scope here**: the design-track artifact gaps (mocks/specs) — those are tracked separately in `design/GAPS.md`.
 
 ---

@@ -8,11 +8,11 @@ description: "P001 UI tasks — Flutter widget + screen implementation. Self-con
 
 **Design source**: Derived from `design/MASTER.md` + all `design/pages/*.md` (values inlined below — implementor does NOT need to read those files).
 
-**Flutter project root**: `../balsm_app_flutter/` (relative to this file = `balsm_app_flutter/` sibling to `Balsm-Core/`).
+**Flutter project root**: `../balsm_app/` (relative to this file = `balsm_app/` sibling to `Balsm-Core/`).
 
 **Packages structure**:
 ```
-balsm_app_flutter/
+balsm_app/
   packages/
     core/          → shared widgets, theme, kit
     auth/          → auth screens
@@ -72,12 +72,12 @@ const s8 = 32.0;  // --space-8
 
 ### 1.1 Theme
 
-- [ ] UI001 [P] Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_colors.dart`.
+- [ ] UI001 [P] Create file `../balsm_app/packages/core/lib/src/kit/balsm_colors.dart`.
   Define `abstract final class BalsmColors` with all `static const Color` fields listed in the "Color constants" table at the top of this file (primary, accent, mint, emerald, violet, surface, surfaceAlt, border, borderFocus, fg1, fg2, fg3, danger, warning, darkSurface, darkSurfaceAlt, darkBorder, darkFg1, darkPrimary).
   No methods needed — pure constants class.
   Export from `packages/core/lib/core.dart` by adding: `export 'src/kit/balsm_colors.dart';`
 
-- [ ] UI002 [P] Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_spacing.dart`.
+- [ ] UI002 [P] Create file `../balsm_app/packages/core/lib/src/kit/balsm_spacing.dart`.
   Define `abstract final class BalsmSpacing` with:
   ```dart
   static const double s2 = 8.0;
@@ -94,7 +94,7 @@ const s8 = 32.0;  // --space-8
   ```
   Export from `core.dart`.
 
-- [ ] UI003 Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_theme.dart`.
+- [ ] UI003 Create file `../balsm_app/packages/core/lib/src/kit/balsm_theme.dart`.
   Define `class BalsmTheme` with static method `ThemeData light()` and `ThemeData dark()`.
   Light theme:
   - `scaffoldBackgroundColor`: `Color(0xFFF4F3EC)`
@@ -113,7 +113,7 @@ const s8 = 32.0;  // --space-8
   Dark theme: same structure with dark-mode color overrides (darkSurface, darkFg1, darkPrimary from BalsmColors).
   Export from `core.dart`.
 
-- [ ] UI004 Create file `../balsm_app_flutter/packages/core/lib/src/kit/rtl_helper.dart`.
+- [ ] UI004 Create file `../balsm_app/packages/core/lib/src/kit/rtl_helper.dart`.
   Define:
   ```dart
   bool isRtl(BuildContext context) =>
@@ -138,7 +138,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.2 Navigation
 
-- [ ] UI005 Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_bottom_nav.dart`.
+- [ ] UI005 Create file `../balsm_app/packages/core/lib/src/kit/balsm_bottom_nav.dart`.
   Define `class BalsmBottomNav extends StatelessWidget`.
   Constructor: `const BalsmBottomNav({required int currentIndex, required void Function(int) onTap})`.
   Build method:
@@ -154,7 +154,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.3 App Bar
 
-- [ ] UI006 Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_app_bar.dart`.
+- [ ] UI006 Create file `../balsm_app/packages/core/lib/src/kit/balsm_app_bar.dart`.
   Define `class BalsmAppBar extends StatelessWidget implements PreferredSizeWidget`.
   Named constructors:
   ```dart
@@ -174,7 +174,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.4 Card
 
-- [ ] UI007 Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_card.dart`.
+- [ ] UI007 Create file `../balsm_app/packages/core/lib/src/kit/balsm_card.dart`.
   Define `class BalsmCard extends StatelessWidget`.
   Named constructors:
   ```dart
@@ -190,7 +190,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.5 Chip
 
-- [ ] UI008 Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_chip.dart`.
+- [ ] UI008 Create file `../balsm_app/packages/core/lib/src/kit/balsm_chip.dart`.
   Define `class BalsmChip extends StatelessWidget`.
   Constructor:
   ```dart
@@ -216,7 +216,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.6 OTP Input
 
-- [ ] UI009 Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_otp_input.dart`.
+- [ ] UI009 Create file `../balsm_app/packages/core/lib/src/kit/balsm_otp_input.dart`.
   Define `class BalsmOtpInput extends StatefulWidget`.
   Constructor: `const BalsmOtpInput({required void Function(String) onCompleted, bool hasError = false})`.
   State creates 6 `TextEditingController`s + 6 `FocusNode`s.
@@ -234,7 +234,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.7 Countdown Timer
 
-- [ ] UI010 [P] Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_countdown_timer.dart`.
+- [ ] UI010 [P] Create file `../balsm_app/packages/core/lib/src/kit/balsm_countdown_timer.dart`.
   Define `class BalsmCountdownTimer extends StatefulWidget`.
   Constructor: `const BalsmCountdownTimer({required Duration initial, required VoidCallback onExpired})`.
   State: holds `Duration _remaining`. `initState` starts `Timer.periodic(Duration(seconds: 1), ...)` decrementing `_remaining`. When `_remaining <= Duration.zero`: cancel timer, call `onExpired()`.
@@ -245,7 +245,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.8 Bottom Sheet
 
-- [ ] UI011 Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_bottom_sheet.dart`.
+- [ ] UI011 Create file `../balsm_app/packages/core/lib/src/kit/balsm_bottom_sheet.dart`.
   Define top-level functions (not a class):
   ```dart
   Future<T?> showBalsmTimePicker<T>(BuildContext context, {TimeOfDay? initial, required void Function(TimeOfDay) onConfirm})
@@ -262,7 +262,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.9 List Item
 
-- [ ] UI012 [P] Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_list_item.dart`.
+- [ ] UI012 [P] Create file `../balsm_app/packages/core/lib/src/kit/balsm_list_item.dart`.
   Define `class BalsmListItem extends StatelessWidget`.
   Constructor:
   ```dart
@@ -283,7 +283,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.10 Privacy Marker
 
-- [ ] UI013 [P] Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_privacy_marker.dart`.
+- [ ] UI013 [P] Create file `../balsm_app/packages/core/lib/src/kit/balsm_privacy_marker.dart`.
   Define `class BalsmPrivacyMarker extends StatelessWidget`.
   No constructor params (text is fixed).
   Render:
@@ -304,7 +304,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.11 Severity Badge
 
-- [ ] UI014 [P] Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_severity_badge.dart`.
+- [ ] UI014 [P] Create file `../balsm_app/packages/core/lib/src/kit/balsm_severity_badge.dart`.
   Define `enum Severity { severe, moderate, mild }`.
   Define `class BalsmSeverityBadge extends StatelessWidget`.
   Constructor: `const BalsmSeverityBadge(this.severity)`.
@@ -316,7 +316,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.12 Dialog
 
-- [ ] UI015 [P] Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_dialog.dart`.
+- [ ] UI015 [P] Create file `../balsm_app/packages/core/lib/src/kit/balsm_dialog.dart`.
   Define top-level functions:
   ```dart
   Future<bool?> showBalsmConfirmDialog(BuildContext context, {
@@ -334,7 +334,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.13 Button
 
-- [ ] UI016 Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_button.dart`.
+- [ ] UI016 Create file `../balsm_app/packages/core/lib/src/kit/balsm_button.dart`.
   Define `class BalsmButton extends StatelessWidget`.
   Named constructors:
   ```dart
@@ -351,7 +351,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.14 Error Banner
 
-- [ ] UI017 [P] Create file `../balsm_app_flutter/packages/core/lib/src/kit/balsm_error_banner.dart`.
+- [ ] UI017 [P] Create file `../balsm_app/packages/core/lib/src/kit/balsm_error_banner.dart`.
   Define `class BalsmErrorBanner extends StatelessWidget`.
   Constructor: `const BalsmErrorBanner({required String message})`.
   Render: `Container(color: Color(0xFFD44A3C).withOpacity(0.1), padding: EdgeInsets.all(12), child: Row([Icon(Icons.error_outline, color: Color(0xFFD44A3C), size: 16), SizedBox(8), Expanded(Text(message, style: 14px color(0xFFD44A3C)))]))`.
@@ -360,7 +360,7 @@ const s8 = 32.0;  // --space-8
 
 ### 1.15 Barrel update
 
-- [ ] UI018 Update `../balsm_app_flutter/packages/core/lib/core.dart` — add exports for all new kit files:
+- [ ] UI018 Update `../balsm_app/packages/core/lib/core.dart` — add exports for all new kit files:
   ```dart
   export 'src/kit/balsm_colors.dart';
   export 'src/kit/balsm_spacing.dart';
@@ -385,7 +385,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 2: Auth Screens (US1)
 
-- [ ] UI019 [P] [US1] Create `../balsm_app_flutter/packages/auth/lib/src/presentation/screens/country_picker_screen.dart`.
+- [ ] UI019 [P] [US1] Create `../balsm_app/packages/auth/lib/src/presentation/screens/country_picker_screen.dart`.
   Class: `class CountryPickerScreen extends ConsumerWidget`. Route: `auth.countryPicker`.
   Imports: `core` package (BalsmAppBar, BalsmListItem, BalsmButton, BalsmColors), `auth` providers.
   Widget tree:
@@ -419,7 +419,7 @@ const s8 = 32.0;  // --space-8
   Semantics: list `Semantics(label: 'Country list')`, each item `Semantics(label: '$name, $prefix', button: true)`.
   On select: navigate to `EmailSignUpScreen` passing `countryCode`.
 
-- [ ] UI020 [P] [US1] Create `../balsm_app_flutter/packages/auth/lib/src/presentation/screens/email_sign_up_screen.dart`.
+- [ ] UI020 [P] [US1] Create `../balsm_app/packages/auth/lib/src/presentation/screens/email_sign_up_screen.dart`.
   Class: `class EmailSignUpScreen extends ConsumerStatefulWidget`. Route: `auth.emailSignUp`.
   State holds: `String _email = ''`, `bool _emailValid = false`.
   Widget tree:
@@ -461,7 +461,7 @@ const s8 = 32.0;  // --space-8
   `_sendOtp()`: call `ref.read(signUpProvider.notifier).sendOtp(_email, countryCode)` → navigate to `OtpVerificationScreen`.
   `_signInWithGoogle/Apple`: call provider → on success navigate to `disclosure.onboarding`.
 
-- [ ] UI021 [P] [US1] Create `../balsm_app_flutter/packages/auth/lib/src/presentation/screens/otp_verification_screen.dart`.
+- [ ] UI021 [P] [US1] Create `../balsm_app/packages/auth/lib/src/presentation/screens/otp_verification_screen.dart`.
   Class: `class OtpVerificationScreen extends ConsumerStatefulWidget`. Route: `auth.otpVerification`. Receives `String maskedEmail` via route extras.
   State holds: `bool _hasError = false`, `bool _canResend = false`.
   Widget tree:
@@ -500,7 +500,7 @@ const s8 = 32.0;  // --space-8
   `_verifyCode(code)`: call `ref.read(verifyOtpProvider.notifier).verify(maskedEmail, code)`. On success → `disclosure.onboarding`. On error: `setState(() => _hasError = true)`. On lockout → navigate `auth.lockout`.
   `_resendOtp()`: calls `ref.read(signUpProvider.notifier).resendOtp()`, resets timer: `setState(() { _canResend = false; _hasError = false; })`.
 
-- [ ] UI022 [P] [US1] Create `../balsm_app_flutter/packages/auth/lib/src/presentation/screens/social_sign_in_screen.dart`.
+- [ ] UI022 [P] [US1] Create `../balsm_app/packages/auth/lib/src/presentation/screens/social_sign_in_screen.dart`.
   Class: `class SocialSignInScreen extends ConsumerWidget`. Route: `auth.socialSignIn`.
   Widget tree:
   ```
@@ -520,7 +520,7 @@ const s8 = 32.0;  // --space-8
   ```
   `_signInWithGoogle/Apple`: call provider → on success → `home` if already disclosed, else `disclosure.onboarding`.
 
-- [ ] UI023 [P] [US5] Create `../balsm_app_flutter/packages/auth/lib/src/presentation/screens/lockout_screen.dart`.
+- [ ] UI023 [P] [US5] Create `../balsm_app/packages/auth/lib/src/presentation/screens/lockout_screen.dart`.
   Class: `class LockoutScreen extends ConsumerWidget`. Route: `auth.lockout`. Receives `Duration lockedFor` via extras.
   Widget tree:
   ```
@@ -547,7 +547,7 @@ const s8 = 32.0;  // --space-8
   No back button. When timer expires: auto-navigate to `CountryPickerScreen`.
   Timer `Semantics(liveRegion: true)` — announces each minute.
 
-- [ ] UI024 [P] [US1] Create `../balsm_app_flutter/packages/auth/lib/src/presentation/screens/geofence_blocked_screen.dart`.
+- [ ] UI024 [P] [US1] Create `../balsm_app/packages/auth/lib/src/presentation/screens/geofence_blocked_screen.dart`.
   Class: `class GeofenceBlockedScreen extends ConsumerWidget`. Route: `auth.blocked`. Receives `String countryName` via extras.
   Widget tree:
   ```
@@ -572,7 +572,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 3: Disclosure (US1)
 
-- [ ] UI025 [US1] Create `../balsm_app_flutter/packages/disclosure/lib/src/presentation/screens/consolidated_disclosure_screen.dart`.
+- [ ] UI025 [US1] Create `../balsm_app/packages/disclosure/lib/src/presentation/screens/consolidated_disclosure_screen.dart`.
   Class: `class ConsolidatedDisclosureScreen extends ConsumerStatefulWidget`. Route: `disclosure.onboarding`.
   Receives `String countryCode` via route extras.
   State holds: `bool _scrolledToBottom = false`, `ScrollController _scrollController`.
@@ -621,7 +621,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 4: Home (US1)
 
-- [ ] UI026 [P] [US1] Create `../balsm_app_flutter/packages/home/lib/src/presentation/screens/home_screen.dart`.
+- [ ] UI026 [P] [US1] Create `../balsm_app/packages/home/lib/src/presentation/screens/home_screen.dart`.
   Class: `class HomeScreen extends ConsumerWidget`. Route: `home`.
   Reads: `ref.watch(accountSummaryProvider)` for display name. `ref.watch(homeNudgesProvider)` for nudge list (returns `List<HomeNudge>` where nudge has `type`, `title`, `subtitle`, `route`).
   Widget tree:
@@ -663,7 +663,7 @@ const s8 = 32.0;  // --space-8
   `_onNavTap(index)`: `[home, emergency.card, medications.list, sessions.list, account.settings][index]` → `context.go(route)`.
   Semantics: greeting card `Semantics(label: 'Greeting: Welcome back ${account.displayName}')`. Nudge cards `Semantics(label: '${n.title}: ${n.subtitle}', button: true)`.
 
-- [ ] UI027 [P] [US1] Create `../balsm_app_flutter/packages/home/lib/src/presentation/screens/home_empty_screen.dart`.
+- [ ] UI027 [P] [US1] Create `../balsm_app/packages/home/lib/src/presentation/screens/home_empty_screen.dart`.
   Class: `class HomeEmptyScreen extends ConsumerWidget`. Used when nudges list is empty AND no data yet.
   Widget tree:
   ```
@@ -698,7 +698,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 5: Handle Claim (US1a)
 
-- [ ] UI028 [P] [US1a] Create `../balsm_app_flutter/packages/account/lib/src/presentation/screens/handle_claim_screen.dart`.
+- [ ] UI028 [P] [US1a] Create `../balsm_app/packages/account/lib/src/presentation/screens/handle_claim_screen.dart`.
   Class: `class HandleClaimScreen extends ConsumerStatefulWidget`. Route: `account.handleClaim`.
   State holds: `String _handle = ''`, `String? _errorText`, `bool _isValid = false`, `List<String> _suggestions = []`.
   Validation on change: regex `r'^[a-z0-9_.]{3,30}$'`. If invalid: `_errorText = 'Handle must be 3–30 characters: letters, numbers, _ or .'`.
@@ -743,7 +743,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 6: Profile Editor (US1a)
 
-- [ ] UI029 [US1a] Create `../balsm_app_flutter/packages/profile/lib/src/presentation/screens/health_profile_editor_screen.dart`.
+- [ ] UI029 [US1a] Create `../balsm_app/packages/profile/lib/src/presentation/screens/health_profile_editor_screen.dart`.
   Class: `class HealthProfileEditorScreen extends ConsumerStatefulWidget`. Route: `profile.editor`.
   State tracks: `bool _isDirty = false` (any field changed).
   Widget tree:
@@ -827,7 +827,7 @@ const s8 = 32.0;  // --space-8
   Each section has `Semantics(label: '$sectionTitle section')`.
   National-ID field: DO NOT implement (deferred to P002).
 
-- [ ] UI030 [P] [US1a] Create `../balsm_app_flutter/packages/profile/lib/src/presentation/widgets/allergy_bottom_sheet.dart`.
+- [ ] UI030 [P] [US1a] Create `../balsm_app/packages/profile/lib/src/presentation/widgets/allergy_bottom_sheet.dart`.
   Function: `Future<void> showAllergyBottomSheet(BuildContext context, {required void Function(String name, Severity severity) onAdd})`.
   Calls `showBalsmFormSheet(context, title: 'Add allergy', content: ..., saveLabel: 'Add', onSave: ...)`.
   Content inside sheet:
@@ -839,7 +839,7 @@ const s8 = 32.0;  // --space-8
   Save enabled when name non-empty + severity selected.
   On save: call `onAdd(name, severity)`.
 
-- [ ] UI031 [P] [US1a] Create `../balsm_app_flutter/packages/profile/lib/src/presentation/widgets/condition_bottom_sheet.dart`.
+- [ ] UI031 [P] [US1a] Create `../balsm_app/packages/profile/lib/src/presentation/widgets/condition_bottom_sheet.dart`.
   Function: `Future<void> showConditionBottomSheet(BuildContext context, {required void Function(String name, String? icd10, int? onsetYear) onAdd})`.
   Content inside sheet:
   - `TextField(label: 'Condition name', autofocus: true)`
@@ -849,7 +849,7 @@ const s8 = 32.0;  // --space-8
   - `TextField(label: 'Year of onset (optional)', keyboardType: numberPad, inputFormatters: [LengthLimitingTextInputFormatter(4)])`
   Save enabled when name non-empty.
 
-- [ ] UI032 [P] [US1a] Create `../balsm_app_flutter/packages/profile/lib/src/presentation/widgets/contact_bottom_sheet.dart`.
+- [ ] UI032 [P] [US1a] Create `../balsm_app/packages/profile/lib/src/presentation/widgets/contact_bottom_sheet.dart`.
   Function: `Future<void> showContactBottomSheet(BuildContext context, {required String countryCode, required void Function(String name, String relationship, String phone) onAdd})`.
   Content inside sheet:
   - `TextField(label: 'Full name')`
@@ -863,7 +863,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 7: Emergency Card (US2)
 
-- [ ] UI033 [P] [US2] Create `../balsm_app_flutter/packages/emergency_card/lib/src/presentation/screens/emergency_card_screen.dart`.
+- [ ] UI033 [P] [US2] Create `../balsm_app/packages/emergency_card/lib/src/presentation/screens/emergency_card_screen.dart`.
   Class: `class EmergencyCardScreen extends ConsumerWidget`. Route: `emergency.card`.
   Reads: `ref.watch(healthProfileProvider)`, `ref.watch(emergencyQrTokenProvider)`.
   Widget tree:
@@ -936,7 +936,7 @@ const s8 = 32.0;  // --space-8
   If QR button disabled: `Semantics(label: 'Generate QR — add blood type and at least one contact to enable')`.
   RTL: `BalsmCard.accented` flips border side automatically (handled by BalsmCard). All icons flip via `BalsmListItem`.
 
-- [ ] UI034 [P] [US2] Create `../balsm_app_flutter/packages/emergency_card/lib/src/presentation/screens/qr_code_display_screen.dart`.
+- [ ] UI034 [P] [US2] Create `../balsm_app/packages/emergency_card/lib/src/presentation/screens/qr_code_display_screen.dart`.
   Class: `class QrCodeDisplayScreen extends ConsumerStatefulWidget`. Route: `emergency.qrDisplay`.
   Reads: `ref.watch(emergencyQrTokenProvider)`.
   State holds: `int _selectedTtlIndex = 0` (TTLs: `[1h, 4h, 12h, 24h, 7d]` → `[3600, 14400, 43200, 86400, 604800]` seconds).
@@ -1000,7 +1000,7 @@ const s8 = 32.0;  // --space-8
   `_mintToken()`: call `ref.read(mintQrProvider.notifier).mint(ttlSeconds: _ttlValues[_selectedTtlIndex])`.
   `baseUrl` from `FlavorConfig.current.apiBaseUrl` domain.
 
-- [ ] UI035 [P] [US2] Create `../balsm_app_flutter/packages/emergency_card/lib/src/presentation/screens/public_emergency_resolve_screen.dart`.
+- [ ] UI035 [P] [US2] Create `../balsm_app/packages/emergency_card/lib/src/presentation/screens/public_emergency_resolve_screen.dart`.
   Class: `class PublicEmergencyResolveScreen extends ConsumerWidget`. Route: `/emergency/:token`. No auth required.
   Receives: `String tokenJti` from route param. Fragment key (`#k=...`) extracted via `dart:html` on web: `window.location.hash.replaceFirst('#k=', '')`. On mobile: passed via extras from `DeeplinkRouter`.
   Widget tree:
@@ -1058,7 +1058,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 8: Medications (US3)
 
-- [ ] UI036 [P] [US3] Create `../balsm_app_flutter/packages/medications/lib/src/presentation/screens/medication_list_screen.dart`.
+- [ ] UI036 [P] [US3] Create `../balsm_app/packages/medications/lib/src/presentation/screens/medication_list_screen.dart`.
   Class: `class MedicationListScreen extends ConsumerWidget`. Route: `medications.list`.
   Reads: `ref.watch(medicationsProvider)` → `AsyncValue<List<Medication>>`.
   Widget tree:
@@ -1110,7 +1110,7 @@ const s8 = 32.0;  // --space-8
   )
   ```
 
-- [ ] UI037 [P] [US3] Create `../balsm_app_flutter/packages/medications/lib/src/presentation/screens/add_medication_screen.dart`.
+- [ ] UI037 [P] [US3] Create `../balsm_app/packages/medications/lib/src/presentation/screens/add_medication_screen.dart`.
   Class: `class AddMedicationScreen extends ConsumerStatefulWidget`. Route: `medications.add`.
   State: `_name`, `_dose`, `_scheduleType` (`daily`/`weekly`/`custom`), `_times` (list), `_weekdays` (list), `_startDate`, `_endDate`, `_notes`, `_isControlled`, `_isDirty`.
   Save enabled: `_name.isNotEmpty && _dose.isNotEmpty && _times.isNotEmpty`.
@@ -1190,7 +1190,7 @@ const s8 = 32.0;  // --space-8
   `_buildCustomSchedule()`: `TextField(keyboardType: number, label: 'Every N hours')` + time picker.
   `_save()`: call `ref.read(addMedicationProvider.notifier).add(medication)` → `context.pop()`.
 
-- [ ] UI038 [P] [US3] Create `../balsm_app_flutter/packages/medications/lib/src/presentation/screens/today_screen.dart`.
+- [ ] UI038 [P] [US3] Create `../balsm_app/packages/medications/lib/src/presentation/screens/today_screen.dart`.
   Class: `class TodayScreen extends ConsumerWidget`. Route: `medications.today`.
   Reads: `ref.watch(todayDosesProvider)` → doses grouped by time slot (morning/afternoon/evening/night). `ref.watch(missedDosesProvider)` → count.
   Widget tree:
@@ -1244,7 +1244,7 @@ const s8 = 32.0;  // --space-8
   `_markTaken(dose)`: call `ref.read(recordDoseProvider.notifier).record(dose.id, 'taken')`. On success: `SemanticsService.announce('Marked as taken', TextDirection.ltr)`.
   `_skipDose(dose)`: same with `'skipped'`.
 
-- [ ] UI039 [P] [US3] Create `../balsm_app_flutter/packages/medications/lib/src/presentation/screens/dose_history_screen.dart`.
+- [ ] UI039 [P] [US3] Create `../balsm_app/packages/medications/lib/src/presentation/screens/dose_history_screen.dart`.
   Class: `class DoseHistoryScreen extends ConsumerWidget`. Route: `medications.history`. Receives `String medicationId`.
   Reads: `ref.watch(doseHistoryProvider(medicationId))` → `List<DoseEvent>` grouped by date.
   Widget tree:
@@ -1274,7 +1274,7 @@ const s8 = 32.0;  // --space-8
   ```
   No delete/edit buttons shown. Correction events show icon only (append-only).
 
-- [ ] UI040 [P] [US3] Create `../balsm_app_flutter/packages/medications/lib/src/presentation/widgets/timezone_shift_modal.dart`.
+- [ ] UI040 [P] [US3] Create `../balsm_app/packages/medications/lib/src/presentation/widgets/timezone_shift_modal.dart`.
   Function: `Future<void> showTimezoneShiftModal(BuildContext context, {required String oldTz, required String newTz, required VoidCallback onUpdate, required VoidCallback onKeep})`.
   Uses `showModalBottomSheet(isDismissible: false, ...)`.
   Content:
@@ -1300,7 +1300,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 9: Deletion (US4)
 
-- [ ] UI041 [P] [US4] Create `../balsm_app_flutter/packages/deletion/lib/src/presentation/screens/delete_account_screen.dart`.
+- [ ] UI041 [P] [US4] Create `../balsm_app/packages/deletion/lib/src/presentation/screens/delete_account_screen.dart`.
   Class: `class DeleteAccountScreen extends ConsumerWidget`. Route: `deletion.request`.
   Widget tree:
   ```
@@ -1344,7 +1344,7 @@ const s8 = 32.0;  // --space-8
   ```
   `_dataFateItem(text)`: `Padding(v:4, child: Row([Icon(Icons.circle, 6, Color(0xFF56564C)), SizedBox(8), Text(text, 14px Color(0xFF56564C))]))`.
 
-- [ ] UI042 [P] [US4] Create `../balsm_app_flutter/packages/deletion/lib/src/presentation/screens/deletion_confirm_screen.dart`.
+- [ ] UI042 [P] [US4] Create `../balsm_app/packages/deletion/lib/src/presentation/screens/deletion_confirm_screen.dart`.
   Class: `class DeletionConfirmScreen extends ConsumerStatefulWidget`. Route: `deletion.confirm`.
   State: `bool _reAuthDone = false`, `String _confirmText = ''`.
   Save enabled: `_reAuthDone && _confirmText == 'DELETE'`.
@@ -1386,7 +1386,7 @@ const s8 = 32.0;  // --space-8
   `_submitDeletion()`: call `ref.read(requestDeletionProvider.notifier).request()` → navigate to `home` (account now in deletion-requested state).
   Typed confirmation field: `aria-required=true`, exact case-sensitive match.
 
-- [ ] UI043 [P] [US4] Create `../balsm_app_flutter/packages/deletion/lib/src/presentation/screens/deletion_cancelled_screen.dart`.
+- [ ] UI043 [P] [US4] Create `../balsm_app/packages/deletion/lib/src/presentation/screens/deletion_cancelled_screen.dart`.
   Class: `class DeletionCancelledScreen extends ConsumerWidget`. Route: `deletion.cancelled`.
   Reads: `ref.watch(deletionStateProvider)` → `gracePeriodEndsAt`.
   Widget tree:
@@ -1410,7 +1410,7 @@ const s8 = 32.0;  // --space-8
   ```
   `_cancelDeletion()`: call `ref.read(cancelDeletionProvider.notifier).cancel()` → navigate to `home`.
 
-- [ ] UI044 [P] [US4] Create `../balsm_app_flutter/packages/deletion/lib/src/presentation/screens/public_delete_screen.dart`.
+- [ ] UI044 [P] [US4] Create `../balsm_app/packages/deletion/lib/src/presentation/screens/public_delete_screen.dart`.
   Class: `class PublicDeleteScreen extends ConsumerStatefulWidget`. Route: `/account/delete`. No auth required on mount.
   Reuses auth components (email OTP / Google / Apple) → on re-auth shows deletion preconfirm → on confirm calls deletion API.
   Header (web chrome): `AppBar(title: Row([Image.asset('assets/balsm_logo.png', 24), SizedBox(8), Text('Balsm')]), backgroundColor: white)`.
@@ -1421,7 +1421,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 10: Sessions (US4/US5)
 
-- [ ] UI045 [P] [US4] Create `../balsm_app_flutter/packages/sessions/lib/src/presentation/screens/sessions_screen.dart`.
+- [ ] UI045 [P] [US4] Create `../balsm_app/packages/sessions/lib/src/presentation/screens/sessions_screen.dart`.
   Class: `class SessionsScreen extends ConsumerWidget`. Route: `sessions.list`.
   Reads: `ref.watch(activeSessionsProvider)` → `List<ActiveSession>` where first item is current device.
   Widget tree:
@@ -1500,14 +1500,14 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 11: Account Settings (US6)
 
-- [ ] UI046 [P] [US6] Create `../balsm_app_flutter/packages/account/lib/src/presentation/screens/country_settings_screen.dart`.
+- [ ] UI046 [P] [US6] Create `../balsm_app/packages/account/lib/src/presentation/screens/country_settings_screen.dart`.
   Class: `class CountrySettingsScreen extends ConsumerWidget`. Route: `account.country`.
   Reuses `CountryPickerScreen` widget but adds:
   - Warning banner at top: `Container(color: Color(0xFFE5B428).withOpacity(0.1), padding: 12, child: Text('Changing country requires re-authentication and re-disclosure.', 14px Color(0xFFE5B428)))`.
   - On select: `showBalsmConfirmDialog('Change country to $name?', 'This will sign you out on all devices.', 'Change', isDangerous: true)`. On confirm: call `ChangeCountryUseCase` → navigate to re-auth flow → re-disclosure.
   Warning banner has `Semantics(liveRegion: true)` so it's announced before user interacts.
 
-- [ ] UI047 [P] [US6] Create `../balsm_app_flutter/packages/account/lib/src/presentation/screens/language_settings_screen.dart`.
+- [ ] UI047 [P] [US6] Create `../balsm_app/packages/account/lib/src/presentation/screens/language_settings_screen.dart`.
   Class: `class LanguageSettingsScreen extends ConsumerStatefulWidget`. Route: `account.language`.
   State: `String _selectedLocale` (current locale from provider).
   Languages list: `[('en', 'English', false), ('ar-EG', 'العربية (مصر)', true), ('ar-SA', 'العربية (السعودية)', true), ('ar-AE', 'العربية (الإمارات)', true)]`.
@@ -1531,7 +1531,7 @@ const s8 = 32.0;  // --space-8
   `_selectLanguage(code)`: call `ChangeLanguageUseCase` → update locale provider → show `SnackBar('Language changed. Restart for full effect.')`.
   Each selected item `Semantics(selected: true)`.
 
-- [ ] UI048 [P] Implement `NotFoundScreen` at `../balsm_app_flutter/packages/core/lib/src/kit/not_found_screen.dart`.
+- [ ] UI048 [P] Implement `NotFoundScreen` at `../balsm_app/packages/core/lib/src/kit/not_found_screen.dart`.
   Class: `class NotFoundScreen extends StatelessWidget`. Used as `go_router`'s `errorBuilder`.
   Widget tree:
   ```
@@ -1559,7 +1559,7 @@ const s8 = 32.0;  // --space-8
 
 > Wire all English strings used in screens above to i18n JSON bundles. Arabic translations provided inline per design spec.
 
-- [ ] UI049 [Flutter] Create or update `../balsm_app_flutter/packages/core/assets/i18n/en.json` with all auth copy keys:
+- [ ] UI049 [Flutter] Create or update `../balsm_app/packages/core/assets/i18n/en.json` with all auth copy keys:
   ```json
   {
     "auth.country.search": "Search countries",
@@ -1582,7 +1582,7 @@ const s8 = 32.0;  // --space-8
   }
   ```
 
-- [ ] UI050 [Flutter] Add to `../balsm_app_flutter/packages/core/assets/i18n/ar-EG.json` (Egyptian Arabic):
+- [ ] UI050 [Flutter] Add to `../balsm_app/packages/core/assets/i18n/ar-EG.json` (Egyptian Arabic):
   ```json
   {
     "auth.country.search": "ابحث عن دولة",
@@ -1660,7 +1660,7 @@ const s8 = 32.0;  // --space-8
 
 ## Phase 13: RTL + Accessibility Validation
 
-- [ ] UI053 [P] [Flutter] Create `../balsm_app_flutter/test/golden/rtl_golden_test.dart`.
+- [ ] UI053 [P] [Flutter] Create `../balsm_app/test/golden/rtl_golden_test.dart`.
   Write `testWidgets` golden tests for RTL layout verification:
   - Wrap each screen in `Directionality(TextDirection.rtl)` + `Localizations(locale: Locale('ar', 'EG'))`.
   - Capture golden for: `CountryPickerScreen`, `HomeScreen`, `EmergencyCardScreen`, `MedicationListScreen`, `SessionsScreen`.
@@ -1668,13 +1668,13 @@ const s8 = 32.0;  // --space-8
   - Golden files saved to `test/golden/rtl_goldens/`.
   - Test names follow `'RTL - {ScreenName} - {description}'`.
 
-- [ ] UI054 [P] [Flutter] Create `../balsm_app_flutter/test/a11y/touch_targets_test.dart`.
+- [ ] UI054 [P] [Flutter] Create `../balsm_app/test/a11y/touch_targets_test.dart`.
   Write `testWidgets` for each interactive screen, assert:
   - All `ElevatedButton`, `TextButton`, `IconButton`, `GestureDetector` with `onTap` have semantic bounds ≥ 44×44pt.
   - Use `tester.getSize(find.byType(ElevatedButton))` to verify dimensions.
   - Screens to cover: auth screens, home, emergency card, add medication, sessions.
 
-- [X] UI055 [Flutter] Run `flutter analyze` on `balsm_app_flutter/` and fix all errors and warnings before marking UI tasks complete. Command: `cd ../balsm_app_flutter && flutter analyze`. Expected: 0 errors. Warnings from generated files (`.g.dart`, `.freezed.dart`) may be ignored.
+- [X] UI055 [Flutter] Run `flutter analyze` on `balsm_app/` and fix all errors and warnings before marking UI tasks complete. Command: `cd ../balsm_app && flutter analyze`. Expected: 0 errors. Warnings from generated files (`.g.dart`, `.freezed.dart`) may be ignored.
 
 ---
 

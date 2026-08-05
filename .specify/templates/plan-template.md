@@ -16,7 +16,7 @@ context, repository module, and sub-module this feature touches. Sources:
 Constitution Principle IV (20 canonical contexts + 2 provisional),
 `architecture/bounded-contexts/` (context map + one canvas per context), and
 the affected repos' actual module layout (`../Balsm-API-DotNet/src/Modules/`,
-`../balsm_app_flutter/modules/` + `packages/`, `../supabase/`, `admin-ui/`).*
+`../balsm_app/modules/` + `packages/`, `../supabase/`, `admin-ui/`).*
 
 | Bounded Context | Plane (ADR-10) | Repo | Module | Sub-module / Layer | New/Existing |
 |-----------------|----------------|------|--------|--------------------|--------------|
@@ -83,8 +83,8 @@ the affected repos' actual module layout (`../Balsm-API-DotNet/src/Modules/`,
 - [ ] DCO `Signed-off-by:` commit policy reaffirmed for contributors
 
 **Cross-repo rule & skill gate** *(Principle XIII — required for every feature)*:
-- [ ] Affected stacks identified: [Backend `Balsm-API-DotNet` / Flutter `balsm_app_flutter` / Website `website` / Docs `Balsm-Core` `docs` / multi]
-- [ ] Rules/skills read from each affected repo's local relative directory first (`../Balsm-API-DotNet`, `../balsm_app_flutter`, `../website`); local working tree takes priority over git remote
+- [ ] Affected stacks identified: [Backend `Balsm-API-DotNet` / Flutter `balsm_app` / Website `website` / Docs `Balsm-Core` `docs` / multi]
+- [ ] Rules/skills read from each affected repo's local relative directory first (`../Balsm-API-DotNet`, `../balsm_app`, `../website`); local working tree takes priority over git remote
 - [ ] Git remote pulled only as fallback (local checkout missing or known-behind); local edits never overwritten
 - [ ] Each affected stack's own rules consulted: `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/*.mdc` / `.cursorrules`
 - [ ] Each affected stack's own skills consulted: `dotnet-skills` (API) / `flutter-*` (Flutter) / `impeccable` (website) / `balsm-ai` shared skills

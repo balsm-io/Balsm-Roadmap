@@ -5,7 +5,7 @@
 | **Plane** | Consumer (patient-owned PHI) |
 | **Classification** | **Core Domain** — viral hooks (emergency card, lock-screen widget) and the patient-owned-data privacy story are Balsm's consumer differentiation |
 | **Phases** | P001 (profile, reminders, emergency card), P002 (records, timeline, cloud sync), P021 (triage, PROs) |
-| **Repo mapping** | `balsm_app_flutter`: `profile`, `medications`, `emergency_card` packages; Supabase: `public.emergency_qr_tokens` (token surface only) |
+| **Repo mapping** | `balsm_app`: `profile`, `medications`, `emergency_card` packages; Supabase: `public.emergency_qr_tokens` (token surface only) |
 | **PHI posture** | Full PHI on device (SQLCipher drift) + optional user-owned Drive/iCloud sync. Balsm servers hold zero PHI — sole exception: `date_of_birth` cloud field, pgcrypto-encrypted + audit-logged (FR-047/FR-048, UAE rows on UAE-resident Supabase per FR-049). |
 
 ## Purpose

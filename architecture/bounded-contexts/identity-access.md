@@ -5,7 +5,7 @@
 | **Plane** | Cross-plane (single identity truth across consumer, provider, platform) |
 | **Classification** | Generic — standard auth patterns; buy/lean on Supabase Auth, custom PBAC layer on top |
 | **Phases** | P001 (consumer auth + deletion), P004 (cloud-first auth + local fallback), P010 (JWT bridge), P014 (permissions engine) |
-| **Repo mapping** | Supabase: `auth.users`, `public.profiles`, `public.deletion_log`; `Balsm-API-DotNet`: `Modules/Identity`, Supervisor admin auth (`FileCredentialStore`); `balsm_app_flutter`: `auth`, `sessions`, `account`, `deletion`, `disclosure`, `geofence_block` packages; Balsm Cloud Auth API (P004) |
+| **Repo mapping** | Supabase: `auth.users`, `public.profiles`, `public.deletion_log`; `Balsm-API-DotNet`: `Modules/Identity`, Supervisor admin auth (`FileCredentialStore`); `balsm_app`: `auth`, `sessions`, `account`, `deletion`, `disclosure`, `geofence_block` packages; Balsm Cloud Auth API (P004) |
 | **PHI posture** | None. Identity metadata only: username, display_name, bio, avatar, `dob_year`. Phone/email live in `auth.users` for login only. `deletion_log` stores hashed user_id + reason code (2-year retention). |
 
 ## Purpose

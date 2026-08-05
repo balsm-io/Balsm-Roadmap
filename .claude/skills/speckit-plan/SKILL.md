@@ -65,7 +65,7 @@ You **MUST** consider the user input before proceeding (if not empty).
      `architecture/bounded-contexts/README.md` (context map + three
      data-ownership planes) and the canvas of every candidate context; inspect
      the affected repos' real module layout
-     (`../Balsm-API-DotNet/src/Modules/`, `../balsm_app_flutter/modules/` +
+     (`../Balsm-API-DotNet/src/Modules/`, `../balsm_app/modules/` +
      `packages/`, `../supabase/`); then fill the plan's "Module & Bounded
      Context Mapping" table — bounded context, plane, repo, module,
      sub-module/layer, new/existing — with exactly one primary (owning)

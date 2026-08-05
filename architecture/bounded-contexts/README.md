@@ -209,7 +209,7 @@ Rules:
 | `Balsm.Supervisor` (auth, certs, mDNS, tunnels, federation, sync loop) | Infrastructure host; federation/pairing/sharing-policy features map to Balsm Network; admin auth maps to Identity & Access |
 | `Balsm.SharedKernel`, `Balsm.Infrastructure` | `shared-kernel` / `infrastructure` (not a context) |
 
-### balsm_app_flutter packages
+### balsm_app packages
 
 In tree: libs under `packages/` — `core` (`shared-kernel`), `balsm_api` (`infrastructure` — HTTP client layer), `balsm_boundary_lint` (`tooling`) — and P001 domain modules under `modules/`. All carry the README frontmatter mapping.
 
