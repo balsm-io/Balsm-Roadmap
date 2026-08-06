@@ -284,7 +284,7 @@ The **five-petal flower mark** (`brand/logo-vertical.svg`) is the only Balsm-bes
 | `components/LoadingOverlay/` | `LoadingOverlay.jsx` + `LoadingOverlay.d.ts` — full-screen/container loading; cream/scrim/brand; petal mark + message + optional progress |
 | `components/ProSidebar/` | `ProSidebar.jsx` + `ProSidebar.d.ts` — shared left-nav chrome for every Balsm-Pro module; brand mark, workspace switcher, grouped nav, account footer; RTL + Lucide icons |
 | `brand/` | Logo SVG, white reverse PNG, watercolor background |
-| `uploads/baslm-brand-canvas.md` | Brand Model Canvas — mission, voice, values, positioning (canonical) |
+| `uploads/balsm-brand-canvas.md` | Brand Model Canvas — mission, voice, values, positioning (canonical) |
 | `ui_kits/balsm_pharmacy/` | Pharmacy POS + admin UI kit (Slice 1) |
 | `patient_app/` | Patient app prototype — auth + self-reporting (Slice 2) |
 
@@ -360,7 +360,7 @@ Breakpoints live as `--bp-*` tokens in `colors_and_type.css`. Because CSS can't 
 
 | Source | Why it's here |
 |---|---|
-| `uploads/baslm-brand-canvas.md` | **Canonical brand reference** — locked. Mission, voice, values, positioning. |
+| `uploads/balsm-brand-canvas.md` | **Canonical brand reference** — locked. Mission, voice, values, positioning. |
 | `balsm-health/assets/brand/` | Official brand pack — logo, watercolor background |
 | `balsm-health/Balsm-Draft` | Product roadmap, business features, controlled-substance + RTL requirements |
 | AppFlowy-IO/AppFlowy | Offline-sync + workspace patterns reference |

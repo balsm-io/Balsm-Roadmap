@@ -6,7 +6,7 @@ user-invocable: true
 
 ## How to use this skill
 
-Read `README.md` first — it is the canonical map of the design system, brand canvas, voice, values, and UI kits. For brand decisions, also read `uploads/baslm-brand-canvas.md` (locked, v1.0).
+Read `README.md` first — it is the canonical map of the design system, brand canvas, voice, values, and UI kits. For brand decisions, also read `uploads/balsm-brand-canvas.md` (locked, v1.0).
 
 Minimum starter for any new artifact:
 ```html
@@ -22,7 +22,7 @@ For production code, copy `colors_and_type.css` into the codebase — it is the 
 | File | What it is |
 |---|---|
 | `README.md` | Design system manual + brand canvas summary. Read first. |
-| `uploads/baslm-brand-canvas.md` | **Canonical brand reference (locked).** Mission, vision, promise, personality, voice, values, positioning, experience standard. |
+| `uploads/balsm-brand-canvas.md` | **Canonical brand reference (locked).** Mission, vision, promise, personality, voice, values, positioning, experience standard. |
 | `colors_and_type.css` | Every CSS token — petals, neutrals, type, spacing, radii, shadows, motion. |
 | `brand/logo-vertical.svg` | Five-petal flower + bilingual wordmark. Use as-is; do not redraw. |
 | `brand/balsm-background.png` | Signature watercolor petal pattern — hero/welcome backdrops only. |

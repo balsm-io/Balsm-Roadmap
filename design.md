@@ -4,7 +4,7 @@
 
 This file is the **design contract** for every Balsm surface (Pharmacy, Patient app, Doctor encounter, marketing, print). The canonical brand primitives — design tokens, logos, watercolor pattern, brand canvas — live flat in [brand/](brand/) in this repo. The full design *system* (long-form manual, UI kits, preview cards, patient-app prototype) is shipped as the **`balsm-design` skill** in the shared `balsm-ai` plugin, so any agent in any Balsm repo can invoke `/balsm-design`. Core is the canonical source; the plugin mirrors it.
 
-**Companion:** [brand/baslm-brand-canvas.md](brand/baslm-brand-canvas.md) is the **brand model canvas** — purpose, vision, audience, promise, personality, voice & tone, positioning, core values, experience. design.md says how Balsm *looks*; the canvas says what it *stands for* and how it *speaks*. Pin the canvas for any copy, UX-writing, or marketing work.
+**Companion:** [brand/balsm-brand-canvas.md](brand/balsm-brand-canvas.md) is the **brand model canvas** — purpose, vision, audience, promise, personality, voice & tone, positioning, core values, experience. design.md says how Balsm *looks*; the canvas says what it *stands for* and how it *speaks*. Pin the canvas for any copy, UX-writing, or marketing work.
 
 Source bundle: `claude.ai/design` handoff `GcpM-P5U3jAim3lY4dqh8A`, revised 2026-08-05. Re-export there → re-copy `project/` into the `balsm-design` plugin skill to refresh. (Supersedes handoff `brCe2JFarDeEQRmN0pgOJA`, ingested 2026-06-05.)
 
@@ -17,9 +17,9 @@ Source bundle: `claude.ai/design` handoff `GcpM-P5U3jAim3lY4dqh8A`, revised 2026
 | Path | Role |
 |---|---|
 | [brand/colors_and_type.css](brand/colors_and_type.css) | **Tier 1–2 source of truth** — global + semantic tokens: petals, neutrals, type, spacing, radii, shadows, motion, breakpoints, containers, gutters. Import this first. |
-| [brand/baslm-brand-canvas.md](brand/baslm-brand-canvas.md) | Brand canvas — mission, voice, values, positioning, experience. Source of truth for tone. |
+| [brand/balsm-brand-canvas.md](brand/balsm-brand-canvas.md) | Brand canvas — mission, voice, values, positioning, experience. Source of truth for tone. |
 | [brand/logo-vertical.svg](brand/logo-vertical.svg) | Official five-petal flower + bilingual wordmark. Use as-is. |
-| [brand/logo-vertical-white.png](brand/logo-vertical-white.png) | Reverse lockup for dark surfaces. |
+| [brand/logo-vertical-mono-white.svg](brand/logo-vertical-mono-white.svg) | Reverse lockup — white ink, for dark surfaces. (`-on-white` files are the opposite: full-colour logo baked onto a white background.) |
 | [brand/balsm-background.png](brand/balsm-background.png) | Watercolor petal pattern — hero/welcome backdrops only. |
 
 **Full design system — in the shared `balsm-ai` plugin, skill `balsm-design`** (invoke `/balsm-design` in any Balsm repo). Holds the long-form `README.md` manual, the Pharmacy POS UI kit (`ui_kits/balsm_pharmacy/`), the patient-app prototype (`patient_app/`), and per-token preview cards (`preview/`). Not duplicated in-repo — Core's `brand/` is the source the plugin is built from.
@@ -72,7 +72,7 @@ The brand has **no single primary color.** The mark is five petals in five hues;
 
 Each petal has `-600` (hover/pressed) and `-50` (soft wash background) siblings. Aliases: `--balsm-primary` (blue), `--balsm-accent` (aqua).
 
-**Wordmark color:** `--balsm-wordmark #254B45` — deep pine green, matching `brand/logo-*.svg`. The `.health` TLD sits one weight lighter in `--balsm-wordmark-tld #98A2B3` (cool blue-gray). On dark surfaces the wordmark knocks out to white per the reverse lockup (§7) — the pine green scores ≈1.5:1 on ink and must never be used there.
+**Wordmark color:** `--balsm-wordmark #254B45` — deep pine green, matching `brand/logo-*.svg`. The `.health` TLD sits one weight lighter in `--balsm-wordmark-tld #526174` (slate gray). On dark surfaces the wordmark knocks out to white per the reverse lockup (§7) — the pine green scores ≈1.5:1 on ink and must never be used there.
 
 *Was `#6B6B60` (warm olive gray). That hue survives as `--balsm-ink-600`, still the anchor of the neutral scale (`--balsm-ink-*` skews warm, never cool / never blue-gray) — it is simply no longer the wordmark.*
 
@@ -225,7 +225,7 @@ Flower mark usage: app icon (squircle-clipped, ink or cream bg) · loading spinn
 
 Calm · professional · human · second-person. Balsm is the patient's quiet ally, the pharmacist's reliable counter, the doctor's tidy notebook. Never salesy, never clinical-cold.
 
-> Full voice spec — 14 brand words, two registers (clinical/technical · product/community), what Balsm never sounds like — lives in [brand/baslm-brand-canvas.md §6](brand/baslm-brand-canvas.md). This section is the design-surface summary; the canvas is the source of truth for tone.
+> Full voice spec — 14 brand words, two registers (clinical/technical · product/community), what Balsm never sounds like — lives in [brand/balsm-brand-canvas.md §6](brand/balsm-brand-canvas.md). This section is the design-surface summary; the canvas is the source of truth for tone.
 
 **Casing.** Sentence case for all UI (buttons, menu items, headings, page titles). Title Case only on marketing landing-page heroes. ALL CAPS only for eyebrow labels at `letter-spacing: 0.16em`.
 

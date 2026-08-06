@@ -1,4 +1,4 @@
-# Baslm Brand Model Canvas
+# Balsm Brand Model Canvas
 > **بلسم — لوحة نموذج العلامة التجارية**
 > Version: 1.0 | Status: Locked | Language: Bilingual (EN/AR)
 > Domain: balsm.health | GitHub: github.com/balsm-health
@@ -6,11 +6,11 @@
 ---
 
 ## Usage Instructions
-This file is the canonical brand reference for Baslm.
+This file is the canonical brand reference for Balsm.
 - **For AI agents & Claude Code:** Pin this file as context at the start of every session involving brand, copy, UX writing, or marketing work.
 - **For developers:** Reference voice, tone, and experience standards when writing UI copy, error messages, onboarding flows, and documentation.
 - **For designers:** Use personality, experience, and positioning sections to evaluate design decisions.
-- **For contributors:** Core values and positioning define what Baslm is and is not — consult before proposing features or communications.
+- **For contributors:** Core values and positioning define what Balsm is and is not — consult before proposing features or communications.
 
 ---
 
@@ -18,7 +18,7 @@ This file is the canonical brand reference for Baslm.
 > **الغرض والرسالة**
 
 ### Purpose
-Baslm exists because healthcare in the Arab world deserves infrastructure worthy of it.
+Balsm exists because healthcare in the Arab world deserves infrastructure worthy of it.
 
 **بلسم موجود لأن الرعاية الصحية في عالمنا العربي تستحق بنية تحتية تليق بها.**
 
@@ -52,17 +52,17 @@ The Arab patient — urban and underserved equally, from Alexandria to Aswan —
 
 المريض العربي — في المدينة والريف على حدٍّ سواء، من الإسكندرية إلى أسوان — الذي يتنقل في منظومة صحية مفككة دون سجل مستمر، ودون رؤية لبياناته الخاصة، ودون طريقة موثوقة تربط زيارات الصيدلية والعيادة والمختبر في صورة صحية واحدة متكاملة.
 
-**GTM Logic:** Patient demand pulls providers onto Baslm — bottom-up adoption. When patients arrive at a clinic expecting Baslm, adoption stops being a sales problem and becomes a network effect.
+**GTM Logic:** Patient demand pulls providers onto Balsm — bottom-up adoption. When patients arrive at a clinic expecting Balsm, adoption stops being a sales problem and becomes a network effect.
 
 ### Secondary — المستخدمون المهنيون
-Healthcare professionals who live inside Baslm daily:
+Healthcare professionals who live inside Balsm daily:
 - **الصيادلة** — Pharmacists: inventory, dispensing, insurance
 - **الأطباء** — Doctors: consultations, prescriptions, patient history
 - **الممرضون** — Nurses: vitals, triage, care coordination
 - **المختبرات** — Lab operators: orders, results, FHIR integration
 
 ### Economic Buyer — المشتري الفعلي
-The operations manager or clinic administrator — responsible for making the system work, training staff, and justifying infrastructure decisions. They choose Baslm because it is self-hosted, PDPL-compliant, and costs nothing to own.
+The operations manager or clinic administrator — responsible for making the system work, training staff, and justifying infrastructure decisions. They choose Balsm because it is self-hosted, PDPL-compliant, and costs nothing to own.
 
 ### Geographic Sequencing
 - **Launch:** Egypt — من الإسكندرية إلى أسوان (urban and underserved simultaneously)
@@ -70,14 +70,14 @@ The operations manager or clinic administrator — responsible for making the sy
 - **Vision horizon:** من المحيط إلى الخليج
 
 > **من الإسكندرية إلى أسوان — نفس بلسم، نفس الموثوقية.**
-> From Alexandria to Aswan — the same Baslm, the same reliability.
+> From Alexandria to Aswan — the same Balsm, the same reliability.
 
 ---
 
 ## 4. Brand Promise
 > **وعد العلامة**
 
-Baslm promises that your healthcare — whether you give it or receive it — belongs to you. Your data stays yours. Your system works when you need it, where you need it, in the language you think in. No vendor between you and your care. No internet required to deliver it. No compromise on who you are.
+Balsm promises that your healthcare — whether you give it or receive it — belongs to you. Your data stays yours. Your system works when you need it, where you need it, in the language you think in. No vendor between you and your care. No internet required to deliver it. No compromise on who you are.
 
 ---
 
@@ -92,15 +92,15 @@ Baslm promises that your healthcare — whether you give it or receive it — be
 ## 5. Brand Personality
 > **شخصية العلامة**
 
-Baslm carries two complementary qualities in equal measure, each surfacing where it's needed most.
+Balsm carries two complementary qualities in equal measure, each surfacing where it's needed most.
 
-**Serious when it counts.** In clinical contexts, compliance language, and data handling, Baslm is precise, measured, and trustworthy — like a seasoned professional who never overpromises and always delivers. No fluff, no shortcuts.
+**Serious when it counts.** In clinical contexts, compliance language, and data handling, Balsm is precise, measured, and trustworthy — like a seasoned professional who never overpromises and always delivers. No fluff, no shortcuts.
 
-**Optimistic where it matters.** In onboarding, community, and product vision, Baslm is warm, encouraging, and quietly proud — believing genuinely that the Arab world deserves world-class, self-owned healthcare infrastructure.
+**Optimistic where it matters.** In onboarding, community, and product vision, Balsm is warm, encouraging, and quietly proud — believing genuinely that the Arab world deserves world-class, self-owned healthcare infrastructure.
 
-If Baslm were a person, they would be a trusted healthcare professional who also believes deeply in open systems and the people who use them. Patient with complexity. Honest about tradeoffs. Never performative.
+If Balsm were a person, they would be a trusted healthcare professional who also believes deeply in open systems and the people who use them. Patient with complexity. Honest about tradeoffs. Never performative.
 
-**Baslm never sounds:** hyped, preachy, or self-congratulatory. It earns trust through consistency, not volume.
+**Balsm never sounds:** hyped, preachy, or self-congratulatory. It earns trust through consistency, not volume.
 
 ### Personality Axis
 | Trait | Where it shows |
@@ -142,7 +142,7 @@ Rules:
 - Celebrate the community without being performative.
 - Optimism is earned, not assumed.
 
-### What Baslm Never Sounds Like
+### What Balsm Never Sounds Like
 - Cold & corporate
 - Overhyped & startup-bro
 - Preachy & self-righteous
@@ -154,17 +154,17 @@ Rules:
 > **التموضع**
 
 ### The Category
-Baslm doesn't compete in healthcare software. It creates a new category: the **Community-Owned Healthcare OS** — infrastructure that belongs to the people who use it, built on open standards, designed for Arabic-speaking care, and resilient enough to run without a single byte of cloud dependency.
+Balsm doesn't compete in healthcare software. It creates a new category: the **Community-Owned Healthcare OS** — infrastructure that belongs to the people who use it, built on open standards, designed for Arabic-speaking care, and resilient enough to run without a single byte of cloud dependency.
 
 ### Competitive Landscape
-| Competitor Layer | What they offer | Why they fail | How Baslm wins |
+| Competitor Layer | What they offer | Why they fail | How Balsm wins |
 |---|---|---|---|
 | **Paper & WhatsApp** | Zero cost, familiar | No continuity, no safety, no record | Structured, owned, permanent |
 | **Legacy local HIS** | Arabic, local | Closed, expensive, offline-incapable | Open, free to self-host, offline-first |
 | **Global SaaS (Epic, Oracle)** | Powerful, modern | Foreign-built, cloud-only, PDPL risk | Arabic-native, self-hosted, compliant |
 
 ### Positioning Statement
-For patients and healthcare providers across the Arab world who are failed daily by fragmented, foreign-built, or paper-based systems — Baslm is the first community-owned healthcare operating system that is Arabic-first, offline-ready, and FHIR-native. Unlike legacy HIS platforms that lock you in, global SaaS tools that ignore your context, or paper systems that lose your data — Baslm gives every clinic, pharmacy, and hospital from Alexandria to Aswan infrastructure they fully own, at zero cost to self-host, forever.
+For patients and healthcare providers across the Arab world who are failed daily by fragmented, foreign-built, or paper-based systems — Balsm is the first community-owned healthcare operating system that is Arabic-first, offline-ready, and FHIR-native. Unlike legacy HIS platforms that lock you in, global SaaS tools that ignore your context, or paper systems that lose your data — Balsm gives every clinic, pharmacy, and hospital from Alexandria to Aswan infrastructure they fully own, at zero cost to self-host, forever.
 
 ---
 
@@ -186,7 +186,7 @@ For patients and healthcare providers across the Arab world who are failed daily
 ### ١ — الانفتاح · Openness
 *The code is open. The roadmap is open. The decisions are open.*
 
-Baslm builds in public because transparency isn't a marketing choice — it's the architecture of trust. An open codebase is the only honest answer to "can we trust this with patient data?"
+Balsm builds in public because transparency isn't a marketing choice — it's the architecture of trust. An open codebase is the only honest answer to "can we trust this with patient data?"
 
 ### ٢ — السيادة · Sovereignty
 *Your data. Your infrastructure. Your rules.*
@@ -196,22 +196,22 @@ Providers own what they run. Patients own what's recorded about them. No cloud d
 ### ٣ — المجتمع · Community
 *The ecosystem outlasts any product.*
 
-Baslm is not a company with users — it's a community with a platform. Developers, providers, patients, and contributors shape what gets built. The product serves the community, never the other way around.
+Balsm is not a company with users — it's a community with a platform. Developers, providers, patients, and contributors shape what gets built. The product serves the community, never the other way around.
 
 ### ٤ — العروبة · Arabic-First
 *Arabic is not a translation. It's the original.*
 
-Every interface, every error message, every clinical term is designed in Arabic first. Not localized after the fact. Not right-to-left as an afterthought. Arabic is the native language of Baslm — because it's the native language of those it serves.
+Every interface, every error message, every clinical term is designed in Arabic first. Not localized after the fact. Not right-to-left as an afterthought. Arabic is the native language of Balsm — because it's the native language of those it serves.
 
 ### ٥ — الصمود · Resilience
 *Works in Aswan as well as it works in Alexandria.*
 
-Offline-first is not a feature. It's a value. Healthcare cannot wait for connectivity. Baslm is built to function completely without internet — because the patients who need it most are often the ones with the least reliable infrastructure.
+Offline-first is not a feature. It's a value. Healthcare cannot wait for connectivity. Balsm is built to function completely without internet — because the patients who need it most are often the ones with the least reliable infrastructure.
 
 ### ٦ — الإتقان · Excellence
 *Healthcare deserves better than good enough.*
 
-Every line of code, every UX decision, every clinical workflow is held to the standard of the lives it affects. Not perfectionism — precision. The difference between a medication error and a correct prescription is one character. Baslm takes that seriously.
+Every line of code, every UX decision, every clinical workflow is held to the standard of the lives it affects. Not perfectionism — precision. The difference between a medication error and a correct prescription is one character. Balsm takes that seriously.
 
 ### Summary Table
 | # | القيمة | Value | المبدأ |
@@ -229,20 +229,20 @@ Every line of code, every UX decision, every clinical workflow is held to the st
 > **تجربة العلامة**
 
 ### The Three Defining Moments
-Three moments capture everything Baslm promises to feel like:
+Three moments capture everything Balsm promises to feel like:
 
-A patient in Cairo opens Baslm and sees — for the first time — their complete health journey in one place. Every prescription, every visit, every lab result. Theirs. In Arabic. Finally whole.
+A patient in Cairo opens Balsm and sees — for the first time — their complete health journey in one place. Every prescription, every visit, every lab result. Theirs. In Arabic. Finally whole.
 
-A pharmacist in a village outside Aswan dispenses medication to a patient with a complex history. The internet has been down for two days. Baslm hasn't noticed.
+A pharmacist in a village outside Aswan dispenses medication to a patient with a complex history. The internet has been down for two days. Balsm hasn't noticed.
 
-A developer in Alexandria finds Baslm on GitHub. Reads the code. Reads the mission. Feels something rare — pride that this was built here, by people who understand here.
+A developer in Alexandria finds Balsm on GitHub. Reads the code. Reads the mission. Feels something rare — pride that this was built here, by people who understand here.
 
 These are not three different experiences. They are one experience, felt by three different people.
 
 ### How Every Touchpoint Should Feel
 
 **هادئ ومتحكم — Calm and in control.**
-Nothing in Baslm creates anxiety. Interfaces are clear. Flows are predictable. Error messages explain, never blame. The system absorbs complexity so the user doesn't have to.
+Nothing in Balsm creates anxiety. Interfaces are clear. Flows are predictable. Error messages explain, never blame. The system absorbs complexity so the user doesn't have to.
 
 **مرئي ومحترم — Seen and respected.**
 Every label, every prompt, every notification is written in Arabic that sounds like a human wrote it — not translated, not localized, not an afterthought. Users feel the system was made for them specifically.
@@ -251,17 +251,17 @@ Every label, every prompt, every notification is written in Arabic that sounds l
 Every interaction reinforces one truth: you are in control. Your data doesn't go anywhere you didn't choose. Your system runs whether or not the cloud does. No dependency, no anxiety, no permission needed.
 
 ### The Experiential Standard
-Every Baslm touchpoint — from the first onboarding screen to a database migration error — must pass three tests simultaneously:
+Every Balsm touchpoint — from the first onboarding screen to a database migration error — must pass three tests simultaneously:
 
 - **Frictionless** — does it just work, without asking the user to think about infrastructure?
 - **Warm** — does it feel like a trusted colleague, not a cold system?
-- **Trustworthy** — does it reinforce or erode confidence in Baslm?
+- **Trustworthy** — does it reinforce or erode confidence in Balsm?
 
 If any touchpoint fails one test, it fails the experience.
 
 ### The One-Line Experience Promise
 **بلسم يشعرك بأن الرعاية الصحية أخيراً في مكانها الصحيح.**
-Baslm makes healthcare feel like it finally belongs to you.
+Balsm makes healthcare feel like it finally belongs to you.
 
 ---
 

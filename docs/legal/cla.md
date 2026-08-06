@@ -1,4 +1,4 @@
-# Baslm Individual Contributor License Agreement (CLA) v1.0
+# Balsm Individual Contributor License Agreement (CLA) v1.0
 # اتفاقية ترخيص المساهم الفردي لبلسم الإصدار 1.0
 
 **Effective date / تاريخ النفاذ:** [DATE]
@@ -12,7 +12,7 @@
 
 ## English
 
-Thank you for your interest in contributing to the Baslm open-source healthcare platform ("Project") made available by Baslm and its maintainers ("Baslm"). This Individual Contributor License Agreement ("Agreement") sets out the terms governing any source code, object code, bug fixes, configuration changes, tools, specifications, documentation, data, materials, feedback, information, translations, or other works of authorship that you submit or have submitted, in any form and in any manner, to Baslm in respect of the Project (collectively "Contributions").
+Thank you for your interest in contributing to the Balsm open-source healthcare platform ("Project") made available by Balsm and its maintainers ("Balsm"). This Individual Contributor License Agreement ("Agreement") sets out the terms governing any source code, object code, bug fixes, configuration changes, tools, specifications, documentation, data, materials, feedback, information, translations, or other works of authorship that you submit or have submitted, in any form and in any manner, to Balsm in respect of the Project (collectively "Contributions").
 
 If you have any questions respecting this Agreement, please contact legal@balsm.health.
 
@@ -22,27 +22,27 @@ If you have any questions respecting this Agreement, please contact legal@balsm.
 
 ### 1. Copyright License
 
-You hereby grant, and agree to grant, to Baslm a non-exclusive, perpetual, irrevocable, worldwide, fully-paid, royalty-free, transferable copyright license to:
+You hereby grant, and agree to grant, to Balsm a non-exclusive, perpetual, irrevocable, worldwide, fully-paid, royalty-free, transferable copyright license to:
 
 - reproduce, prepare derivative works of, publicly display, publicly perform, and distribute your Contributions and such derivative works
 - sublicense the foregoing rights through multiple tiers of sublicensees
-- license your Contributions under any license, including proprietary and commercial licenses, as part of Baslm's dual-licensing model (AGPL v3 community edition and Baslm Commercial License)
+- license your Contributions under any license, including proprietary and commercial licenses, as part of Balsm's dual-licensing model (AGPL v3 community edition and Balsm Commercial License)
 
-This license grant includes the right to incorporate your Contributions into the commercial edition of the Software and to offer them under the Baslm Commercial License (BCL) without additional compensation to you, beyond what may be separately agreed in writing.
+This license grant includes the right to incorporate your Contributions into the commercial edition of the Software and to offer them under the Balsm Commercial License (BCL) without additional compensation to you, beyond what may be separately agreed in writing.
 
 ---
 
 ### 2. Patent License
 
-You hereby grant, and agree to grant, to Baslm a non-exclusive, perpetual, irrevocable, worldwide, fully-paid, royalty-free, transferable patent license to make, have made, use, offer to sell, sell, import, and otherwise transfer your Contributions, where such license applies only to those patent claims licensable by you that are necessarily infringed by your Contributions alone or by combination of your Contributions with the Project to which such Contributions were submitted, with the right to sublicense the foregoing rights through multiple tiers of sublicensees.
+You hereby grant, and agree to grant, to Balsm a non-exclusive, perpetual, irrevocable, worldwide, fully-paid, royalty-free, transferable patent license to make, have made, use, offer to sell, sell, import, and otherwise transfer your Contributions, where such license applies only to those patent claims licensable by you that are necessarily infringed by your Contributions alone or by combination of your Contributions with the Project to which such Contributions were submitted, with the right to sublicense the foregoing rights through multiple tiers of sublicensees.
 
 ---
 
 ### 3. Moral Rights
 
-To the fullest extent permitted under applicable law — including Egyptian law, GCC applicable laws, and any other jurisdiction whose laws may apply to your Contributions — you hereby waive, and agree not to assert, all of your "moral rights" (including rights of integrity, attribution, disclosure, and withdrawal) in or relating to your Contributions, for the benefit of Baslm, its assigns, and their respective direct and indirect sublicensees.
+To the fullest extent permitted under applicable law — including Egyptian law, GCC applicable laws, and any other jurisdiction whose laws may apply to your Contributions — you hereby waive, and agree not to assert, all of your "moral rights" (including rights of integrity, attribution, disclosure, and withdrawal) in or relating to your Contributions, for the benefit of Balsm, its assigns, and their respective direct and indirect sublicensees.
 
-Where moral rights cannot be waived under applicable law, you agree not to exercise them in any manner that would restrict Baslm's ability to use, modify, sublicense, or commercially exploit your Contributions under this Agreement.
+Where moral rights cannot be waived under applicable law, you agree not to exercise them in any manner that would restrict Balsm's ability to use, modify, sublicense, or commercially exploit your Contributions under this Agreement.
 
 ---
 
@@ -56,7 +56,7 @@ If your Contribution includes or is based on any source code, object code, bug f
 - where you obtained the Third-Party Content
 - any applicable third-party license terms or restrictions respecting the Third-Party Content and Third-Party Rights
 
-**4.2** Not include any Third-Party Content licensed under terms incompatible with the Baslm dual-license model (AGPL v3 + BCL), including without limitation any content licensed under GPL v2-only, Creative Commons Non-Commercial, or any other license that would restrict Baslm's ability to offer the Software under a commercial license.
+**4.2** Not include any Third-Party Content licensed under terms incompatible with the Balsm dual-license model (AGPL v3 + BCL), including without limitation any content licensed under GPL v2-only, Creative Commons Non-Commercial, or any other license that would restrict Balsm's ability to offer the Software under a commercial license.
 
 **4.3** Specifically flag any use of AI-generated code tools (such as GitHub Copilot, Cursor, or similar) in preparing your Contribution, given unresolved questions regarding the licensing status of AI-generated code.
 
@@ -66,11 +66,11 @@ For greater certainty, the foregoing obligations respecting the identification o
 
 ### 5. Healthcare and Medical Software
 
-Given that Baslm is a healthcare platform handling sensitive patient data and clinical workflows, you additionally agree that:
+Given that Balsm is a healthcare platform handling sensitive patient data and clinical workflows, you additionally agree that:
 
 **5.1** You will not knowingly introduce code, dependencies, or configurations that would: (a) compromise patient data security or privacy; (b) violate HL7 FHIR R4 compliance requirements; (c) create unauthorized data transmission to third parties; or (d) circumvent the License Token or activation system.
 
-**5.2** You acknowledge that Baslm operates in regulated healthcare environments subject to Egypt's Personal Data Protection Law No. 151/2020, GCC health data regulations, and other applicable laws, and that your Contributions must be compatible with these compliance requirements to the best of your knowledge.
+**5.2** You acknowledge that Balsm operates in regulated healthcare environments subject to Egypt's Personal Data Protection Law No. 151/2020, GCC health data regulations, and other applicable laws, and that your Contributions must be compatible with these compliance requirements to the best of your knowledge.
 
 **5.3** You will disclose any known security vulnerabilities, patient safety risks, or compliance concerns in your Contribution at the time of submission, rather than submitting a fix without disclosure.
 
@@ -100,13 +100,13 @@ To the fullest extent permitted under applicable law, your Contributions are pro
 
 ### 8. No Obligation
 
-You acknowledge that Baslm is under no obligation to use or incorporate your Contributions into the Project. The decision to use or incorporate your Contributions into the Project will be made at the sole discretion of Baslm or its authorized maintainers. Acceptance of a Contribution does not create an employment, contractor, or partnership relationship between you and Baslm.
+You acknowledge that Balsm is under no obligation to use or incorporate your Contributions into the Project. The decision to use or incorporate your Contributions into the Project will be made at the sole discretion of Balsm or its authorized maintainers. Acceptance of a Contribution does not create an employment, contractor, or partnership relationship between you and Balsm.
 
 ---
 
 ### 9. Attribution
 
-Baslm will make reasonable efforts to acknowledge contributors in the Project's contributor records. However, you acknowledge that Baslm may modify, refactor, or integrate your Contributions in ways that make individual attribution impractical, and that this Agreement does not guarantee any particular form of public attribution.
+Balsm will make reasonable efforts to acknowledge contributors in the Project's contributor records. However, you acknowledge that Balsm may modify, refactor, or integrate your Contributions in ways that make individual attribution impractical, and that this Agreement does not guarantee any particular form of public attribution.
 
 ---
 
@@ -122,19 +122,19 @@ Baslm will make reasonable efforts to acknowledge contributors in the Project's 
 
 ### 11. Assignment
 
-You agree that Baslm may assign this Agreement, and all of its rights, obligations, and licenses hereunder, including in connection with a merger, acquisition, or sale of substantially all of Baslm's assets, without your consent, provided that the assignee assumes all obligations under this Agreement.
+You agree that Balsm may assign this Agreement, and all of its rights, obligations, and licenses hereunder, including in connection with a merger, acquisition, or sale of substantially all of Balsm's assets, without your consent, provided that the assignee assumes all obligations under this Agreement.
 
 ---
 
 ### 12. Entire Agreement
 
-This Agreement constitutes the entire agreement between you and Baslm with respect to the subject matter hereof and supersedes all prior discussions, understandings, or agreements relating to your Contributions. This Agreement may be amended by Baslm upon thirty (30) days' written notice, and your continued submission of Contributions after such notice period constitutes acceptance of the amended terms.
+This Agreement constitutes the entire agreement between you and Balsm with respect to the subject matter hereof and supersedes all prior discussions, understandings, or agreements relating to your Contributions. This Agreement may be amended by Balsm upon thirty (30) days' written notice, and your continued submission of Contributions after such notice period constitutes acceptance of the amended terms.
 
 ---
 
 ### How to Sign
 
-To sign this CLA, submit a Pull Request to the Baslm repository. The CLA Assistant bot will automatically prompt you to sign by commenting:
+To sign this CLA, submit a Pull Request to the Balsm repository. The CLA Assistant bot will automatically prompt you to sign by commenting:
 
 > `I have read the CLA Document and I hereby sign the CLA.`
 

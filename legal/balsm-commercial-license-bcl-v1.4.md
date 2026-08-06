@@ -1,7 +1,7 @@
-# Baslm Commercial License (BCL) v1.4 / رخصة بلسم التجارية الإصدار 1.4
+# Balsm Commercial License (BCL) v1.4 / رخصة بلسم التجارية الإصدار 1.4
 
 **Effective date / تاريخ النفاذ:** The effective date specified in the applicable signed Order Form / تاريخ النفاذ المحدد في نموذج الطلب الموقع المعمول به  
-**Copyright / حقوق النشر:** © Baslm. All rights reserved. / جميع الحقوق محفوظة لبلسم.
+**Copyright / حقوق النشر:** © Balsm. All rights reserved. / جميع الحقوق محفوظة لبلسم.
 
 ---
 
@@ -9,9 +9,9 @@
 
 ### English
 
-Baslm is offered under a dual-license model. The community edition is available under the GNU Affero General Public License version 3 (AGPL v3), which supports transparency, community collaboration, and public benefit. The commercial edition is available under this Baslm Commercial License (BCL) v1.4 for organizations that need broader deployment rights, private modifications, software-as-a-service rights, white-label rights, or other commercial permissions that are not practical under the AGPL v3 model.
+Balsm is offered under a dual-license model. The community edition is available under the GNU Affero General Public License version 3 (AGPL v3), which supports transparency, community collaboration, and public benefit. The commercial edition is available under this Balsm Commercial License (BCL) v1.4 for organizations that need broader deployment rights, private modifications, software-as-a-service rights, white-label rights, or other commercial permissions that are not practical under the AGPL v3 model.
 
-This approach is intended to keep Baslm accessible to individual practitioners, small clinics, researchers, non-profit initiatives, and open-source contributors, while requiring a commercial license from entities that use Baslm to provide services to third parties, operate large or multi-entity deployments, or incorporate Baslm into revenue-generating commercial products or hosted infrastructure.
+This approach is intended to keep Balsm accessible to individual practitioners, small clinics, researchers, non-profit initiatives, and open-source contributors, while requiring a commercial license from entities that use Balsm to provide services to third parties, operate large or multi-entity deployments, or incorporate Balsm into revenue-generating commercial products or hosted infrastructure.
 
 By using, copying, modifying, deploying, distributing, or making the Software available under this BCL, the Licensee agrees to the terms of this License.
 
@@ -33,7 +33,7 @@ For the purposes of this License:
 
 **2.2 "Licensee"** means the individual or legal entity identified as the licensee in the applicable signed Order Form, together with only those Covered Affiliates expressly listed in that Order Form under Section 5.5.
 
-**2.3 "Software"** means the Baslm platform and all related components, including source code, object code, documentation, schemas, APIs, interfaces, modules, connectors, deployment artifacts, updates, and any modifications provided by or on behalf of the Licensor under this License.
+**2.3 "Software"** means the Balsm platform and all related components, including source code, object code, documentation, schemas, APIs, interfaces, modules, connectors, deployment artifacts, updates, and any modifications provided by or on behalf of the Licensor under this License.
 
 **2.4 "Large Deployment"** means any deployment that meets one or more of the following conditions: (a) is deployed in or for one or more Licensed Facilities; (b) serves more than 3 separate organizations, legal entities, clinics, pharmacies, hospitals, branches, or tenants, where each entity is measured by its separate legal registration, tax identification, or independent operational management; or (c) operates as cloud infrastructure, managed hosting, or another shared environment serving third parties.
 
@@ -183,7 +183,7 @@ Subject to timely payment of applicable fees and compliance with this License, t
 
 **5.2 Keep modifications private**, including use of modified versions of the Software in networked or hosted environments without a public source-code release obligation. For the specific use cases licensed under this BCL, this License supersedes and replaces the AGPL v3 network source-disclosure obligations that would otherwise apply. This supersession applies only to the Licensee's use within the licensed scope and does not affect AGPL v3 obligations for community edition users or for any use outside the scope of this BCL.
 
-**5.3 Exercise White-labeling / OEM rights**, including the right to deploy, package, and present the Software under the Licensee's own brand, only to the extent expressly granted in the applicable Order Form and subject to Sections 6.2 and 6.3 regarding attribution, copyright notices, and Baslm trademarks.
+**5.3 Exercise White-labeling / OEM rights**, including the right to deploy, package, and present the Software under the Licensee's own brand, only to the extent expressly granted in the applicable Order Form and subject to Sections 6.2 and 6.3 regarding attribution, copyright notices, and Balsm trademarks.
 
 **5.4 Provide the Software as a service to third parties**, including SaaS, managed hosting, and cloud delivery models within the licensed scope.
 
@@ -263,11 +263,11 @@ Except as expressly permitted under this License, the Licensee may not:
 
 **6.2 Remove, alter, hide, or obscure any copyright notices, attribution statements, authorship notices, or license headers** contained in the Software, including in source code, documentation, and about pages where such notices appear.
 
-**6.3 Use the Baslm names, Arabic marks, logos, domains, or trademarks**, including "Baslm", "بلسم", "balsm.health", and any transliterations, phonetic equivalents, or confusingly similar variations (such as "Balsam", "Balsem", "Balsum", or similar), in any product name, company name, domain name, subdomain, URL path, social media identity, application title, or marketing material without a separate written trademark license from the Licensor. Descriptive references such as "built with Baslm" or "compatible with Baslm" are permitted if truthful and not misleading as to endorsement or origin.
+**6.3 Use the Balsm names, Arabic marks, logos, domains, or trademarks**, including "Balsm", "بلسم", "balsm.health", and any transliterations, phonetic equivalents, or confusingly similar variations (such as "Balsam", "Balsem", "Balsum", or similar), in any product name, company name, domain name, subdomain, URL path, social media identity, application title, or marketing material without a separate written trademark license from the Licensor. Descriptive references such as "built with Balsm" or "compatible with Balsm" are permitted if truthful and not misleading as to endorsement or origin.
 
 **6.4 Transfer, assign, novate, sell, lease, or otherwise dispose of this License** to another entity without the Licensor's prior written consent, except in a merger or acquisition approved in writing by the Licensor.
 
-**6.5 Use the Software to build, market, or operate a product or service that is Substantially Similar to Baslm's core platform** without the Licensor's explicit prior written permission. Whether a product or service is "Substantially Similar" is determined by reference to Section 2.14. This restriction does not prohibit creating complementary products, integrations, or specialized solutions that interoperate with or extend Baslm without replicating its core functionality.
+**6.5 Use the Software to build, market, or operate a product or service that is Substantially Similar to Balsm's core platform** without the Licensor's explicit prior written permission. Whether a product or service is "Substantially Similar" is determined by reference to Section 2.14. This restriction does not prohibit creating complementary products, integrations, or specialized solutions that interoperate with or extend Balsm without replicating its core functionality.
 
 **6.6 Misrepresent authorship, origin, certification, regulatory status, or ownership** of the Software.
 
@@ -283,7 +283,7 @@ Except as expressly permitted under this License, the Licensee may not:
 
 **6.2 إزالة أو تعديل أو إخفاء أو طمس أي إشعارات لحقوق النشر أو نسب العمل أو بيانات المؤلف أو رؤوس التراخيص** الواردة في البرنامج، بما في ذلك الشفرة المصدرية والوثائق وصفحات "حول" حيث تظهر تلك الإشعارات.
 
-**6.3 استخدام أسماء أو العلامات العربية أو الشعارات أو النطاقات أو العلامات التجارية الخاصة ببلسم**، بما في ذلك "Baslm" و"بلسم" و"balsm.health"، وأي كتابات صوتية أو ما يعادلها الصوتي أو أي اختلافات مربكة مماثلة (مثل "Balsam" أو "Balsem" أو "Balsum" أو ما شابه)، في أي اسم منتج أو اسم شركة أو اسم نطاق أو نطاق فرعي أو مسار URL أو هوية على وسائل التواصل الاجتماعي أو عنوان تطبيق أو مادة تسويقية من دون ترخيص علامة تجارية منفصل وخطي من المرخِّص. وتُسمح الإشارات الوصفية مثل "مبني بواسطة بلسم" أو "متوافق مع بلسم" إذا كانت صادقة وغير مضللة فيما يتعلق بالتأييد أو المنشأ.
+**6.3 استخدام أسماء أو العلامات العربية أو الشعارات أو النطاقات أو العلامات التجارية الخاصة ببلسم**، بما في ذلك "Balsm" و"بلسم" و"balsm.health"، وأي كتابات صوتية أو ما يعادلها الصوتي أو أي اختلافات مربكة مماثلة (مثل "Balsam" أو "Balsem" أو "Balsum" أو ما شابه)، في أي اسم منتج أو اسم شركة أو اسم نطاق أو نطاق فرعي أو مسار URL أو هوية على وسائل التواصل الاجتماعي أو عنوان تطبيق أو مادة تسويقية من دون ترخيص علامة تجارية منفصل وخطي من المرخِّص. وتُسمح الإشارات الوصفية مثل "مبني بواسطة بلسم" أو "متوافق مع بلسم" إذا كانت صادقة وغير مضللة فيما يتعلق بالتأييد أو المنشأ.
 
 **6.4 نقل هذه الرخصة أو التنازل عنها أو إحلالها أو بيعها أو تأجيرها أو التصرف فيها بأي صورة أخرى** إلى جهة أخرى من دون موافقة خطية مسبقة من المرخِّص، باستثناء الاندماج أو الاستحواذ الموافق عليه خطيا من المرخِّص.
 

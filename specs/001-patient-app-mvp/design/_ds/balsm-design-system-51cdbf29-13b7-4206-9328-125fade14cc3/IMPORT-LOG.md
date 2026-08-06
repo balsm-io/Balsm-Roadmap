@@ -23,6 +23,6 @@
 
 - **preview/ gallery — 19 remaining HTML:** `adaptive`, `brand-gradients`, `brand-logo`, `brand-pattern`, `colors-clinical`, `colors-neutrals`, `colors-petals`, `components-badges`, `components-buttons`, `components-cards`, `components-inputs`, `components-table`, `iconography`, `spacing-radii-shadows`, `spacing-scale`, `type-body`, `type-display`, `voice-copy`. (Static showcases; the tokens + component sources they demonstrate are already imported.)
 - **ui_kits/balsm_pharmacy/ (10):** Slice 1 (Pharmacy POS) — `README.md`, `app.jsx`, `atoms.jsx`, `customers.jsx`, `index.html`, `inventory.jsx`, `kit.css`, `pos.jsx`, `shell.jsx`, `tweaks-panel.jsx`. Out of the P001 patient-app scope.
-- **Docs (source material):** `uploads/design.md`, `uploads/BUSINESS_FEATURES.md`, `uploads/baslm-brand-canvas.md`, root `baslm-brand-canvas.md`. (The brand canvas summary is captured in `README.md`; these are the long-form sources.)
+- **Docs (source material):** `uploads/design.md`, `uploads/BUSINESS_FEATURES.md`, `uploads/balsm-brand-canvas.md`, root `balsm-brand-canvas.md`. (The brand canvas summary is captured in `README.md`; these are the long-form sources.)
 - **Tooling / compiled:** `_ds_bundle.js` (compiled bundle), `_ds_manifest.json`, `_adherence.oxlintrc.json`.
 - **scratch/ (17 PNG dev screenshots) + `.thumbnail`:** design-process artifacts, not design deliverables.

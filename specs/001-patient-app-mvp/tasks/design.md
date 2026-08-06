@@ -9,7 +9,7 @@ description: "P001 tasks — UI/UX Design & Prototype Review (Phase 2.5)"
 Phase 2.5 only. Blocking gate before Phase 3+ Flutter implementation. Anchored on:
 
 - `Balsm-Core/brand/colors_and_type.css` — token source of truth
-- `Balsm-Core/brand/baslm-brand-canvas.md` — voice + tone
+- `Balsm-Core/brand/balsm-brand-canvas.md` — voice + tone
 - `Balsm-AI/plugin/skills/balsm-design/patient_app/` — prototype skeleton
 - `Balsm-AI/plugin/skills/balsm-design/preview/` — preview cards reference
 - `Balsm-Core/design.md` — design contract index
@@ -66,7 +66,7 @@ Format: `[ID] [P?] [Flutter] Description with file path`
 
 - [X] D025 [P] [Flutter] Create `design/MOTION-SPEC.md` — per-screen motion specs (page transitions, modal enter/exit, list-item stagger, QR reveal, OTP shake on error) with durations + curves anchored to `brand/colors_and_type.css` motion tokens
 - [X] D026 [P] [Flutter] Create `design/A11Y-SPEC.md` — VoiceOver / TalkBack labels per screen, focus order, touch target ≥44pt, contrast pairs verified, reduced-motion alternates, font scaling up to 200%
-- [X] D027 [P] [Flutter] Create `design/COPY-SPEC.md` — UX writing per screen anchored on `brand/baslm-brand-canvas.md` voice + tone; localizations for `en`, `ar-EG`, `ar-SA`, `ar-AE`; feeds the i18n bundle creation at T100
+- [X] D027 [P] [Flutter] Create `design/COPY-SPEC.md` — UX writing per screen anchored on `brand/balsm-brand-canvas.md` voice + tone; localizations for `en`, `ar-EG`, `ar-SA`, `ar-AE`; feeds the i18n bundle creation at T100
 
 **Checkpoint**: design spec + prototype reviewed + signed off by all stakeholders. `tokens-snapshot.json` locked. Implementation phases 3-9 may proceed referencing finalized mocks + spec.
 

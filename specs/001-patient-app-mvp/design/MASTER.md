@@ -284,7 +284,7 @@ All in `core/kit/shared_widgets.dart` (T064). Token bindings + states locked her
 | **Errors** | Cause + fix in one sentence | "Code expired. Tap to send a new one." | "An error occurred." |
 | **Lockout** | Firm, not punishing | "Too many tries. Try again in 12 min." | "Account suspended." |
 
-Source of voice: `Balsm-Core/brand/baslm-brand-canvas.md`. Bilingual UX writing follows the canvas's 5 voice principles (Honest, Calm, Concrete, Bilingual, Open).
+Source of voice: `Balsm-Core/brand/balsm-brand-canvas.md`. Bilingual UX writing follows the canvas's 5 voice principles (Honest, Calm, Concrete, Bilingual, Open).
 
 ---
 
