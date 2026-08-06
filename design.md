@@ -6,7 +6,7 @@ This file is the **design contract** for every Balsm surface (Pharmacy, Patient 
 
 **Companion:** [brand/baslm-brand-canvas.md](brand/baslm-brand-canvas.md) is the **brand model canvas** — purpose, vision, audience, promise, personality, voice & tone, positioning, core values, experience. design.md says how Balsm *looks*; the canvas says what it *stands for* and how it *speaks*. Pin the canvas for any copy, UX-writing, or marketing work.
 
-Source bundle: `claude.ai/design` handoff `brCe2JFarDeEQRmN0pgOJA`, ingested 2026-06-05. Re-export there → re-copy `project/` into the `balsm-design` plugin skill to refresh.
+Source bundle: `claude.ai/design` handoff `GcpM-P5U3jAim3lY4dqh8A`, revised 2026-08-05. Re-export there → re-copy `project/` into the `balsm-design` plugin skill to refresh. (Supersedes handoff `brCe2JFarDeEQRmN0pgOJA`, ingested 2026-06-05.)
 
 ---
 
@@ -16,13 +16,25 @@ Source bundle: `claude.ai/design` handoff `brCe2JFarDeEQRmN0pgOJA`, ingested 202
 
 | Path | Role |
 |---|---|
-| [brand/colors_and_type.css](brand/colors_and_type.css) | **Single source of truth** — every CSS token (petals, neutrals, type, spacing, radii, shadows, motion). Import this. |
+| [brand/colors_and_type.css](brand/colors_and_type.css) | **Tier 1–2 source of truth** — global + semantic tokens: petals, neutrals, type, spacing, radii, shadows, motion, breakpoints, containers, gutters. Import this first. |
 | [brand/baslm-brand-canvas.md](brand/baslm-brand-canvas.md) | Brand canvas — mission, voice, values, positioning, experience. Source of truth for tone. |
 | [brand/logo-vertical.svg](brand/logo-vertical.svg) | Official five-petal flower + bilingual wordmark. Use as-is. |
 | [brand/logo-vertical-white.png](brand/logo-vertical-white.png) | Reverse lockup for dark surfaces. |
 | [brand/balsm-background.png](brand/balsm-background.png) | Watercolor petal pattern — hero/welcome backdrops only. |
 
 **Full design system — in the shared `balsm-ai` plugin, skill `balsm-design`** (invoke `/balsm-design` in any Balsm repo). Holds the long-form `README.md` manual, the Pharmacy POS UI kit (`ui_kits/balsm_pharmacy/`), the patient-app prototype (`patient_app/`), and per-token preview cards (`preview/`). Not duplicated in-repo — Core's `brand/` is the source the plugin is built from.
+
+**Token tiers.** Only tiers 1–2 live in `brand/`. The upper tiers ship with the plugin / design project:
+
+| Tier | File | Holds |
+|---|---|---|
+| 1–2 · global + semantic | `brand/colors_and_type.css` | petals, ink, cream, type scale, spacing, radii, shadows, motion, breakpoints, containers, gutters |
+| 3 · component | `component-tokens.css` | elevation `--elev-0…4`, row density, and per-component sizing for button / input / badge / select / toast / modal |
+| 4 · adaptive | `adaptive.css` | container-query helpers (`.cq*`, `.adaptive-row`, `.adaptive-split`, `.adaptive-grid`), priority column drop, touch targets, logical spacing |
+
+A surface that only needs color and type imports tier 1–2 alone. Pull tier 3 when building components, tier 4 when a layout genuinely adapts to its own container rather than the viewport.
+
+**Consumer caveat — utility-framework name collisions.** Tailwind v4 resolves its utilities *through* theme variables: `rounded-lg` → `var(--radius-lg)`, `ease-out` → `var(--ease-out)`, `max-w-md` → `var(--container-md)`, `shadow-md` → `var(--shadow-md)`, `tracking-tight` → `var(--tracking-tight)`. Those five families use Balsm's exact token names with different values, so importing this file verbatim silently restyles every existing utility in the consuming codebase — `max-w-md` alone jumps 448 px → 768 px. Namespace them on import (e.g. `--balsm-radius-*`) and migrate one family at a time. See the website repo's `DESIGN.md` for a worked example.
 
 ---
 
@@ -60,7 +72,9 @@ The brand has **no single primary color.** The mark is five petals in five hues;
 
 Each petal has `-600` (hover/pressed) and `-50` (soft wash background) siblings. Aliases: `--balsm-primary` (blue), `--balsm-accent` (aqua).
 
-**Wordmark color:** `--balsm-wordmark #6B6B60` — warm olive gray, anchor of the neutral scale (`--balsm-ink-*` skews warm, never cool / never blue-gray).
+**Wordmark color:** `--balsm-wordmark #254B45` — deep pine green, matching `brand/logo-*.svg`. The `.health` TLD sits one weight lighter in `--balsm-wordmark-tld #98A2B3` (cool blue-gray). On dark surfaces the wordmark knocks out to white per the reverse lockup (§7) — the pine green scores ≈1.5:1 on ink and must never be used there.
+
+*Was `#6B6B60` (warm olive gray). That hue survives as `--balsm-ink-600`, still the anchor of the neutral scale (`--balsm-ink-*` skews warm, never cool / never blue-gray) — it is simply no longer the wordmark.*
 
 **Cream:** `--balsm-cream-100 #F4F3EC` — warm document surface for receipts, prescriptions, marketing decks, print. Never substitute cool gray.
 
@@ -87,7 +101,10 @@ Full token list: [brand/colors_and_type.css](brand/colors_and_type.css).
 
 - Scale: `--fs-xs` 12 → `--fs-6xl` 72 (16px base, ~1.25 modular).
 - Classes: `.h-display`, `.h1`–`.h5`, `.p`, `.p-sm`, `.meta`, `.code`, `.eyebrow`, `.wordmark`, `.wordmark-ar`.
-- Eyebrows: `text-transform: uppercase; letter-spacing: 0.16em` — emerald color.
+- Eyebrows: `text-transform: uppercase; letter-spacing: 0.16em`.
+  **⚠ The specified emerald fails WCAG AA.** `--petal-emerald #01C4A2` at the 12-px eyebrow size scores **2.23:1 on white** and **2.00:1 on cream** — against a 4.5:1 requirement. Use a darkened emerald for eyebrow *text*: `#017560` clears AA on white (5.65), cream (5.08) and `#FAFAF7` (5.41). On dark surfaces the full-strength `#01C4A2` is the accessible one (7.68:1) and `#017560` fails (3.03:1) — so this token must flip by theme, not be a single value.
+  This applies to the petals generally: they are calibrated as *fills*, not as text colors. Drawing small text in any raw petal on a light surface will fail AA.
+- **RTL eyebrows:** Arabic has no uppercase (so `text-transform` is a no-op) and letter-spacing **breaks the cursive joins**. Under `[dir="rtl"]`, eyebrows must reset `letter-spacing: 0`, `text-transform: none`, and swap to `--font-arabic` — an explicit `font-family` on the class otherwise beats the inherited RTL swap.
 - Wordmark default: Montserrat 700 (closest free analog to the custom-set SVG wordmark). Swap `--font-display` if a custom wordmark face is later commissioned.
 
 **Substitution flags (open with product team):**
@@ -98,7 +115,9 @@ Full token list: [brand/colors_and_type.css](brand/colors_and_type.css).
 
 ## 6. Spacing · radii · shadows · motion
 
-**Spacing** (4-px base): `--space-1` 4 → `--space-24` 96. Page gutters 24 (mobile) / 48 (desktop). Card padding 24 (standard) / 32 (hero). Form rhythm 12 (label↔input), 16 (field↔field). Dense tables: 12-px row, 16-px horizontal cell padding.
+**Spacing** (4-px base): `--space-1` 4 → `--space-24` 96. Page gutters ramp `--gutter` 16 (phone) → `--gutter-md` 24 (tablet, ≥768) → `--gutter-lg` 48 (desktop, ≥1024); see the §6.5 table. Card padding 24 (standard) / 32 (hero). Form rhythm 12 (label↔input), 16 (field↔field). Dense tables: 12-px row, 16-px horizontal cell padding.
+
+The `--space-*` scale is intentionally identical to Tailwind's default 4-px scale — a Tailwind consumer needs no spacing override at all.
 
 **Radii:** `sm` 6 (chips), `md` 10 (buttons / inputs), `lg` 14 (**card default**), `xl` 20 (hero / modal), `2xl` 28 (squircle app icon), `pill` 999.
 
@@ -125,17 +144,27 @@ Balsm spans many viewport classes — phone, tablet, desktop POS, web admin, OS 
 - **Responsive** — fluid reflow across a continuous size range. Marketing web, admin UI.
 - **Adaptive** — distinct layouts swapped at a class boundary. Patient app phone↔tablet, POS desktop↔compact, and the fixed widget/lock-tile surfaces. Not a shrunk phone — a different layout.
 
-**Breakpoint tokens** (min-width, mobile-first; formalizes the `24 / 48` gutter split in §6):
+**Breakpoint tokens** (min-width, mobile-first; drives the gutter ramp in §6):
 
 | Token | Min width | Class | Primary gutter |
 |---|---|---|---|
-| (base) | 0 | phone | 24 |
-| `--bp-sm` | 600 | large phone / portrait tablet | 24 |
-| `--bp-md` | 905 | landscape tablet | 32 |
-| `--bp-lg` | 1240 | desktop / POS | 48 |
-| `--bp-xl` | 1640 | wide desktop | 48 |
+| (base) | 0 | phone | 16 |
+| `--bp-xs` | 375 | small phone | 16 |
+| `--bp-sm` | 480 | large phone | 16 |
+| `--bp-md` | 768 | tablet portrait | 24 |
+| `--bp-lg` | 1024 | tablet landscape / small laptop / POS | 48 |
+| `--bp-xl` | 1280 | desktop | 48 |
+| `--bp-2xl` | 1536 | wide desktop | 48 |
 
-Per-stack mapping: Flutter `LayoutBuilder` / `MediaQuery.sizeOf` against these values · Tailwind `sm/md/lg/xl` config overrides to match · CSS `@media (min-width: …)` reading the same tokens. One scale, all stacks.
+These are the values in `brand/colors_and_type.css`, and they are the contract. An earlier revision of this section listed a Material-derived scale (600 / 905 / 1240 / 1640) that never matched the token file; it is superseded.
+
+Note the values deliberately align with **Tailwind's own defaults** at `md` 768 / `lg` 1024 / `xl` 1280 / `2xl` 1536, so a Tailwind consumer only has to override `sm` (640 → 480) and add `xs` (375). Do not treat the `sm` override as free: it shifts every existing `sm:` utility in a codebase, so migrate it deliberately.
+
+CSS custom properties cannot be used inside `@media`, so the `--bp-*` tokens are unitless numbers for JS consumption; media queries reference the literal values.
+
+Per-stack mapping: Flutter `LayoutBuilder` / `MediaQuery.sizeOf` against these values · Tailwind `screens` overrides to match · CSS `@media (min-width: …)` and `@container` reading the same numbers. One scale, all stacks.
+
+**Container widths** (`--container-*`): xs 480 · sm 640 · md 768 · lg 1024 · **xl 1200 (page default)** · 2xl 1440.
 
 **Surface inventory:**
 
@@ -164,7 +193,7 @@ Per-stack mapping: Flutter `LayoutBuilder` / `MediaQuery.sizeOf` against these v
 |---|---|
 | **Primary** — app icon, web, marketing, storefront | Full 5-color flower + bilingual wordmark |
 | **Reverse** — dark UI, splash, photos, signage | All-white knockout (flower + wordmark) |
-| **Mono ink** — receipts watermark, stamps, fax, 16-px favicon | Single `--balsm-wordmark #6B6B60`, or solid `--petal-blue` |
+| **Mono ink** — receipts watermark, stamps, fax, 16-px favicon | Single `--balsm-wordmark #254B45`, or solid `--petal-blue` |
 | **Mono brand** — single color but on-brand | Solid `--petal-emerald #01C4A2` — closest to historic "Balsm green," most legible single hue |
 
 Flower mark usage: app icon (squircle-clipped, ink or cream bg) · loading spinner (4s linear rotate) · empty-state hero (centered, 96px) · prescription/receipt watermark (8–10% opacity) · hero backdrop (over the watercolor pattern).
