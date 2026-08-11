@@ -1,6 +1,6 @@
 # Balsm Design
 
-> **Balsm.health · بَلسَم** — open-source healthcare for Egypt and the Arabic-speaking world. Five petals · five colors · one promise: healing, locally.
+> **Balsm.health · بلسم** — open-source healthcare for Egypt and the Arabic-speaking world. Five petals · five colors · one promise: healing, locally.
 
 This file is the **design contract** for every Balsm surface (Pharmacy, Patient app, Doctor encounter, marketing, print). The canonical brand primitives — design tokens, logos, watercolor pattern, brand canvas — live flat in [brand/](brand/) in this repo. The full design *system* (long-form manual, UI kits, preview cards, patient-app prototype) is shipped as the **`balsm-design` skill** in the shared `balsm-ai` plugin, so any agent in any Balsm repo can invoke `/balsm-design`. Core is the canonical source; the plugin mirrors it.
 
@@ -48,7 +48,7 @@ A surface that only needs color and type imports tier 1–2 alone. Pull tier 3 w
 
 ## 3. Brand non-negotiables
 
-1. **Name.** Always `Balsm.health` in product (`.health` one weight lighter, smaller). Arabic: `بَلسَم` **with diacritics** (fatha on ب and on س). Without diacritics is incorrect.
+1. **Name.** Always `Balsm.health` in product (`.health` one weight lighter, smaller). Arabic: `بلسم` **with diacritics** (fatha on ب and on س). Without diacritics is incorrect.
 2. **Mark.** Five-petal flower in **five distinct hues** — aqua, emerald, blue, mint, violet. Never recolor to a single hue except in the documented mono / reverse lockups (§7).
 3. **No medical-cliché iconography** for brand symbols (no cross, syringe, heart). Lucide `pill` / `stethoscope` / `syringe` are fine **inside** the product, never as a logo replacement.
 4. **No emoji in product UI.** The flower is our emoji. Marketing decks may use a single `🌿` sparingly.

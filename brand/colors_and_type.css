@@ -2,7 +2,7 @@
    Balsm Design System — Colors & Typography
    Community-Owned Healthcare OS · Open. Arab. Owned.
    Brand promise: "Your care. Your data. Your system."
-   بَلسَم · مفتوح. عربي. مملوك.
+   بلسم · مفتوح. عربي. مملوك.
 
    Egypt-first · Arabic-RTL native · Offline-default
    Canonical brand: brand/balsm-brand-canvas.md
@@ -53,7 +53,7 @@
      The official wordmark is now deep pine green #254B45 (was the
      warm olive gray #6B6B60). The ".health" TLD sits in a cool
      blue-gray. Matches brand/logo-*.svg. */
-  --balsm-wordmark:     #254B45;   /* بَلسَم · Balsm — deep pine green */
+  --balsm-wordmark:     #254B45;   /* بلسم · Balsm — deep pine green */
   --balsm-wordmark-tld: #526174;   /* .health — slate gray */
 
   --balsm-sun-400:  #F5C842;   /* tiny accent — never used as surface */
