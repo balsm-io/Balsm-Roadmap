@@ -50,11 +50,15 @@
   --balsm-accent-bg:  var(--petal-aqua-50);
 
   /* ── Wordmark ────────────────────────────────────────────────
-     The official wordmark is now deep pine green #254B45 (was the
-     warm olive gray #6B6B60). The ".health" TLD sits in a cool
-     blue-gray. Matches brand/logo-*.svg. */
-  --balsm-wordmark:     #254B45;   /* بلسم · Balsm — deep pine green */
-  --balsm-wordmark-tld: #526174;   /* .health — slate gray */
+     The official wordmark is navy slate #1F2D3D (previously pine green
+     #254B45, briefly petrol #203A43, and originally warm olive gray
+     #6B6B60). It shares a hue with the ".health" TLD — 267° vs 268° —
+     so the two are one colour at two lightnesses, not two colours.
+     Keep them in step: restating the wordmark means restating the TLD.
+     Matches brand/logo-*.svg + brand/wordmark.svg.
+     Comparison sheet: brand/wordmark-color-study.html */
+  --balsm-wordmark:     #1F2D3D;   /* بلسم · Balsm — navy slate, L* 17.9 */
+  --balsm-wordmark-tld: #526174;   /* .health — same hue, L* 40.5 */
 
   --balsm-sun-400:  #F5C842;   /* tiny accent — never used as surface */
   --balsm-sun-500:  #E5B428;
