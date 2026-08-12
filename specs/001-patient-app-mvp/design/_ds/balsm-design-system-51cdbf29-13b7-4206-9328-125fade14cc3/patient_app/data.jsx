@@ -17,7 +17,7 @@ const STR = {
   ph_title:  { en: "What's your number?", ar: "ما رقم هاتفك؟" },
   ph_help:   { en: "We'll send a code to confirm it's you. Nothing leaves your device without your say.", ar: "سنرسل رمزاً للتأكد من هويتك. لا شيء يغادر جهازك دون إذنك." },
   ph_label:  { en: "Mobile number", ar: "رقم الموبايل" },
-  ph_terms:  { en: "By continuing you agree to Balsm's terms and privacy policy.", ar: "بالمتابعة فإنك توافق على شروط بَلسَم وسياسة الخصوصية." },
+  ph_terms:  { en: "By continuing you agree to Balsm's terms and privacy policy.", ar: "بالمتابعة فإنك توافق على شروط بلسم وسياسة الخصوصية." },
   continue:  { en: "Continue", ar: "متابعة" },
 
   /* OTP */
@@ -151,7 +151,7 @@ const STR = {
 
   /* Profile */
   profile:   { en: "Profile", ar: "الملف الشخصي" },
-  since:     { en: "Balsm patient since", ar: "مريضة بَلسَم منذ" },
+  since:     { en: "Balsm patient since", ar: "مريضة بلسم منذ" },
   p_personal:{ en: "Personal details", ar: "البيانات الشخصية" },
   p_cond:    { en: "Conditions & allergies", ar: "الحالات والحساسية" },
   p_care:    { en: "Care team", ar: "فريق الرعاية" },

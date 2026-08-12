@@ -47,7 +47,7 @@ const STR = {
   ph_title:  { en: "What's your number?", ar: "ما رقم هاتفك؟" },
   ph_help:   { en: "We'll text you a code to confirm it's you.", ar: "سنرسل لك رمزاً عبر رسالة للتأكد من هويتك." },
   ph_label:  { en: "Mobile number", ar: "رقم الموبايل" },
-  ph_terms:  { en: "By continuing you agree to Balsm's terms and privacy policy.", ar: "بالمتابعة فإنك توافق على شروط بَلسَم وسياسة الخصوصية." },
+  ph_terms:  { en: "By continuing you agree to Balsm's terms and privacy policy.", ar: "بالمتابعة فإنك توافق على شروط بلسم وسياسة الخصوصية." },
   continue:  { en: "Continue", ar: "متابعة" },
 
   /* OTP */
@@ -183,7 +183,7 @@ const STR = {
 
   /* Profile */
   profile:    { en: "Profile",    ar: "الملف الشخصي" },
-  since:      { en: "Balsm patient since", ar: "مريضة بَلسَم منذ" },
+  since:      { en: "Balsm patient since", ar: "مريضة بلسم منذ" },
   p_personal: { en: "Account details",    ar: "بيانات الحساب"   },
   p_cond:     { en: "Medical profile", ar: "الملف الطبي" },
 
@@ -280,7 +280,7 @@ const STR = {
   p_country:      { en: "Country",              ar: "الدولة"                  },
   choose_lang:    { en: "Choose language",      ar: "اختر اللغة"              },
   choose_country: { en: "Where are you now?",   ar: "أين أنت الآن؟"           },
-  travel_help:    { en: "Set your location so Balsm shows local emergency numbers and care info while you travel.", ar: "حدّد موقعك ليعرض بَلسَم أرقام الطوارئ ومعلومات الرعاية المحلية أثناء سفرك." },
+  travel_help:    { en: "Set your location so Balsm shows local emergency numbers and care info while you travel.", ar: "حدّد موقعك ليعرض بلسم أرقام الطوارئ ومعلومات الرعاية المحلية أثناء سفرك." },
   lang_full:      { en: "Full support",         ar: "دعم كامل"               },
   lang_beta:      { en: "Beta",                 ar: "تجريبي"                 },
   home_country:   { en: "Home",                 ar: "بلدك"                   },

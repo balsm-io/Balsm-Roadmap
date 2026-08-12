@@ -1,6 +1,6 @@
 # Balsm Design System
 
-> **Balsm.health · بَلسَم** — the community-owned healthcare OS for the Arab world.
+> **Balsm.health · بلسم** — the community-owned healthcare OS for the Arab world.
 > **Open. Arab. Owned.** · مفتوح. عربي. مملوك.
 
 ---
@@ -177,7 +177,7 @@ The product ships in three slices:
 
 **Brand naming:**
 - **`Balsm.health`** in product surfaces — `.health` set one weight lighter + slightly smaller.
-- Arabic: always **`بَلسَم`** with both diacritics (fatha on ب and on س). Without diacritics is incorrect.
+- Arabic: always **`بلسم`** with both diacritics (fatha on ب and on س). Without diacritics is incorrect.
 - Short form: `Balsm` alone is acceptable in running prose after first mention.
 
 **Emoji:** None in product UI. The five-petal flower is our emoji.

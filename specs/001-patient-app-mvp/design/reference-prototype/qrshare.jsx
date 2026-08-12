@@ -74,7 +74,7 @@ function QRShareSheet({ onClose, handle, name }) {
   const share = async () => {
     const shareData = {
       title: 'Balsm',
-      text: lang === 'ar' ? `تواصل معي على بَلسَم: @${handle}` : `Connect with me on Balsm: @${handle}`,
+      text: lang === 'ar' ? `تواصل معي على بلسم: @${handle}` : `Connect with me on Balsm: @${handle}`,
       url,
     };
     if (navigator.share) { try { await navigator.share(shareData); return; } catch {} }

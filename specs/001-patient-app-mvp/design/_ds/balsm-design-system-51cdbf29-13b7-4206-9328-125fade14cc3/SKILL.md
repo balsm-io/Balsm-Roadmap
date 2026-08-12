@@ -1,6 +1,6 @@
 ---
 name: balsm-design
-description: Use this skill to generate well-branded interfaces and assets for Balsm.health (بَلسَم) — the community-owned healthcare OS for the Arab world. Includes the official five-petal flower mark, the five-color petal palette, warm olive-gray neutrals, type system (Montserrat / IBM Plex Sans / IBM Plex Sans Arabic / Cairo / IBM Plex Mono), Lucide iconography, a Pharmacy POS UI kit (Slice 1), and a Patient App prototype (Slice 2). Brand promise: "Your care. Your data. Your system." Three words: Open. Arab. Owned.
+description: Use this skill to generate well-branded interfaces and assets for Balsm.health (بلسم) — the community-owned healthcare OS for the Arab world. Includes the official five-petal flower mark, the five-color petal palette, warm olive-gray neutrals, type system (Montserrat / IBM Plex Sans / IBM Plex Sans Arabic / Cairo / IBM Plex Mono), Lucide iconography, a Pharmacy POS UI kit (Slice 1), and a Patient App prototype (Slice 2). Brand promise: "Your care. Your data. Your system." Three words: Open. Arab. Owned.
 user-invocable: true
 ---
 
@@ -35,7 +35,7 @@ For production code, copy `colors_and_type.css` into the codebase — it is the 
 
 1. **Brand promise** — every patient-facing surface must embody: "Your care. Your data. Your system." Patient data sovereignty is non-negotiable. Never imply data goes anywhere the user didn't choose.
 
-2. **Brand name** — `Balsm.health` in product surfaces (`.health` one weight lighter). Arabic: `بَلسَم` with both diacritics (fatha on ب and on س). Without diacritics is incorrect.
+2. **Brand name** — `Balsm.health` in product surfaces (`.health` one weight lighter). Arabic: `بلسم` with both diacritics (fatha on ب and on س). Without diacritics is incorrect.
 
 3. **The flower mark has FIVE colors** — aqua, emerald, blue, mint, violet. Never recolor to a single hue.
 

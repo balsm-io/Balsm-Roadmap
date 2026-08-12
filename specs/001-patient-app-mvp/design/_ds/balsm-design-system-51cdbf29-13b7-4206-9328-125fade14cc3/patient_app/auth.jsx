@@ -25,7 +25,7 @@ function WelcomeScreen() {
       <div className="wbody">
         <div className="wwordmark">
           <span className="wword-en">Balsm</span>
-          <span className="wword-ar">بَلسَم</span>
+          <span className="wword-ar">بلسم</span>
         </div>
         <div className="wtitle" style={{ textWrap: 'balance' }}>{t('w_title')}</div>
         <div className="wsub" style={{ textWrap: 'pretty' }}>{t('w_sub')}</div>
