@@ -1,0 +1,67 @@
+<!-- @dsCard group="Components" name="LoadingOverlay" subtitle="full-screen loading · cream / scrim / brand · petal mark + message" viewport="760x320" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    html,body{margin:0;background:#fff}
+    .wrap{padding:24px 28px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+    .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;font-family:var(--font-body);margin-bottom:10px}
+    .frame{position:relative;height:230px;border:1px solid var(--balsm-ink-200);border-radius:var(--radius-lg);overflow:hidden}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  function Petals({size='lg'}){const c=typeof size==='string'?`b-petal-spinner--${size}`:'';const st=typeof size==='number'?{width:size,height:size}:undefined;
+    return <span className={['b-petal-spinner',c].filter(Boolean).join(' ')} style={st} aria-hidden="true"><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/></span>;}
+  function Ring(){return <span className="b-ring-spinner" style={{width:40,height:40,'--ring-w':'4px'}} aria-hidden="true"/>;}
+  function LoadingOverlay({ open=true, variant='cream', message, submessage, progress, indeterminate=false, spinner='petal', contained=false, backgroundImage, className='', style, ...rest }) {
+    if(!open)return null;
+    const cls=['b-overlay',`b-overlay--${variant}`, contained&&'b-overlay--contained', className].filter(Boolean).join(' ');
+    const st={...style}; if(backgroundImage)st['--overlay-bg']=`url(${backgroundImage})`;
+    const showBar=progress!=null||indeterminate;
+    return <div className={cls} style={st} role="status" aria-live="polite" {...rest}>
+      <div className="b-overlay__inner">
+        {spinner==='ring'?<Ring/>:<Petals size="lg"/>}
+        {message&&<div className="b-overlay__msg">{message}</div>}
+        {submessage&&<div className="b-overlay__sub">{submessage}</div>}
+        {showBar&&<div className="b-overlay__progress"><div className={['b-progress','b-progress--primary',indeterminate&&'b-progress--indeterminate'].filter(Boolean).join(' ')}>
+          {progress!=null&&!indeterminate&&<div className="b-progress__head"><span className="b-progress__value">{Math.round(progress)}%</span></div>}
+          <div className="b-progress__track"><span className="b-progress__fill" style={indeterminate?undefined:{width:`${Math.max(0,Math.min(100,progress||0))}%`}}/></div>
+        </div></div>}
+      </div>
+    </div>;
+  }
+
+  function Demo() {
+    const [p,setP]=React.useState(20);
+    React.useEffect(()=>{const t=setInterval(()=>setP(v=>v>=100?15:v+1),110);return()=>clearInterval(t)},[]);
+    return (
+      <div className="wrap">
+        <div>
+          <div className="lbl">Cream · brand moment</div>
+          <div className="frame"><LoadingOverlay contained variant="cream" message="Preparing your record" submessage="On your device, by design."/></div>
+        </div>
+        <div>
+          <div className="lbl">Scrim · over content</div>
+          <div className="frame" style={{background:'var(--balsm-cream-100)'}}>
+            <div style={{padding:16,fontSize:12,color:'var(--fg3)'}}>encounter notes…</div>
+            <LoadingOverlay contained variant="scrim" spinner="ring" message="Saving" indeterminate/>
+          </div>
+        </div>
+        <div>
+          <div className="lbl">With progress · عربي</div>
+          <div className="frame"><LoadingOverlay contained variant="cream" message="يُحمّل سجلّك" submessage="لحظات قليلة" progress={p}/></div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>

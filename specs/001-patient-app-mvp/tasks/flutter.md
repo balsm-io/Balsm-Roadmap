@@ -205,7 +205,7 @@ Format: `[ID] [P?] [Story?] [Project] Description with absolute file path`
 - [X] D014 [P] [Flutter] Create `design/mocks/system/` — NotFound (FR-404), error-boundary, splash, onboarding loading = 4 screens × LTR/RTL × light/dark = 16 files
 ### 2.5.3 Interactive prototype
 
-- [X] D015 [Flutter] Create `design/prototype/index.html` — interactive shell wrapping all mocks: left nav (US flows), iOS device frame (reuse `Balsm-AI/plugin/skills/balsm-design/patient_app/ios-frame.jsx` skeleton), RTL/LTR toggle, theme toggle, locale dropdown (`en`, `ar-EG`, `ar-SA`, `ar-AE`), country dropdown for re-disclosure variants
+- [X] D015 [Flutter] Create `design/prototype/index.html` — interactive shell wrapping all mocks: left nav (US flows), iOS device frame (reuse `Balsm-Core/brand/design-system/balsm_app/ios-frame.jsx` skeleton), RTL/LTR toggle, theme toggle, locale dropdown (`en`, `ar-EG`, `ar-SA`, `ar-AE`), country dropdown for re-disclosure variants
 - [X] D016 [Flutter] Create `design/prototype/flows.json` — declarative flow graph: each US flow as ordered list of screen IDs + edge labels (tap targets), driving the prototype's "Next/Back" controls
 - [X] D017 [Flutter] Create `design/prototype/assets/data.json` — synthetic non-PHI placeholder data (fictional names, no real numbers; matches `phi_leak_fuzz_test/corpus.dart` shape so designers and devs share fixtures)
 - [X] D018 [P] [Flutter] Create `design/prototype/styles/prototype.css` — prototype chrome (nav, toolbar, frame) using same `brand/colors_and_type.css` tokens; does NOT override component styles

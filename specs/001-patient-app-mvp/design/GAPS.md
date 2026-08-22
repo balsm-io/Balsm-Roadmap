@@ -64,7 +64,7 @@ The `design/reference-prototype/` import (React/Babel, from claude.ai design pro
 - **Different screen set** — consumer-app screens (trends, records, prescriptions, appointments, nearby-map, body-map, quick-log) that are **not in the P001 inventory**; it lacks the governance screens P001 centers on (consolidated disclosure, deletion flow, sessions, emergency-QR public resolve, lockout/geofence).
 - **Divergent tokens** — its `colors_and_type.css` is an app-local variant, not the locked `tokens.css`.
 
-It IS, however, the same React source the Flutter-port tasks reference (`tasks.md` §1.6 / T035u cite `Balsm-AI/.../patient_app/`). So treat it as **porting reference for BalsmKit widgets**, not as the missing P001 mocks/specs.
+It IS, however, the same React source the Flutter-port tasks reference (`tasks.md` §1.6 / T035u cite `Balsm-Core/brand/design-system/balsm_app/`). So treat it as **porting reference for BalsmKit widgets**, not as the missing P001 mocks/specs.
 
 ---
 
@@ -80,16 +80,16 @@ It IS, however, the same React source the Flutter-port tasks reference (`tasks.m
 
 ## 7. 2026-07-01 — Canonical design system imported (`51cdbf29`)
 
-The canonical Balsm Design System (claude.ai/design project `51cdbf29-13b7-4206-9328-125fade14cc3`) was imported to `design/_ds/balsm-design-system-51cdbf29-.../` via the claude_design MCP. See that folder's `IMPORT-LOG.md` for the exact manifest.
+The canonical Balsm Design System (claude.ai/design project `51cdbf29-13b7-4206-9328-125fade14cc3`) now lives at `brand/design-system/` (repo root). It was originally imported to `design/_ds/balsm-design-system-51cdbf29-.../`; that mirror was collapsed to a pointer on 2026-08-13 — see its `IMPORT-LOG.md` for the manifest and history.
 
 **Resolved / advanced:**
 - **`reference-prototype/` superseded** — §5 above flagged it as a stale port of the older project `50dccb01`. The current canonical is now `51cdbf29`, mirrored in `_ds/`. Treat `reference-prototype/` as historical.
 - **Tokens reconciled** — `tokens.css` synced to the imported `colors_and_type.css` (added `--balsm-expiring*`, the responsive `--bp/--container/--gutter/--cols` tokens, legacy `--balsm-teal-*/--balsm-blue-*` aliases, and the `'Segoe UI'` display-font fallback). Repo-only dark-mode + reduced-motion blocks preserved.
-- **`mocks/` partially filled** (was 0 files, §1 "biggest hole"): `mocks/system/loading-and-progress.html` (live component gallery) added; `mocks/README.md` maps the auth/home/profile/report flows to the canonical runnable `patient_app/` prototype. See `mocks/README.md`.
+- **`mocks/` partially filled** (was 0 files, §1 "biggest hole"): `mocks/system/loading-and-progress.html` (live component gallery) added; `mocks/README.md` maps the auth/home/profile/report flows to the canonical runnable `balsm_app/` prototype. See `mocks/README.md`.
 
 **Still outstanding (unchanged):**
-- The **7 P001 governance flows** (disclosure, deletion, sessions, emergency-card, medications, country/lang, auth-states + `home-empty`) have **no mock** — the imported `patient_app` is a Slice-2 consumer self-report prototype and does not cover them. These remain the critical-path mock deliverable (§1, §2).
+- The **7 P001 governance flows** (disclosure, deletion, sessions, emergency-card, medications, country/lang, auth-states + `home-empty`) have **no mock** — the imported `balsm_app/` is a Balsm Care consumer self-report prototype and does not cover them. These remain the critical-path mock deliverable (§1, §2).
 - `COMPONENT-CONTRACT.md`, `A11Y-SPEC.md`, `MOTION-SPEC.md`, `COPY-SPEC.md`, `tokens-snapshot.json` still absent.
 - Design-track task-state disagreement (§4) unresolved.
 
-**Not mirrored (upstream-only in the cloud project, fetch on request):** the 19 remaining `preview/` gallery pages, the `ui_kits/balsm_pharmacy` Slice-1 kit, the long-form `uploads/` docs, the compiled `_ds_bundle.js`, and `scratch/` dev screenshots. See `_ds/.../IMPORT-LOG.md`.
+**Not mirrored (upstream-only in the cloud project, fetch on request):** the 19 remaining `preview/` gallery pages, the `ui_kits/balsm_pharmacy` Balsm Pharmacy kit, the long-form `uploads/` docs, the compiled `_ds_bundle.js`, and `scratch/` dev screenshots. See `_ds/.../IMPORT-LOG.md`.

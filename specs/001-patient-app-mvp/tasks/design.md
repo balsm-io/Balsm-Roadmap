@@ -10,8 +10,8 @@ Phase 2.5 only. Blocking gate before Phase 3+ Flutter implementation. Anchored o
 
 - `Balsm-Core/brand/colors_and_type.css` — token source of truth
 - `Balsm-Core/brand/balsm-brand-canvas.md` — voice + tone
-- `Balsm-AI/plugin/skills/balsm-design/patient_app/` — prototype skeleton
-- `Balsm-AI/plugin/skills/balsm-design/preview/` — preview cards reference
+- `Balsm-Core/brand/design-system/balsm_app/` — prototype skeleton
+- `Balsm-Core/brand/design-system/preview/` — preview cards reference
 - `Balsm-Core/design.md` — design contract index
 
 Outputs land under `specs/001-patient-app-mvp/design/`.
@@ -20,7 +20,7 @@ Format: `[ID] [P?] [Flutter] Description with file path`
 
 ## Phase 2.5: UI/UX Design & Prototype Review (Blocking Gate)
 
-**Purpose**: Produce reviewable UI/UX design spec + interactive prototype for every P001 screen BEFORE Flutter implementation starts. Anchored on existing `balsm-design` skill (brand tokens in `Balsm-Core/brand/colors_and_type.css`, patient-app skeleton in `Balsm-AI/plugin/skills/balsm-design/patient_app/`, preview cards in `.../preview/`). RTL + LTR variants for all screens. PHI-safe placeholder data only.
+**Purpose**: Produce reviewable UI/UX design spec + interactive prototype for every P001 screen BEFORE Flutter implementation starts. Anchored on the design system in `Balsm-Core/brand/design-system/` (tokens in `colors_and_type.css`, care-app skeleton in `balsm_app/`, preview cards in `preview/`). RTL + LTR variants for all screens. PHI-safe placeholder data only.
 
 **Goal**: Stakeholder sign-off on visual design + interaction flow per user story. No Flutter code may start until sign-off recorded.
 
@@ -48,7 +48,7 @@ Format: `[ID] [P?] [Flutter] Description with file path`
 
 ### 2.5.3 Interactive prototype
 
-- [X] D015 [Flutter] Create `design/prototype/index.html` — interactive shell wrapping all mocks: left nav (US flows), iOS device frame (reuse `Balsm-AI/plugin/skills/balsm-design/patient_app/ios-frame.jsx` skeleton), RTL/LTR toggle, theme toggle, locale dropdown (`en`, `ar-EG`, `ar-SA`, `ar-AE`), country dropdown for re-disclosure variants
+- [X] D015 [Flutter] Create `design/prototype/index.html` — interactive shell wrapping all mocks: left nav (US flows), iOS device frame (reuse `Balsm-Core/brand/design-system/balsm_app/ios-frame.jsx` skeleton), RTL/LTR toggle, theme toggle, locale dropdown (`en`, `ar-EG`, `ar-SA`, `ar-AE`), country dropdown for re-disclosure variants
 - [X] D016 [Flutter] Create `design/prototype/flows.json` — declarative flow graph: each US flow as ordered list of screen IDs + edge labels (tap targets), driving the prototype's "Next/Back" controls
 - [X] D017 [Flutter] Create `design/prototype/assets/data.json` — synthetic non-PHI placeholder data (fictional names, no real numbers; matches `phi_leak_fuzz_test/corpus.dart` shape so designers and devs share fixtures)
 - [X] D018 [P] [Flutter] Create `design/prototype/styles/prototype.css` — prototype chrome (nav, toolbar, frame) using same `brand/colors_and_type.css` tokens; does NOT override component styles

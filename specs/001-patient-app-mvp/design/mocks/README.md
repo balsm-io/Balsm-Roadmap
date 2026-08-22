@@ -1,7 +1,7 @@
 # P001 Mocks — canonical source index
 
 > **Reconciled 2026-07-01.** The `design/mocks/` tree was empty (see `GAPS.md §1`). The canonical, renderable designs now live in the imported design-system project at
-> `design/_ds/balsm-design-system-51cdbf29-13b7-4206-9328-125fade14cc3/` (see its `IMPORT-LOG.md`).
+> `brand/design-system/` at the repo root (history in `design/_ds/balsm-design-system-51cdbf29-.../IMPORT-LOG.md`).
 > This index maps each P001 flow to its canonical source rather than duplicating it as lower-fidelity static HTML.
 
 ## Filled here
@@ -10,9 +10,9 @@
 |---|---|
 | `mocks/system/loading-and-progress.html` | Live component gallery — Progress, Spinner (five-petal), Skeleton, Steps, ProgressButton, TopLoadingBar, SegmentedProgress, LoadingOverlay; determinate/indeterminate + offline-sync + RTL. Self-contained (React+Babel CDN). |
 
-## Covered by the imported `patient_app/` prototype (Slice 2)
+## Covered by the imported `balsm_app/` prototype (Balsm Care)
 
-Open `_ds/balsm-design-system-51cdbf29-.../patient_app/Patient App.html` (runnable). It is the canonical mock for:
+Open `brand/design-system/balsm_app/Care App.html` (runnable, from the repo root). It is the canonical mock for:
 
 | Mock flow | Screen(s) in the prototype |
 |---|---|
@@ -24,7 +24,7 @@ Component-level design references: `_ds/.../components/` (17 components, `jsx` +
 
 ## Still OUTSTANDING (no mock yet — carry on the GAPS list)
 
-The P001 governance screens are **not** in the imported patient_app (Slice 2 is a consumer self-report prototype). These still need dedicated mocks per `SCREEN-INVENTORY.md`:
+The P001 governance screens are **not** in the imported `balsm_app/` (Balsm Care is a consumer self-report prototype). These still need dedicated mocks per `SCREEN-INVENTORY.md`:
 
 - `mocks/disclosure/` — consolidated disclosure / re-disclosure
 - `mocks/deletion/` — pre-confirm · confirm (typed DELETE) · cancelled · post-deletion-login

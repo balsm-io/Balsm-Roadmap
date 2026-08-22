@@ -2,11 +2,11 @@
 
 > **Balsm.health · بلسم** — open-source healthcare for Egypt and the Arabic-speaking world. Five petals · five colors · one promise: healing, locally.
 
-This file is the **design contract** for every Balsm surface (Pharmacy, Patient app, Doctor encounter, marketing, print). The canonical brand primitives — design tokens, logos, watercolor pattern, brand canvas — live flat in [brand/](brand/) in this repo. The full design *system* (long-form manual, UI kits, preview cards, patient-app prototype) is shipped as the **`balsm-design` skill** in the shared `balsm-ai` plugin, so any agent in any Balsm repo can invoke `/balsm-design`. Core is the canonical source; the plugin mirrors it.
+This file is the **design contract** for every Balsm surface (Pharmacy, Care app, Doctor encounter, marketing, print). The canonical brand primitives — design tokens, logos, watercolor pattern, brand canvas — live flat in [brand/](brand/) in this repo. The full design *system* (long-form manual, UI kits, preview cards, care-app prototype) lives beside them in [brand/design-system/](brand/design-system/). The **`balsm-design` skill** in the shared `balsm-ai` plugin points at that directory and carries no copy of its own, so `/balsm-design` works from any Balsm repo that has Core checked out.
 
 **Companion:** [brand/balsm-brand-canvas.md](brand/balsm-brand-canvas.md) is the **brand model canvas** — purpose, vision, audience, promise, personality, voice & tone, positioning, core values, experience. design.md says how Balsm *looks*; the canvas says what it *stands for* and how it *speaks*. Pin the canvas for any copy, UX-writing, or marketing work.
 
-Source bundle: `claude.ai/design` handoff `GcpM-P5U3jAim3lY4dqh8A`, revised 2026-08-05. Re-export there → re-copy `project/` into the `balsm-design` plugin skill to refresh. (Supersedes handoff `brCe2JFarDeEQRmN0pgOJA`, ingested 2026-06-05.)
+Upstream: the Claude Design project `51cdbf29-13b7-4206-9328-125fade14cc3`. Pull refreshes into [brand/design-system/](brand/design-system/) — never into the plugin skill. See that directory's `RELOCATION.md` for the deltas from upstream.
 
 ---
 
@@ -22,7 +22,7 @@ Source bundle: `claude.ai/design` handoff `GcpM-P5U3jAim3lY4dqh8A`, revised 2026
 | [brand/logo-vertical-mono-white.svg](brand/logo-vertical-mono-white.svg) | Reverse lockup — white ink, for dark surfaces. (`-on-white` files are the opposite: full-colour logo baked onto a white background.) |
 | [brand/balsm-background.png](brand/balsm-background.png) | Watercolor petal pattern — hero/welcome backdrops only. |
 
-**Full design system — in the shared `balsm-ai` plugin, skill `balsm-design`** (invoke `/balsm-design` in any Balsm repo). Holds the long-form `README.md` manual, the Pharmacy POS UI kit (`ui_kits/balsm_pharmacy/`), the patient-app prototype (`patient_app/`), and per-token preview cards (`preview/`). Not duplicated in-repo — Core's `brand/` is the source the plugin is built from.
+**Full design system — [brand/design-system/](brand/design-system/).** Holds the long-form `README.md` manual, 26 components in `components/`, the self-hosted type stack (`fonts/` + `fonts.css`), and per-token preview cards (`preview/`). The `balsm-design` skill points here; invoke `/balsm-design` in any Balsm repo that has Core checked out.
 
 **Token tiers.** Only tiers 1–2 live in `brand/`. The upper tiers ship with the plugin / design project:
 
@@ -38,17 +38,17 @@ A surface that only needs color and type imports tier 1–2 alone. Pull tier 3 w
 
 ---
 
-## 2. Product slices the design covers
+## 2. Product surfaces the design covers
 
-1. **Slice 1 — Pharmacy Standalone.** Local server, POS, inventory, customer profiles, paper-Rx attachment. UI kit complete.
-2. **Slice 2 — Full Care Loop.** Patient app, doctor profile, appointments, encounters, digital Rx (QR) → links to Slice-1 POS. Patient app prototype complete; doctor encounter is net-new design territory.
-3. **Slice 3 — Balsm Network.** Paid cloud tier — online booking, cross-entity sharing, centralized patient identity. No UI yet.
+1. **Balsm Pharmacy — standalone.** Local server, POS, inventory, customer profiles, paper-Rx attachment. UI kit complete.
+2. **Balsm Care — the full care loop.** Care app, doctor profile, appointments, encounters, digital Rx (QR) → links to the Balsm Pharmacy POS. Care app prototype complete; doctor encounter is net-new design territory.
+3. **Balsm Network.** Paid cloud tier — online booking, cross-entity sharing, centralized care recipient identity. No UI yet.
 
 ---
 
 ## 3. Brand non-negotiables
 
-1. **Name.** Always `Balsm.health` in product (`.health` one weight lighter, smaller). Arabic: `بلسم` **with diacritics** (fatha on ب and on س). Without diacritics is incorrect.
+1. **Name.** Always `Balsm.health` in product (`.health` one weight lighter, smaller). Arabic: `بلسم` — plain spelling, no diacritics.
 2. **Mark.** Five-petal flower in **five distinct hues** — aqua, emerald, blue, mint, violet. Never recolor to a single hue except in the documented mono / reverse lockups (§7).
 3. **No medical-cliché iconography** for brand symbols (no cross, syringe, heart). Lucide `pill` / `stethoscope` / `syringe` are fine **inside** the product, never as a logo replacement.
 4. **No emoji in product UI.** The flower is our emoji. Marketing decks may use a single `🌿` sparingly.
@@ -72,9 +72,9 @@ The brand has **no single primary color.** The mark is five petals in five hues;
 
 Each petal has `-600` (hover/pressed) and `-50` (soft wash background) siblings. Aliases: `--balsm-primary` (blue), `--balsm-accent` (aqua).
 
-**Wordmark color:** `--balsm-wordmark #254B45` — deep pine green, matching `brand/logo-*.svg`. The `.health` TLD sits one weight lighter in `--balsm-wordmark-tld #526174` (slate gray). On dark surfaces the wordmark knocks out to white per the reverse lockup (§7) — the pine green scores ≈1.5:1 on ink and must never be used there.
+**Wordmark color:** `--balsm-wordmark #1F2D3D` — navy slate, matching `brand/logo-*.svg` and `brand/wordmark.svg`. The `.health` TLD sits one weight lighter in `--balsm-wordmark-tld #526174` — the same hue at a second lightness, so the two always move together. On dark surfaces the wordmark knocks out to white per the reverse lockup (§7) — navy slate scores ≈1.5:1 on ink and must never be used there.
 
-*Was `#6B6B60` (warm olive gray). That hue survives as `--balsm-ink-600`, still the anchor of the neutral scale (`--balsm-ink-*` skews warm, never cool / never blue-gray) — it is simply no longer the wordmark.*
+*Was `#254B45` (pine green), and before that `#6B6B60` (warm olive gray). The olive ramp is fully retired: `--balsm-ink-*` was re-keyed to the navy-slate wordmark, so `ink-800` **is** the wordmark and `ink-600` **is** the `.health` TLD. Only the creams stay warm — cool ink on warm paper.*
 
 **Cream:** `--balsm-cream-100 #F4F3EC` — warm document surface for receipts, prescriptions, marketing decks, print. Never substitute cool gray.
 
@@ -108,7 +108,7 @@ Full token list: [brand/colors_and_type.css](brand/colors_and_type.css).
 - Wordmark default: Montserrat 700 (closest free analog to the custom-set SVG wordmark). Swap `--font-display` if a custom wordmark face is later commissioned.
 
 **Substitution flags (open with product team):**
-- Fonts loaded from Google Fonts CDN. Offline installer (Slice 1) needs the 20 MB TTF bundle unzipped into `assets/fonts/`. See [Balsm-Draft](https://github.com/balsm-health/Balsm-Draft).
+- Fonts loaded from Google Fonts CDN. The Balsm Pharmacy offline installer needs the 20 MB TTF bundle unzipped into `assets/fonts/`. See [Balsm-Draft](https://github.com/balsm-health/Balsm-Draft).
 - **Lucide** is a deliberate icon substitute — Balsm ships no own icon set.
 
 ---
@@ -121,7 +121,7 @@ The `--space-*` scale is intentionally identical to Tailwind's default 4-px scal
 
 **Radii:** `sm` 6 (chips), `md` 10 (buttons / inputs), `lg` 14 (**card default**), `xl` 20 (hero / modal), `2xl` 28 (squircle app icon), `pill` 999.
 
-**Shadows.** Warm, soft `rgba(43, 43, 37, 0.06–0.10)` — never crisp drop shadows.
+**Shadows.** Warm, soft `rgba(20, 32, 43, 0.06–0.10)` — never crisp drop shadows.
 - `--shadow-sm` default · `--shadow-md` hero · `--shadow-lg` modal
 - `--shadow-brand` (blue-tinted) for primary CTAs
 - `--shadow-petal` (violet-tinted) for controlled-substance surfaces and brand moments
@@ -133,7 +133,7 @@ The `--space-*` scale is intentionally identical to Tailwind's default 4-px scal
 - Page transitions: 200ms cross-fade. No slides, no rotations.
 - Brand loader: five-petal mark rotates slowly (4s linear).
 
-**Transparency.** Sticky headers `backdrop-filter: blur(12px)` over 92% white. Modal scrim `rgba(43, 43, 37, 0.4)`. **No glassmorphism / frosted-glass cards** — reads consumer-flashy, not clinical.
+**Transparency.** Sticky headers `backdrop-filter: blur(12px)` over 92% white. Modal scrim `rgba(20, 32, 43, 0.4)`. **No glassmorphism / frosted-glass cards** — reads consumer-flashy, not clinical.
 
 ---
 
@@ -142,7 +142,7 @@ The `--space-*` scale is intentionally identical to Tailwind's default 4-px scal
 Balsm spans many viewport classes — phone, tablet, desktop POS, web admin, OS widgets, print. Two distinct strategies, picked per surface:
 
 - **Responsive** — fluid reflow across a continuous size range. Marketing web, admin UI.
-- **Adaptive** — distinct layouts swapped at a class boundary. Patient app phone↔tablet, POS desktop↔compact, and the fixed widget/lock-tile surfaces. Not a shrunk phone — a different layout.
+- **Adaptive** — distinct layouts swapped at a class boundary. Care app phone↔tablet, POS desktop↔compact, and the fixed widget/lock-tile surfaces. Not a shrunk phone — a different layout.
 
 **Breakpoint tokens** (min-width, mobile-first; drives the gutter ramp in §6):
 
@@ -170,20 +170,20 @@ Per-stack mapping: Flutter `LayoutBuilder` / `MediaQuery.sizeOf` against these v
 
 | Surface | Strategy | Notes |
 |---|---|---|
-| Patient app | Adaptive | Phone single-column → tablet two-pane. Foldable = treat as tablet. |
+| Care app | Adaptive | Phone single-column → tablet two-pane. Foldable = treat as tablet. |
 | iOS widget / Android lock tile | Fixed | OS-dictated sizes. Own micro-layouts, not in the breakpoint scale. |
 | Pharmacy POS | Adaptive | Desktop full table → compact (tablet) drops columns by priority. |
 | Admin UI | Responsive | Sidebar collapses to drawer below `--bp-md`. |
 | Marketing / web | Responsive | Full fluid reflow, phone → wide. |
 | Print | Fixed | Thermal roll (~58/80 mm) vs A4 are separate non-responsive targets. |
 
-**Touch vs pointer.** Touch hit targets ≥ 44 px (POS, patient app, tablet). Hover affordances are pointer-only — the §6 motion rules (tint shift, never scale-up) apply to pointer surfaces; touch surfaces use press states only.
+**Touch vs pointer.** Touch hit targets ≥ 44 px (POS, care app, tablet). Hover affordances are pointer-only — the §6 motion rules (tint shift, never scale-up) apply to pointer surfaces; touch surfaces use press states only.
 
 **Dense tables** (POS, encounter timeline — §9 density). Define column priority; drop low-priority columns narrow→wide, never horizontal-scroll the primary table on touch. Reflow dropped data into a row-detail expansion.
 
 **RTL × responsive.** §3.5 RTL is mandatory at every breakpoint. Use logical properties (`inline-start/end`, `margin-inline`) not `left/right`, so gutters and column drop mirror correctly under `dir="rtl"`. Test each breakpoint in both directions.
 
-**Out of scope (per §11).** Slice 3 (Network) — no UI. Doctor encounter — responsive intent noted, layout unspecified until the UI is designed.
+**Out of scope (per §11).** Balsm Network — no UI. Doctor encounter — responsive intent noted, layout unspecified until the UI is designed.
 
 ---
 
@@ -193,7 +193,7 @@ Per-stack mapping: Flutter `LayoutBuilder` / `MediaQuery.sizeOf` against these v
 |---|---|
 | **Primary** — app icon, web, marketing, storefront | Full 5-color flower + bilingual wordmark |
 | **Reverse** — dark UI, splash, photos, signage | All-white knockout (flower + wordmark) |
-| **Mono ink** — receipts watermark, stamps, fax, 16-px favicon | Single `--balsm-wordmark #254B45`, or solid `--petal-blue` |
+| **Mono ink** — receipts watermark, stamps, fax, 16-px favicon | Single `--balsm-wordmark #1F2D3D`, or solid `--petal-blue` |
 | **Mono brand** — single color but on-brand | Solid `--petal-emerald #01C4A2` — closest to historic "Balsm green," most legible single hue |
 
 Flower mark usage: app icon (squircle-clipped, ink or cream bg) · loading spinner (4s linear rotate) · empty-state hero (centered, 96px) · prescription/receipt watermark (8–10% opacity) · hero backdrop (over the watercolor pattern).
@@ -223,7 +223,7 @@ Flower mark usage: app icon (squircle-clipped, ink or cream bg) · loading spinn
 
 ## 9. Voice & copy
 
-Calm · professional · human · second-person. Balsm is the patient's quiet ally, the pharmacist's reliable counter, the doctor's tidy notebook. Never salesy, never clinical-cold.
+Calm · professional · human · second-person. Balsm is the care recipient's quiet ally, the pharmacist's reliable counter, the doctor's tidy notebook. Never salesy, never clinical-cold.
 
 > Full voice spec — 14 brand words, two registers (clinical/technical · product/community), what Balsm never sounds like — lives in [brand/balsm-brand-canvas.md §6](brand/balsm-brand-canvas.md). This section is the design-surface summary; the canvas is the source of truth for tone.
 
@@ -256,7 +256,7 @@ Calm · professional · human · second-person. Balsm is the patient's quiet all
 2. **Use semantic tokens** (`var(--fg1)`, `var(--balsm-primary)`, `var(--balsm-success)`) in component code, not raw petal hex. Petals are the palette; semantic tokens are the contract.
 3. **Headings:** `.h1`–`.h5`. Body inherits from `<body>`.
 4. **Arabic / RTL:** set `dir="rtl"` on the root; font swap happens via `[dir="rtl"]`.
-5. **Lift components** from the `balsm-design` plugin skill (`/balsm-design`): `ui_kits/balsm_pharmacy/` for pharmacy / inventory / admin surfaces, `patient_app/` for patient-side mobile.
+5. **Lift components** from [brand/design-system/components/](brand/design-system/components/) — 26 of them, covering pharmacy/admin surfaces and care-recipient mobile alike.
 6. **Sources:** every new component should cite a preview card from the skill's `preview/` and a UI-kit element it derives from.
 
 For the Figma MCP HTML-to-Design capture workflow (mockup → Figma → Flutter), see [agents/rules/UI_DESIGN.md](agents/rules/UI_DESIGN.md).
@@ -269,7 +269,7 @@ For the Figma MCP HTML-to-Design capture workflow (mockup → Figma → Flutter)
 - **Icons.** Lucide is a substitute; no Balsm-bespoke set exists.
 - **Wordmark face.** Montserrat is the closest free analog to the official SVG-set wordmark. Swap `--font-display` if a custom wordmark is commissioned.
 - **Doctor encounter UI** is unbuilt — no source UI exists. Net-new design, not recreation.
-- **Slice 3 (Balsm Network)** has no UI yet.
+- **Balsm Network** has no UI yet.
 - **Egypt-specific** formatting (currency, dates, IDs, controlled-substance schedules) is baked in. Saudi (NPHIES) or other markets need their own pass.
 
 ---

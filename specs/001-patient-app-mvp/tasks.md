@@ -184,7 +184,7 @@ balsm_app/          # Flutter melos monorepo — mobile + web targets
 
 ### 1.6 Patient App prototype port — BalsmKit Flutter widgets
 
-**Purpose**: Port proven design patterns from `Balsm-AI/plugin/skills/balsm-design/patient_app/` (React prototype) into Flutter widgets in `core/lib/src/kit/`. Design-system implementation, NOT visual design work (gated by Phase 2.5 sign-off).
+**Purpose**: Port proven design patterns from `Balsm-Core/brand/design-system/balsm_app/` (React prototype) into Flutter widgets in `core/lib/src/kit/`. Design-system implementation, NOT visual design work (gated by Phase 2.5 sign-off).
 
 **Spec-divergence notes**:
 - Prototype phone-OTP → adapt to email OTP per FR-001
@@ -354,7 +354,7 @@ balsm_app/          # Flutter melos monorepo — mobile + web targets
 
 ### 2.5.1 Design spec + screen inventory
 
-- [ ] D001 [Flutter] Create `design/UI-SPEC.md` — design contract: token source `Balsm-Core/brand/colors_and_type.css`, every screen → FR/SC, typography/spacing/radii/motion/elevation scales, RTL mirroring, dark-mode WCAG AA, focus-ring
+- [ ] D001 [Flutter] Create `design/UI-SPEC.md` — design contract: token source `Balsm-Core/brand/design-system/colors_and_type.css`, every screen → FR/SC, typography/spacing/radii/motion/elevation scales, RTL mirroring, dark-mode WCAG AA, focus-ring
 - [ ] D002 [Flutter] Create `design/SCREEN-INVENTORY.md` — table of every screen → user story, FR, SC, RTL-mirror notes, a11y notes
 - [ ] D003 [Flutter] Create `design/COMPONENT-CONTRACT.md` — for every shared widget — states (default/hover/focus/active/disabled/loading/error), token bindings, RTL, a11y labels
 

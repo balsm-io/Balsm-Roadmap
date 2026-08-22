@@ -38,18 +38,18 @@ static const emerald    = Color(0xFF01C4A2); // emerald — eyebrow, brand momen
 static const violet     = Color(0xFF724DD0); // violet — controlled meds flag
 static const surface    = Color(0xFFFFFFFF); // white — cards, sheets
 static const surfaceAlt = Color(0xFFF4F3EC); // cream — screen background
-static const border     = Color(0xFFE1E1D9); // dividers, input borders
+static const border     = Color(0xFFDBDFE3); // dividers, input borders
 static const borderFocus= Color(0xFF1283FF); // focus ring (3px solid)
-static const fg1        = Color(0xFF2B2B25); // primary text
-static const fg2        = Color(0xFF56564C); // secondary text / captions
-static const fg3        = Color(0xFF6B6B60); // placeholders, disabled labels
+static const fg1        = Color(0xFF14202B); // primary text
+static const fg2        = Color(0xFF384756); // secondary text / captions
+static const fg3        = Color(0xFF526174); // placeholders, disabled labels
 static const danger     = Color(0xFFD44A3C); // errors, delete, missed dose
 static const warning    = Color(0xFFE5B428); // low stock, expiring
 // Dark mode overrides
 static const darkSurface    = Color(0xFF1A1A14);
-static const darkSurfaceAlt = Color(0xFF2B2B25);
-static const darkBorder     = Color(0xFF3D3D34);
-static const darkFg1        = Color(0xFFF6F6F2);
+static const darkSurfaceAlt = Color(0xFF14202B);
+static const darkBorder     = Color(0xFF1F2D3D);
+static const darkFg1        = Color(0xFFF5F6F8);
 static const darkPrimary    = Color(0xFF5FA0FF);
 ```
 
@@ -108,7 +108,7 @@ const s8 = 32.0;  // --space-8
     - `bodyMedium` → IBM Plex Sans, 14px, w500
     - `bodySmall` → IBM Plex Sans, 12px, w400
     - `labelSmall` → IBM Plex Sans, 12px, w600, letterSpacing=0.16 (eyebrow)
-  - `inputDecorationTheme`: border `OutlineInputBorder(radius=8, borderSide Color(0xFFE1E1D9))`, focusedBorder `borderSide Color(0xFF1283FF) width=3`
+  - `inputDecorationTheme`: border `OutlineInputBorder(radius=8, borderSide Color(0xFFDBDFE3))`, focusedBorder `borderSide Color(0xFF1283FF) width=3`
   - `elevatedButtonTheme`: `ElevatedButtonThemeData` with style: bg=`Color(0xFF1283FF)`, fg=white, radius=8, minSize=`Size(double.infinity, 52)`, textStyle=`bodyMedium`
   Dark theme: same structure with dark-mode color overrides (darkSurface, darkFg1, darkPrimary from BalsmColors).
   Export from `core.dart`.
@@ -146,8 +146,8 @@ const s8 = 32.0;  // --space-8
   - Define tabs (always in this logical order): `[(icon: home, label: 'Home'), (icon: shield, label: 'Card'), (icon: pill, label: 'Meds'), (icon: devices, label: 'Sessions'), (icon: settings, label: 'Settings')]`.
   - In RTL: **reverse the display order** but map taps back to logical indices.
   - Use `NavigationBar` widget with `selectedIndex: currentIndex`, `onDestinationSelected: onTap`.
-  - `NavigationBarTheme` override: `indicatorColor: Color(0xFF1283FF).withOpacity(0.1)`, selected label+icon color `Color(0xFF1283FF)`, unselected `Color(0xFF56564C)`.
-  - Height 56, background `Color(0xFFFFFFFF)`, top border `Border(top: BorderSide(color: Color(0xFFE1E1D9)))`.
+  - `NavigationBarTheme` override: `indicatorColor: Color(0xFF1283FF).withOpacity(0.1)`, selected label+icon color `Color(0xFF1283FF)`, unselected `Color(0xFF384756)`.
+  - Height 56, background `Color(0xFFFFFFFF)`, top border `Border(top: BorderSide(color: Color(0xFFDBDFE3)))`.
   - Each `NavigationDestination` has `semanticLabel` matching label.
   Use icon package: `Icons` from Flutter or Lucide — use `Icons.home`, `Icons.shield`, `Icons.medication`, `Icons.devices`, `Icons.settings` as fallback.
   Export from `core.dart`.
@@ -167,8 +167,8 @@ const s8 = 32.0;  // --space-8
   ```
   `preferredSize` → `Size.fromHeight(56)`.
   Back button: `IconButton(icon: Icon(isRtl ? Icons.arrow_forward_ios : Icons.arrow_back_ios, size: 20), onPressed: () => Navigator.of(context).maybePop())`.
-  Background: `Color(0xFFFFFFFF)`, elevation 0, bottom border `Color(0xFFE1E1D9)`.
-  Title style: Montserrat SemiBold 20px `Color(0xFF2B2B25)`.
+  Background: `Color(0xFFFFFFFF)`, elevation 0, bottom border `Color(0xFFDBDFE3)`.
+  Title style: Montserrat SemiBold 20px `Color(0xFF14202B)`.
   All trailing `IconButton` min 44×44pt.
   Export from `core.dart`.
 
@@ -182,7 +182,7 @@ const s8 = 32.0;  // --space-8
   const BalsmCard.accented({required Widget child, required Color accentColor, EdgeInsets? padding, VoidCallback? onTap});
   const BalsmCard.elevated({required Widget child, EdgeInsets? padding, VoidCallback? onTap});
   ```
-  Base card: `Container` with `decoration: BoxDecoration(color: Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(12), border: Border.all(color: Color(0xFFE1E1D9)))`. Default padding `EdgeInsets.all(16)`. Wrap in `InkWell` if `onTap` provided.
+  Base card: `Container` with `decoration: BoxDecoration(color: Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(12), border: Border.all(color: Color(0xFFDBDFE3)))`. Default padding `EdgeInsets.all(16)`. Wrap in `InkWell` if `onTap` provided.
   `.accented`: adds `border` override — `Border(left: BorderSide(color: accentColor, width: 4))` in LTR, `Border(right: BorderSide(color: accentColor, width: 4))` in RTL (detect with `Directionality.of(context)`). Replace full border with just top+bottom+leading-side.
   `.elevated`: adds `BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0,2))`.
   Wrap all in `Semantics(container: true)`.
@@ -204,11 +204,11 @@ const s8 = 32.0;  // --space-8
   enum BalsmChipVariant { standard, severe, moderate, mild }
   ```
   Visual:
-  - `standard` unselected: border `Color(0xFFE1E1D9)`, bg transparent, text `Color(0xFF56564C)`.
+  - `standard` unselected: border `Color(0xFFDBDFE3)`, bg transparent, text `Color(0xFF384756)`.
   - `standard` selected: border `Color(0xFF1283FF)`, bg `Color(0xFF1283FF).withOpacity(0.08)`, text `Color(0xFF1283FF)`.
   - `severe`: bg `Color(0xFFD44A3C).withOpacity(0.1)`, text `Color(0xFFD44A3C)`.
   - `moderate`: bg `Color(0xFFE5B428).withOpacity(0.1)`, text `Color(0xFFE5B428)`.
-  - `mild`: bg `Color(0xFFE1E1D9)`, text `Color(0xFF56564C)`.
+  - `mild`: bg `Color(0xFFDBDFE3)`, text `Color(0xFF384756)`.
   Render as `GestureDetector(onTap: onTap, child: Container(...))` with min height 36, horizontal padding 12, radius 999.
   Wrap in `Semantics(label: semanticLabel ?? label, button: onTap != null, selected: selected)`.
   Min touch target: wrap in `ConstrainedBox(constraints: BoxConstraints(minWidth: 44, minHeight: 44))`.
@@ -220,7 +220,7 @@ const s8 = 32.0;  // --space-8
   Define `class BalsmOtpInput extends StatefulWidget`.
   Constructor: `const BalsmOtpInput({required void Function(String) onCompleted, bool hasError = false})`.
   State creates 6 `TextEditingController`s + 6 `FocusNode`s.
-  Each box: `Container(width: 48, height: 56)` with `BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: hasError ? Color(0xFFD44A3C) : Color(0xFFE1E1D9), width: hasError ? 2 : 1))`. Text style: `IBM Plex Mono, 24px, center, Color(0xFF2B2B25)`.
+  Each box: `Container(width: 48, height: 56)` with `BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: hasError ? Color(0xFFD44A3C) : Color(0xFFDBDFE3), width: hasError ? 2 : 1))`. Text style: `IBM Plex Mono, 24px, center, Color(0xFF14202B)`.
   Boxes always `TextDirection.ltr` regardless of app locale — wrap in `Directionality(textDirection: TextDirection.ltr)`.
   Auto-advance: `onChanged` moves focus to next box on digit entry; on delete empty box, moves to previous.
   Paste: `onChanged` detects paste of 6 chars → distribute across all boxes → call `onCompleted`.
@@ -238,7 +238,7 @@ const s8 = 32.0;  // --space-8
   Define `class BalsmCountdownTimer extends StatefulWidget`.
   Constructor: `const BalsmCountdownTimer({required Duration initial, required VoidCallback onExpired})`.
   State: holds `Duration _remaining`. `initState` starts `Timer.periodic(Duration(seconds: 1), ...)` decrementing `_remaining`. When `_remaining <= Duration.zero`: cancel timer, call `onExpired()`.
-  Display: format as `'${_remaining.inMinutes.toString().padLeft(2,'0')}:${(_remaining.inSeconds % 60).toString().padLeft(2,'0')}'`. Text style: `IBM Plex Mono, 14px, Color(0xFF6B6B60)`. Always `TextDirection.ltr`.
+  Display: format as `'${_remaining.inMinutes.toString().padLeft(2,'0')}:${(_remaining.inSeconds % 60).toString().padLeft(2,'0')}'`. Text style: `IBM Plex Mono, 14px, Color(0xFF526174)`. Always `TextDirection.ltr`.
   Announce via `SemanticsService.announce` only at each full minute change (not every second). Use `aria-live: polite` semantic equivalent: `Semantics(liveRegion: true, child: Text(...))`.
   `dispose()` cancels timer.
   Export from `core.dart`.
@@ -254,10 +254,10 @@ const s8 = 32.0;  // --space-8
   ```
   All use `showModalBottomSheet(context, isScrollControlled: true, backgroundColor: transparent, builder: ...)`.
   Sheet container: `Container(decoration: BoxDecoration(color: Color(0xFFFFFFFF), borderRadius: BorderRadius.vertical(top: Radius.circular(16))))`.
-  Drag handle: `Container(width: 32, height: 4, decoration: BoxDecoration(color: Color(0xFFE1E1D9), borderRadius: BorderRadius.circular(2)))` centered at top, margin bottom 8.
+  Drag handle: `Container(width: 32, height: 4, decoration: BoxDecoration(color: Color(0xFFDBDFE3), borderRadius: BorderRadius.circular(2)))` centered at top, margin bottom 8.
   `showBalsmTimePicker`: on iOS use `CupertinoTimerPicker`, on Android use `showTimePicker` wrapped to match sheet style.
   `showBalsmDatePicker`: on iOS `CupertinoDatePicker`, on Android `showDatePicker`.
-  `showBalsmFormSheet`: title `TextStyle(fontSize: 18, fontWeight: w600, color: Color(0xFF2B2B25))`, save `BalsmButton.primary` at bottom.
+  `showBalsmFormSheet`: title `TextStyle(fontSize: 18, fontWeight: w600, color: Color(0xFF14202B))`, save `BalsmButton.primary` at bottom.
   Export from `core.dart`.
 
 ### 1.9 List Item
@@ -276,7 +276,7 @@ const s8 = 32.0;  // --space-8
   });
   ```
   Render as `InkWell(onTap: onTap, child: Padding(padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12), child: Row(...)))`.
-  Min height 56pt. `leading` in 40×40 container. Title style `bodyLarge` 16px `Color(0xFF2B2B25)`. Subtitle `bodySmall` 12px `Color(0xFF6B6B60)`.
+  Min height 56pt. `leading` in 40×40 container. Title style `bodyLarge` 16px `Color(0xFF14202B)`. Subtitle `bodySmall` 12px `Color(0xFF526174)`.
   In RTL (`Directionality.of(context) == TextDirection.rtl`): leading becomes trailing visually (Row reversal via `textDirection`). Chevron icon: `Icons.chevron_right` in LTR, `Icons.chevron_left` in RTL.
   Wrap in `Semantics(label: semanticLabel, button: onTap != null)`.
   Export from `core.dart`.
@@ -291,11 +291,11 @@ const s8 = 32.0;  // --space-8
   Semantics(
     label: 'Privacy notice: data stored on this device only',
     child: Row(children: [
-      Icon(Icons.lock_outline, size: 14, color: Color(0xFF6B6B60)),
+      Icon(Icons.lock_outline, size: 14, color: Color(0xFF526174)),
       SizedBox(width: 4),
       Text(
         'On-device only · never sent to Balsm servers',
-        style: TextStyle(fontSize: 12, color: Color(0xFF6B6B60)),
+        style: TextStyle(fontSize: 12, color: Color(0xFF526174)),
       ),
     ])
   )
@@ -396,9 +396,9 @@ const s8 = 32.0;  // --space-8
     body: Column([
       Padding(16, child: TextField(  // search field
         decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search, color: Color(0xFF6B6B60)),
+          prefixIcon: Icon(Icons.search, color: Color(0xFF526174)),
           hintText: 'Search countries',  // AR: 'ابحث عن دولة'
-          border: OutlineInputBorder(radius=8, color=Color(0xFFE1E1D9)),
+          border: OutlineInputBorder(radius=8, color=Color(0xFFDBDFE3)),
         ),
         autofocus: true,
       )),
@@ -433,7 +433,7 @@ const s8 = 32.0;  // --space-8
         style: TextStyle(fontSize: 12, fontWeight: w600, letterSpacing: 0.16, color: Color(0xFF01C4A2))),
       SizedBox(height: 8),
       Text('Sign up with your email',  // h1
-        style: TextStyle(fontSize: 28, fontWeight: w700, color: Color(0xFF2B2B25))),
+        style: TextStyle(fontSize: 28, fontWeight: w700, color: Color(0xFF14202B))),
       SizedBox(height: 32),
       TextFormField(
         keyboardType: TextInputType.emailAddress,
@@ -449,7 +449,7 @@ const s8 = 32.0;  // --space-8
         onPressed: _emailValid ? () => _sendOtp() : null,
       ),
       SizedBox(height: 16),
-      Row([Divider(), Text('or', style: 14px color(0xFF6B6B60)), Divider()]),
+      Row([Divider(), Text('or', style: 14px color(0xFF526174)), Divider()]),
       SizedBox(height: 16),
       BalsmButton.ghost(label: 'Continue with Google', leading: Image.asset('assets/google_logo.png', 16), onPressed: _signInWithGoogle),
       SizedBox(height: 8),
@@ -474,7 +474,7 @@ const s8 = 32.0;  // --space-8
         style: TextStyle(fontSize: 12, fontWeight: w600, letterSpacing: 0.16)),
       SizedBox(8),
       Text('Enter the 6-digit code sent to $maskedEmail',
-        style: TextStyle(fontSize: 22, fontWeight: w700, color: Color(0xFF2B2B25))),
+        style: TextStyle(fontSize: 22, fontWeight: w700, color: Color(0xFF14202B))),
       SizedBox(32),
       BalsmOtpInput(
         hasError: _hasError,
@@ -508,7 +508,7 @@ const s8 = 32.0;  // --space-8
     backgroundColor: Color(0xFFF4F3EC),
     appBar: BalsmAppBar.wordmark(),
     body: Padding(24, child: Column(mainAxisAlignment: center, [
-      Text('Sign in', style: 28px w700 Color(0xFF2B2B25)),
+      Text('Sign in', style: 28px w700 Color(0xFF14202B)),
       SizedBox(32),
       BalsmButton.ghost(label: 'Continue with Google', onPressed: _signInWithGoogle),
       SizedBox(12),
@@ -530,11 +530,11 @@ const s8 = 32.0;  // --space-8
       Icon(Icons.lock_outline, size: 64, color: Color(0xFFD44A3C)),
       SizedBox(24),
       Text('Too many attempts',
-        style: TextStyle(fontSize: 28, fontWeight: w700, color: Color(0xFF2B2B25)),
+        style: TextStyle(fontSize: 28, fontWeight: w700, color: Color(0xFF14202B)),
         textAlign: TextAlign.center),
       SizedBox(12),
       Text('Please wait before trying again.',
-        style: TextStyle(fontSize: 16, color: Color(0xFF56564C)),
+        style: TextStyle(fontSize: 16, color: Color(0xFF384756)),
         textAlign: TextAlign.center),
       SizedBox(24),
       BalsmCountdownTimer(
@@ -557,10 +557,10 @@ const s8 = 32.0;  // --space-8
       Text('🚫', style: 64px),
       SizedBox(24),
       Text('Not available in $countryName',
-        style: 28px w700 Color(0xFF2B2B25), textAlign: center),
+        style: 28px w700 Color(0xFF14202B), textAlign: center),
       SizedBox(12),
       Text('Balsm is not currently available in your country.',
-        style: 16px Color(0xFF56564C), textAlign: center),
+        style: 16px Color(0xFF384756), textAlign: center),
       SizedBox(32),
       BalsmButton.ghost(label: 'Go back', onPressed: () => context.go('/auth/country')),
     ]))),
@@ -595,14 +595,14 @@ const s8 = 32.0;  // --space-8
           Text('YOUR PRIVACY MATTERS', style: eyebrow Color(0xFF01C4A2)),
           SizedBox(8),
           Text('How we protect your health data',
-            style: 24px w700 Color(0xFF2B2B25)),
+            style: 24px w700 Color(0xFF14202B)),
           SizedBox(24),
           // Disclosure body text (localized from i18n bundle)
           // Must include: supervisory authority name, data retention, user rights
-          Text(disclosureBody, style: 16px Color(0xFF2B2B25), height: 1.65),
+          Text(disclosureBody, style: 16px Color(0xFF14202B), height: 1.65),
           SizedBox(8),
           Text('Supervised by: $supervisoryAuthority',
-            style: 14px w600 Color(0xFF56564C)),
+            style: 14px w600 Color(0xFF384756)),
           SizedBox(32),
         ]),
       )),
@@ -636,10 +636,10 @@ const s8 = 32.0;  // --space-8
       // Greeting card
       BalsmCard(padding: EdgeInsets.all(24), child: Column(crossAxisAlignment: start, [
         Text('Welcome back, ${account.displayName}',
-          style: 20px w600 Color(0xFF2B2B25)),
+          style: 20px w600 Color(0xFF14202B)),
         SizedBox(4),
         Text('Your health, your data, your system.',
-          style: 16px Color(0xFF56564C)),
+          style: 16px Color(0xFF384756)),
       ])),
       SizedBox(16),
       // Nudge cards (only shown if nudge list non-empty)
@@ -649,9 +649,9 @@ const s8 = 32.0;  // --space-8
           accentColor: _nudgeColor(n.type),  // emergency→Color(0xFF01C4A2), meds→Color(0xFF1283FF), profile→Color(0xFF55D77F)
           child: ListTile(
             leading: Icon(_nudgeIcon(n.type), color: _nudgeColor(n.type)),
-            title: Text(n.title, style: 16px w500 Color(0xFF2B2B25)),
-            subtitle: Text(n.subtitle, style: 14px Color(0xFF56564C)),
-            trailing: Icon(Icons.chevron_right, color: Color(0xFF6B6B60)),
+            title: Text(n.title, style: 16px w500 Color(0xFF14202B)),
+            subtitle: Text(n.subtitle, style: 14px Color(0xFF384756)),
+            trailing: Icon(Icons.chevron_right, color: Color(0xFF526174)),
             onTap: () => context.go(n.route),
           ),
         ),
@@ -672,13 +672,13 @@ const s8 = 32.0;  // --space-8
     appBar: BalsmAppBar.wordmark(trailing: [...same as HomeScreen...]),
     body: Center(child: Padding(24, child: Column(mainAxisAlignment: center, [
       // Brand flower illustration placeholder (use Icon or Image.asset)
-      Icon(Icons.local_florist, size: 96, color: Color(0xFF6B6B60).withOpacity(0.2)),
+      Icon(Icons.local_florist, size: 96, color: Color(0xFF526174).withOpacity(0.2)),
       SizedBox(24),
       Text('Welcome to Balsm',  // AR: 'أهلاً بك في بلسم'
-        style: 24px w700 Color(0xFF2B2B25), textAlign: center),
+        style: 24px w700 Color(0xFF14202B), textAlign: center),
       SizedBox(8),
       Text('Start by adding your emergency card or a medication.',
-        style: 16px Color(0xFF56564C), textAlign: center),
+        style: 16px Color(0xFF384756), textAlign: center),
       SizedBox(32),
       BalsmButton.primary(
         label: 'Add emergency card',
@@ -709,7 +709,7 @@ const s8 = 32.0;  // --space-8
     appBar: BalsmAppBar.backable(title: 'Claim your handle'),
     body: Padding(24, child: Column([
       Text('Choose a unique handle that others can use to find your emergency card.',
-        style: 16px Color(0xFF56564C)),
+        style: 16px Color(0xFF384756)),
       SizedBox(24),
       TextFormField(
         textDirection: TextDirection.ltr,  // handles always LTR
@@ -723,7 +723,7 @@ const s8 = 32.0;  // --space-8
       ),
       SizedBox(16),
       if (_suggestions.isNotEmpty) ...[
-        Text('Suggestions:', style: 14px Color(0xFF6B6B60)),
+        Text('Suggestions:', style: 14px Color(0xFF526174)),
         SizedBox(8),
         Wrap(spacing: 8, children: _suggestions.map((s) =>
           BalsmChip(label: '@$s', onTap: () => _selectSuggestion(s)),
@@ -756,7 +756,7 @@ const s8 = 32.0;  // --space-8
         TextButton(
           'Save',
           onPressed: _isDirty ? _save : null,
-          style: TextStyle(color: _isDirty ? Color(0xFF1283FF) : Color(0xFF6B6B60)),
+          style: TextStyle(color: _isDirty ? Color(0xFF1283FF) : Color(0xFF526174)),
         ),
       ],
     ),
@@ -785,7 +785,7 @@ const s8 = 32.0;  // --space-8
         ),
         if (allergies.isEmpty)
           Text('No known allergies — that\'s fine. Add any if they come up.',
-            style: 14px Color(0xFF6B6B60)),
+            style: 14px Color(0xFF526174)),
         ...allergies.map((a) => BalsmListItem(
           leading: Icon(Icons.warning_amber, color: Color(0xFFD44A3C)),
           title: a.name,
@@ -798,7 +798,7 @@ const s8 = 32.0;  // --space-8
         _sectionHeader('Chronic conditions', Icons.medical_services_outlined,
           trailing: TextButton('+ Add', onPressed: _openConditionSheet)),
         if (conditions.isEmpty)
-          Text('No chronic conditions on file.', style: 14px Color(0xFF6B6B60)),
+          Text('No chronic conditions on file.', style: 14px Color(0xFF526174)),
         ...conditions.map((c) => BalsmListItem(
           leading: Icon(Icons.medical_services, color: Color(0xFF1283FF)),
           title: c.name,
@@ -811,7 +811,7 @@ const s8 = 32.0;  // --space-8
         _sectionHeader('Emergency contacts', Icons.phone_outlined,
           trailing: TextButton('+ Add', onPressed: _openContactSheet)),
         if (contacts.isEmpty)
-          Text('Add at least one emergency contact.', style: 14px Color(0xFF56564C)),
+          Text('Add at least one emergency contact.', style: 14px Color(0xFF384756)),
         ...contacts.map((c) => BalsmListItem(
           leading: Icon(Icons.person_outline, color: Color(0xFF02BBB5)),
           title: c.name,
@@ -822,7 +822,7 @@ const s8 = 32.0;  // --space-8
     ]),
   )
   ```
-  `_sectionHeader(title, icon, {trailing})`: returns `Row([Icon(icon, 20, Color(0xFF56564C)), SizedBox(8), Text(title, 16px w600), Spacer(), trailing])`.
+  `_sectionHeader(title, icon, {trailing})`: returns `Row([Icon(icon, 20, Color(0xFF384756)), SizedBox(8), Text(title, 16px w600), Spacer(), trailing])`.
   `_save()`: call `ref.read(updateProfileProvider.notifier).save(profile)` → show `SnackBar('Saved on this device', Color(0xFF55D77F))`. Never show "Saved to cloud".
   Each section has `Semantics(label: '$sectionTitle section')`.
   National-ID field: DO NOT implement (deferred to P002).
@@ -881,7 +881,7 @@ const s8 = 32.0;  // --space-8
         SizedBox(8),
         Directionality(ltr, child: Text(
           profile.bloodType ?? '—',
-          style: TextStyle(fontFamily: 'IBMPlexMono', fontSize: 48, fontWeight: w700, color: Color(0xFF2B2B25)),
+          style: TextStyle(fontFamily: 'IBMPlexMono', fontSize: 48, fontWeight: w700, color: Color(0xFF14202B)),
         )),
       ])),
       SizedBox(16),
@@ -932,7 +932,7 @@ const s8 = 32.0;  // --space-8
   )
   ```
   `_sectionRow(title, icon, color)`: `Row([Icon(icon,20,color), SizedBox(8), Text(title,16px w600), Spacer()])`.
-  `_emptyState(text, {onTap})`: `Text(text, 14px Color(0xFF6B6B60))` + optional ghost TextButton 'Add'.
+  `_emptyState(text, {onTap})`: `Text(text, 14px Color(0xFF526174))` + optional ghost TextButton 'Add'.
   If QR button disabled: `Semantics(label: 'Generate QR — add blood type and at least one contact to enable')`.
   RTL: `BalsmCard.accented` flips border side automatically (handled by BalsmCard). All icons flip via `BalsmListItem`.
 
@@ -947,7 +947,7 @@ const s8 = 32.0;  // --space-8
     appBar: BalsmAppBar.backable(title: 'Emergency QR'),
     body: Padding(24, child: Column([
       // TTL selector
-      Text('Valid for:', style: 14px Color(0xFF56564C)),
+      Text('Valid for:', style: 14px Color(0xFF384756)),
       SizedBox(8),
       Semantics(label: 'Token duration', child: Row(
         children: ['1h','4h','12h','24h','7d'].mapIndexed((i, label) =>
@@ -968,9 +968,9 @@ const s8 = 32.0;  // --space-8
         )),
       if (token == null || token.isExpired)
         Column(center, [
-          Icon(Icons.qr_code_scanner, 96, Color(0xFF6B6B60).withOpacity(0.3)),
+          Icon(Icons.qr_code_scanner, 96, Color(0xFF526174).withOpacity(0.3)),
           SizedBox(16),
-          Text('QR code expired', 16px Color(0xFF56564C)),
+          Text('QR code expired', 16px Color(0xFF384756)),
           SizedBox(12),
           BalsmButton.ghost(label: 'Generate new', onPressed: _mintToken),
         ]),
@@ -1016,14 +1016,14 @@ const s8 = 32.0;  // --space-8
           Icon(Icons.error_outline, 48, Color(0xFFD44A3C)),
           SizedBox(16),
           Text(e.isExpired ? 'This QR code has expired.' : 'Unable to load — network error.',
-            16px center Color(0xFF56564C)),
+            16px center Color(0xFF384756)),
         ])),
         data: (card) => ListView(padding: EdgeInsets.all(24), children: [
           // Blood type (large, centered)
           Center(child: Column([
             Text('BLOOD TYPE', eyebrow Color(0xFF01C4A2)),
             SizedBox(8),
-            Directionality(ltr, child: Text(card.bloodType, 64px IBMPlexMono w700 Color(0xFF2B2B25))),
+            Directionality(ltr, child: Text(card.bloodType, 64px IBMPlexMono w700 Color(0xFF14202B))),
           ])),
           SizedBox(24),
           // Allergies
@@ -1071,11 +1071,11 @@ const s8 = 32.0;  // --space-8
       error: (e,_) => Center(BalsmErrorBanner(message: 'Failed to load medications')),
       data: (meds) => meds.isEmpty
         ? Center(Column([
-            Icon(Icons.medication, 64, Color(0xFF6B6B60).withOpacity(0.3)),
+            Icon(Icons.medication, 64, Color(0xFF526174).withOpacity(0.3)),
             SizedBox(16),
-            Text('No medications added.', 18px w600 Color(0xFF2B2B25)),
+            Text('No medications added.', 18px w600 Color(0xFF14202B)),
             SizedBox(8),
-            Text('Tap + to add one.', 16px Color(0xFF56564C)),
+            Text('Tap + to add one.', 16px Color(0xFF384756)),
           ]))
         : ListView.separated(
             padding: EdgeInsets.all(16),
@@ -1216,13 +1216,13 @@ const s8 = 32.0;  // --space-8
       Expanded(ListView(children: [
         ...timeSlots.map((slot) => Column([
           Padding(EdgeInsets.symmetric(horizontal:16, vertical:8),
-            child: Text(slot.label, style: 12px w600 Color(0xFF6B6B60))),
+            child: Text(slot.label, style: 12px w600 Color(0xFF526174))),
           ...slot.doses.map((dose) => Card(margin: EdgeInsets.symmetric(horizontal:16,vertical:4),
             child: ListTile(
               leading: Icon(Icons.medication,
                 color: dose.isMissed ? Color(0xFFD44A3C) : Color(0xFF1283FF)),
               title: Text(dose.medicationName, 16px w500),
-              subtitle: Directionality(ltr, child: Text(dose.scheduledTime, IBMPlexMono 14px Color(0xFF6B6B60))),
+              subtitle: Directionality(ltr, child: Text(dose.scheduledTime, IBMPlexMono 14px Color(0xFF526174))),
               trailing: Row(mainAxisSize: min, children: [
                 if (!dose.hasOutcome) BalsmButton.primary(label:'Taken', onPressed: ()=>_markTaken(dose)),
                 if (!dose.hasOutcome) SizedBox(4),
@@ -1256,7 +1256,7 @@ const s8 = 32.0;  // --space-8
       itemBuilder: (_, i) {
         final day = groupedDays[i];
         return Column([
-          Padding(h:16,v:8, child: Text(day.dateLabel, 12px w600 Color(0xFF6B6B60))),
+          Padding(h:16,v:8, child: Text(day.dateLabel, 12px w600 Color(0xFF526174))),
           ...day.events.map((e) => ListTile(
             leading: BalsmChip(
               label: e.outcome,
@@ -1264,8 +1264,8 @@ const s8 = 32.0;  // --space-8
               // taken→selected, missed→severe, skipped→mild, correction→standard
             ),
             title: Directionality(ltr, child: Text(e.timeLabel, IBMPlexMono 14px)),
-            subtitle: e.notes != null ? Text(e.notes!, 12px Color(0xFF6B6B60)) : null,
-            trailing: e.isCorrection ? Tooltip('Correction', child: Icon(Icons.edit, 16, Color(0xFF6B6B60))) : null,
+            subtitle: e.notes != null ? Text(e.notes!, 12px Color(0xFF526174)) : null,
+            trailing: e.isCorrection ? Tooltip('Correction', child: Icon(Icons.edit, 16, Color(0xFF526174))) : null,
           )),
         ]);
       },
@@ -1284,9 +1284,9 @@ const s8 = 32.0;  // --space-8
     Text('Timezone changed', 18px w600),
     SizedBox(16),
     Row(mainAxisAlignment: spaceEvenly, [
-      Column([Text('Old', 12px Color(0xFF6B6B60)), Text(oldTz, 14px IBMPlexMono w500)]),
-      Icon(Icons.arrow_forward, Color(0xFF6B6B60)),
-      Column([Text('New', 12px Color(0xFF6B6B60)), Text(newTz, 14px IBMPlexMono w500)]),
+      Column([Text('Old', 12px Color(0xFF526174)), Text(oldTz, 14px IBMPlexMono w500)]),
+      Icon(Icons.arrow_forward, Color(0xFF526174)),
+      Column([Text('New', 12px Color(0xFF526174)), Text(newTz, 14px IBMPlexMono w500)]),
     ]),
     SizedBox(24),
     BalsmButton.primary(label: 'Update schedule', onPressed: () { Navigator.pop(context); onUpdate(); }),
@@ -1310,7 +1310,7 @@ const s8 = 32.0;  // --space-8
     body: ListView(padding: EdgeInsets.all(16), children: [
       // Retained data card
       BalsmCard(child: Column([
-        Row([Icon(Icons.history, Color(0xFF56564C)), SizedBox(8), Text('Retained for 30 days', 16px w600)]),
+        Row([Icon(Icons.history, Color(0xFF384756)), SizedBox(8), Text('Retained for 30 days', 16px w600)]),
         SizedBox(8),
         _dataFateItem('Your username / handle'),
       ])),
@@ -1342,7 +1342,7 @@ const s8 = 32.0;  // --space-8
     ]),
   )
   ```
-  `_dataFateItem(text)`: `Padding(v:4, child: Row([Icon(Icons.circle, 6, Color(0xFF56564C)), SizedBox(8), Text(text, 14px Color(0xFF56564C))]))`.
+  `_dataFateItem(text)`: `Padding(v:4, child: Row([Icon(Icons.circle, 6, Color(0xFF384756)), SizedBox(8), Text(text, 14px Color(0xFF384756))]))`.
 
 - [ ] UI042 [P] [US4] Create `../balsm_app/packages/deletion/lib/src/presentation/screens/deletion_confirm_screen.dart`.
   Class: `class DeletionConfirmScreen extends ConsumerStatefulWidget`. Route: `deletion.confirm`.
@@ -1396,13 +1396,13 @@ const s8 = 32.0;  // --space-8
     body: Center(child: Padding(24, child: Column(mainAxisAlignment: center, [
       Icon(Icons.check_circle_outline, 64, Color(0xFF55D77F)),
       SizedBox(24),
-      Text('Your account will not be deleted', 24px w700 Color(0xFF2B2B25), textAlign: center),
+      Text('Your account will not be deleted', 24px w700 Color(0xFF14202B), textAlign: center),
       SizedBox(12),
       Text('You still have ${graceDays} days in your grace period.',
-        16px Color(0xFF56564C), textAlign: center),
+        16px Color(0xFF384756), textAlign: center),
       SizedBox(8),
       Semantics(liveRegion: true,
-        child: Text('Grace period ends: ${gracePeriodEndsAt}', 14px IBMPlexMono Color(0xFF6B6B60))),
+        child: Text('Grace period ends: ${gracePeriodEndsAt}', 14px IBMPlexMono Color(0xFF526174))),
       SizedBox(32),
       BalsmButton.primary(label: 'Cancel deletion', onPressed: _cancelDeletion),
     ]))),
@@ -1441,7 +1441,7 @@ const s8 = 32.0;  // --space-8
           Text('CURRENT DEVICE', style: eyebrow Color(0xFF1283FF)),
           SizedBox(8),
           Row([
-            Icon(_deviceIcon(sessions.first.deviceType), 24, Color(0xFF2B2B25)),
+            Icon(_deviceIcon(sessions.first.deviceType), 24, Color(0xFF14202B)),
             SizedBox(8),
             Text(sessions.first.deviceLabel, 16px w500),
           ]),
@@ -1454,14 +1454,14 @@ const s8 = 32.0;  // --space-8
       ...sessions.skip(1).map((s) => Padding(
         bottom: 8,
         child: BalsmCard(child: ListTile(
-          leading: Icon(_deviceIcon(s.deviceType), 28, Color(0xFF56564C)),
+          leading: Icon(_deviceIcon(s.deviceType), 28, Color(0xFF384756)),
           title: Text(s.deviceLabel.isNotEmpty ? s.deviceLabel : 'Unknown ${s.deviceType}', 16px w500),
           subtitle: Text(
             '${s.deviceType} · ${_relativeTime(s.lastActivityAt)}',
-            style: TextStyle(fontFamily: 'IBMPlexMono', fontSize: 12, color: Color(0xFF6B6B60)),
+            style: TextStyle(fontFamily: 'IBMPlexMono', fontSize: 12, color: Color(0xFF526174)),
           ),
           trailing: IconButton(
-            icon: Icon(Icons.logout, Color(0xFF56564C)),
+            icon: Icon(Icons.logout, Color(0xFF384756)),
             tooltip: 'Sign out of ${s.deviceLabel}',
             onPressed: () async {
               final ok = await showBalsmConfirmDialog(context,
@@ -1542,10 +1542,10 @@ const s8 = 32.0;  // --space-8
       Text('404', style: TextStyle(fontSize: 72, fontWeight: w800, color: Color(0xFF01C4A2), fontFamily: 'Montserrat')),
       SizedBox(8),
       Semantics(header: true, child: Text('Page not found',
-        style: 24px w700 Color(0xFF2B2B25), textAlign: center)),
+        style: 24px w700 Color(0xFF14202B), textAlign: center)),
       SizedBox(8),
       Text('The page you\'re looking for doesn\'t exist.',
-        style: 16px Color(0xFF56564C), textAlign: center),
+        style: 16px Color(0xFF384756), textAlign: center),
       SizedBox(32),
       BalsmButton.primary(label: 'Go home', onPressed: () => context.go('/home')),
     ]))),

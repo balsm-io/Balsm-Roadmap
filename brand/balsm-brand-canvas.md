@@ -32,7 +32,7 @@ To build the open standard for healthcare operations across MENA — free for ev
 ## 2. Vision
 > **الرؤية**
 
-A future where every person in the Arab world — from the Atlantic to the Gulf — receives care from providers who own their tools, trust their data, and speak their language. Where a patient's health record is theirs, follows them across borders, and is never held hostage by a vendor. Where the software powering Arab healthcare was built here, for here — and shared freely with the world.
+A future where every person in the Arab world — from the Atlantic to the Gulf — receives care from providers who own their tools, trust their data, and speak their language. Where a person's health record is theirs, follows them across borders, and is never held hostage by a vendor. Where the software powering Arab healthcare was built here, for here — and shared freely with the world.
 
 Not a product vision. A civilization one.
 
@@ -48,16 +48,16 @@ Not a product vision. A civilization one.
 > **الجمهور المستهدف**
 
 ### Primary — المستخدم الأول: المريض
-The Arab patient — urban and underserved equally, from Alexandria to Aswan — who navigates a fragmented healthcare system with no continuous record, no visibility into their own data, and no reliable way to connect their pharmacy, clinic, and lab visits into a single coherent picture of their health.
+The Arab care recipient — urban and underserved equally, connected or not — who navigates a fragmented healthcare system with no continuous record, no visibility into their own data, and no reliable way to connect their pharmacy, clinic, and lab visits into a single coherent picture of their health.
 
-المريض العربي — في المدينة والريف على حدٍّ سواء، من الإسكندرية إلى أسوان — الذي يتنقل في منظومة صحية مفككة دون سجل مستمر، ودون رؤية لبياناته الخاصة، ودون طريقة موثوقة تربط زيارات الصيدلية والعيادة والمختبر في صورة صحية واحدة متكاملة.
+المريض العربي — في المدينة والريف على حدٍّ سواء، بالإنترنت أو بدونه — الذي يتنقل في منظومة صحية مفككة دون سجل مستمر، ودون رؤية لبياناته الخاصة، ودون طريقة موثوقة تربط زيارات الصيدلية والعيادة والمختبر في صورة صحية واحدة متكاملة.
 
-**GTM Logic:** Patient demand pulls providers onto Balsm — bottom-up adoption. When patients arrive at a clinic expecting Balsm, adoption stops being a sales problem and becomes a network effect.
+**GTM Logic:** Care recipient demand pulls providers onto Balsm — bottom-up adoption. When care recipients arrive at a clinic expecting Balsm, adoption stops being a sales problem and becomes a network effect.
 
 ### Secondary — المستخدمون المهنيون
 Healthcare professionals who live inside Balsm daily:
 - **الصيادلة** — Pharmacists: inventory, dispensing, insurance
-- **الأطباء** — Doctors: consultations, prescriptions, patient history
+- **الأطباء** — Doctors: consultations, prescriptions, care recipient history
 - **الممرضون** — Nurses: vitals, triage, care coordination
 - **المختبرات** — Lab operators: orders, results, FHIR integration
 
@@ -65,12 +65,12 @@ Healthcare professionals who live inside Balsm daily:
 The operations manager or clinic administrator — responsible for making the system work, training staff, and justifying infrastructure decisions. They choose Balsm because it is self-hosted, PDPL-compliant, and costs nothing to own.
 
 ### Geographic Sequencing
-- **Launch:** Egypt — من الإسكندرية إلى أسوان (urban and underserved simultaneously)
-- **Expansion:** GCC — Phase 3+
+- **Launch:** Egypt — nationwide from day one (urban and underserved simultaneously)
+- **Expansion:** GCC — Phase 2+
 - **Vision horizon:** من المحيط إلى الخليج
 
-> **من الإسكندرية إلى أسوان — نفس بلسم، نفس الموثوقية.**
-> From Alexandria to Aswan — the same Balsm, the same reliability.
+> **متصلًا أو غير متصل — نفس بلسم، نفس الموثوقية.**
+> Online or offline, the same Balsm, the same reliability.
 
 ---
 
@@ -98,7 +98,7 @@ Balsm carries two complementary qualities in equal measure, each surfacing where
 
 **Optimistic where it matters.** In onboarding, community, and product vision, Balsm is warm, encouraging, and quietly proud — believing genuinely that the Arab world deserves world-class, self-owned healthcare infrastructure.
 
-If Balsm were a person, they would be a trusted healthcare professional who also believes deeply in open systems and the people who use them. Patient with complexity. Honest about tradeoffs. Never performative.
+If Balsm were a person, they would be a trusted healthcare professional who also believes deeply in open systems and the people who use them. Unhurried with complexity. Honest about tradeoffs. Never performative.
 
 **Balsm never sounds:** hyped, preachy, or self-congratulatory. It earns trust through consistency, not volume.
 
@@ -106,7 +106,7 @@ If Balsm were a person, they would be a trusted healthcare professional who also
 | Trait | Where it shows |
 |---|---|
 | **Seriousness** | Clinical copy, compliance, error messages, data handling, documentation |
-| **Optimism** | Onboarding, marketing, community, open-source, patient-facing flows |
+| **Optimism** | Onboarding, marketing, community, open-source, care-recipient-facing flows |
 
 ---
 
@@ -132,7 +132,7 @@ Rules:
 - Use correct Arabic medical terminology, not transliterated English.
 
 #### 🌿 Product / Community Register
-*Use for: onboarding, marketing, open-source community, patient-facing, social, contributor docs*
+*Use for: onboarding, marketing, open-source community, care-recipient-facing, social, contributor docs*
 
 Active brand words: **Warm · Empowering · Caring · Accessible · Welcoming · Optimistic · Human · Visionary**
 
@@ -164,15 +164,15 @@ Balsm doesn't compete in healthcare software. It creates a new category: the **C
 | **Global SaaS (Epic, Oracle)** | Powerful, modern | Foreign-built, cloud-only, PDPL risk | Arabic-native, self-hosted, compliant |
 
 ### Positioning Statement
-For patients and healthcare providers across the Arab world who are failed daily by fragmented, foreign-built, or paper-based systems — Balsm is the first community-owned healthcare operating system that is Arabic-first, offline-ready, and FHIR-native. Unlike legacy HIS platforms that lock you in, global SaaS tools that ignore your context, or paper systems that lose your data — Balsm gives every clinic, pharmacy, and hospital from Alexandria to Aswan infrastructure they fully own, at zero cost to self-host, forever.
+For care recipients and healthcare providers across the Arab world who are failed daily by fragmented, foreign-built, or paper-based systems — Balsm is the first community-owned healthcare operating system that is Arabic-first, offline-ready, and FHIR-native. Unlike legacy HIS platforms that lock you in, global SaaS tools that ignore your context, or paper systems that lose your data — Balsm gives every clinic, pharmacy, and hospital across the Arab world infrastructure they fully own, at zero cost to self-host, forever.
 
 ---
 
-لكل مريض ومقدّم رعاية في عالمنا العربي يعاني يومياً من منظومة صحية مفككة، مبنية في الخارج، أو ورقية — بلسم هو أول نظام تشغيل صحي مملوك للمجتمع: عربي أولاً، يعمل بلا إنترنت، ومبني على معايير FHIR المفتوحة. على عكس أنظمة HIS التي تحاصرك، أو منصات SaaS العالمية التي تتجاهل سياقك، أو الورق الذي يُضيّع بياناتك — بلسم يمنح كل عيادة وصيدلية ومستشفى من الإسكندرية إلى أسوان بنية تحتية تمتلكها بالكامل، مجاناً للتشغيل الذاتي، إلى الأبد.
+لكل مريض ومقدّم رعاية في عالمنا العربي يعاني يومياً من منظومة صحية مفككة، مبنية في الخارج، أو ورقية — بلسم هو أول نظام تشغيل صحي مملوك للمجتمع: عربي أولاً، يعمل بلا إنترنت، ومبني على معايير FHIR المفتوحة. على عكس أنظمة HIS التي تحاصرك، أو منصات SaaS العالمية التي تتجاهل سياقك، أو الورق الذي يُضيّع بياناتك — بلسم يمنح كل عيادة وصيدلية ومستشفى في عالمنا العربي بنية تحتية تمتلكها بالكامل، مجاناً للتشغيل الذاتي، إلى الأبد.
 
 ### One-Line Positioning
 **The community-owned healthcare OS for the Arab world.**
-نظام التشغيل الصحي المملوك للمجتمع — للعالم العربي.
+نظام صحي مجتمعي للعالم العربي.
 
 ### Three Words
 **Open. Arab. Owned.**
@@ -186,17 +186,17 @@ For patients and healthcare providers across the Arab world who are failed daily
 ### ١ — الانفتاح · Openness
 *The code is open. The roadmap is open. The decisions are open.*
 
-Balsm builds in public because transparency isn't a marketing choice — it's the architecture of trust. An open codebase is the only honest answer to "can we trust this with patient data?"
+Balsm builds in public because transparency isn't a marketing choice — it's the architecture of trust. An open codebase is the only honest answer to "can we trust this with care recipient data?"
 
-### ٢ — السيادة · Sovereignty
+### ٢ — الملكية · Sovereignty
 *Your data. Your infrastructure. Your rules.*
 
-Providers own what they run. Patients own what's recorded about them. No cloud dependency, no vendor lock-in, no foreign server holding Arab health data hostage. Sovereignty is non-negotiable even when it's inconvenient.
+Providers own what they run. Care recipients own what's recorded about them. No cloud dependency, no vendor lock-in, no foreign server holding Arab health data hostage. Sovereignty is non-negotiable even when it's inconvenient.
 
 ### ٣ — المجتمع · Community
 *The ecosystem outlasts any product.*
 
-Balsm is not a company with users — it's a community with a platform. Developers, providers, patients, and contributors shape what gets built. The product serves the community, never the other way around.
+Balsm is not a company with users — it's a community with a platform. Developers, providers, care recipients, and contributors shape what gets built. The product serves the community, never the other way around.
 
 ### ٤ — العروبة · Arabic-First
 *Arabic is not a translation. It's the original.*
@@ -204,9 +204,9 @@ Balsm is not a company with users — it's a community with a platform. Develope
 Every interface, every error message, every clinical term is designed in Arabic first. Not localized after the fact. Not right-to-left as an afterthought. Arabic is the native language of Balsm — because it's the native language of those it serves.
 
 ### ٥ — الصمود · Resilience
-*Works in Aswan as well as it works in Alexandria.*
+*Reliable wherever you need it.*
 
-Offline-first is not a feature. It's a value. Healthcare cannot wait for connectivity. Balsm is built to function completely without internet — because the patients who need it most are often the ones with the least reliable infrastructure.
+Offline-first is not a feature. It's a value. Healthcare cannot wait for connectivity. Balsm is built to function completely without internet — because the care recipients who need it most are often the ones with the least reliable infrastructure.
 
 ### ٦ — الإتقان · Excellence
 *Healthcare deserves better than good enough.*
@@ -217,10 +217,10 @@ Every line of code, every UX decision, every clinical workflow is held to the st
 | # | القيمة | Value | المبدأ |
 |---|---|---|---|
 | ١ | الانفتاح | Openness | الكود مفتوح. الخارطة مفتوحة. القرارات مفتوحة. |
-| ٢ | السيادة | Sovereignty | بياناتك. بنيتك. قواعدك. |
+| ٢ | الملكية | Sovereignty | بياناتك. بنيتك. قواعدك. |
 | ٣ | المجتمع | Community | المنظومة تدوم أطول من أي منتج. |
 | ٤ | العروبة | Arabic-First | العربية ليست ترجمة — هي الأصل. |
-| ٥ | الصمود | Resilience | يعمل في أسوان كما يعمل في الإسكندرية. |
+| ٥ | الصمود | Resilience | موثوق أينما احتجت إليه. |
 | ٦ | الإتقان | Excellence | الرعاية الصحية تستحق أكثر من الكافي. |
 
 ---
@@ -231,9 +231,9 @@ Every line of code, every UX decision, every clinical workflow is held to the st
 ### The Three Defining Moments
 Three moments capture everything Balsm promises to feel like:
 
-A patient in Cairo opens Balsm and sees — for the first time — their complete health journey in one place. Every prescription, every visit, every lab result. Theirs. In Arabic. Finally whole.
+A care recipient in Cairo opens Balsm and sees — for the first time — their complete health journey in one place. Every prescription, every visit, every lab result. Theirs. In Arabic. Finally whole.
 
-A pharmacist in a village outside Aswan dispenses medication to a patient with a complex history. The internet has been down for two days. Balsm hasn't noticed.
+A pharmacist in a remote village dispenses medication to a care recipient with a complex history. The internet has been down for two days. Balsm hasn't noticed.
 
 A developer in Alexandria finds Balsm on GitHub. Reads the code. Reads the mission. Feels something rare — pride that this was built here, by people who understand here.
 
@@ -272,7 +272,7 @@ Balsm makes healthcare feel like it finally belongs to you.
 |---|---|
 | **Mission** | Open standard for Arab healthcare — owned, trusted, always available |
 | **Vision** | من المحيط إلى الخليج — civilization-scale, generational |
-| **Primary user** | The Arab patient — from Alexandria to Aswan |
+| **Primary user** | The Arab care recipient — connected or not |
 | **Economic buyer** | Clinic/hospital operations manager |
 | **Category** | Community-Owned Healthcare OS |
 | **3 words** | Open. Arab. Owned. |
@@ -280,7 +280,7 @@ Balsm makes healthcare feel like it finally belongs to you.
 | **Personality** | Trusted professional — serious when it counts, optimistic where it matters |
 | **Never sounds like** | Hyped, preachy, corporate, apologetic |
 | **Core constraint** | Open-source always · Arabic first · offline-ready · PDPL compliant |
-| **Geographic anchors** | Launch: الإسكندرية → أسوان · Vision: المحيط → الخليج |
+| **Geographic anchors** | Launch: مصر · Vision: المحيط → الخليج |
 
 ---
 

@@ -1,0 +1,144 @@
+<!-- @dsCard group="Components" name="ProSidebar" subtitle="shared app chrome · one sidebar across every Balsm-Pro module · RTL" viewport="980x680" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <style>
+    html,body{margin:0;background:var(--balsm-cream-50,#FAFAF7);font-family:var(--font-body)}
+    .frame{height:680px;display:flex;overflow:hidden;background:var(--balsm-cream-50,#FAFAF7)}
+    .pane{flex:1;min-width:0;display:flex;flex-direction:column}
+    .pane-top{height:56px;flex:none;background:#fff;border-bottom:1px solid var(--balsm-ink-200,#DBDFE3);display:flex;align-items:center;gap:10px;padding:0 18px}
+    .pane-title{font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--balsm-ink-900,#14202B)}
+    .spacer{flex:1}
+    .seg{display:inline-flex;border:1px solid var(--balsm-ink-200,#DBDFE3);border-radius:999px;overflow:hidden}
+    .seg button{all:unset;cursor:pointer;box-sizing:border-box;padding:6px 11px;font-size:11px;font-weight:600;color:var(--balsm-ink-600,#526174)}
+    .seg button.on{background:var(--balsm-ink-900,#14202B);color:#fff}
+    .pane-body{flex:1;min-height:0;padding:22px;overflow:auto}
+    .modrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+    .modbtn{all:unset;cursor:pointer;box-sizing:border-box;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;background:#fff;border:1px solid var(--balsm-ink-200,#DBDFE3);color:var(--balsm-ink-700,#384756)}
+    .modbtn.on{background:var(--petal-blue-50,#E4F0FF);border-color:var(--petal-blue-50,#E4F0FF);color:var(--balsm-primary,#1283FF)}
+    .note{font-size:13px;color:var(--balsm-ink-600,#526174);line-height:1.6;max-width:62ch}
+    .tag{font-family:var(--font-mono);font-size:11px;color:var(--balsm-ink-500,#78838F)}
+    .card{background:#fff;border:1px solid var(--balsm-ink-200,#DBDFE3);border-radius:14px;padding:18px 20px;margin-top:16px;box-shadow:0 1px 2px rgba(20, 32, 43,.06)}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { ProSidebar } = window.BalsmDesignSystem_51cdbf;
+
+  // Per-module nav config — the SAME ProSidebar, configured differently.
+  const MODULES = {
+    pos: {
+      label: { en: 'Point of sale', ar: 'نقطة البيع' }, active: 'pos',
+      groups: (ar) => [
+        { label: ar ? 'الصيدلية' : 'Pharmacy', items: [
+          { id:'pos', label: ar?'نقطة البيع':'Point of sale', icon:'scan-barcode', count:'47' },
+          { id:'inventory', label: ar?'المخزون':'Inventory', icon:'package', count:'12 ↓' },
+          { id:'customers', label: ar?'العملاء':'Customers', icon:'users-round' },
+          { id:'sales', label: ar?'المبيعات':'Sales history', icon:'receipt' },
+        ]},
+        { label: ar ? 'العمليات' : 'Operations', items: [
+          { id:'reports', label: ar?'التقارير':'Reports', icon:'chart-column' },
+          { id:'cash', label: ar?'الصندوق':'Cash drawer', icon:'wallet' },
+          { id:'sync', label: ar?'المزامنة':'Sync queue', icon:'refresh-cw', count:'3' },
+        ]},
+        { label: ar ? 'المنظومة' : 'System', items: [
+          { id:'staff', label: ar?'الموظفون':'Staff & roles', icon:'shield-check' },
+          { id:'settings', label: ar?'الإعدادات':'Settings', icon:'settings-2' },
+        ]},
+      ],
+    },
+    inventory: {
+      label: { en: 'Inventory', ar: 'المخزون' }, active: 'inventory',
+      groups: (ar) => MODULES.pos.groups(ar),
+    },
+    clinic: {
+      label: { en: 'Clinic — Today', ar: 'العيادة — اليوم' }, active: 'today',
+      groups: (ar) => [
+        { label: ar ? 'العيادة' : 'Clinic', items: [
+          { id:'today', label: ar?'اليوم':'Today', icon:'calendar-check', count:'8' },
+          { id:'patients', label: ar?'المرضى':'Patients', icon:'users-round' },
+          { id:'encounters', label: ar?'الكشوفات':'Encounters', icon:'stethoscope' },
+          { id:'rx', label: ar?'الوصفات':'Prescriptions', icon:'file-text' },
+        ]},
+        { label: ar ? 'المنظومة' : 'System', items: [
+          { id:'staff', label: ar?'الفريق':'Team & roles', icon:'shield-check' },
+          { id:'settings', label: ar?'الإعدادات':'Settings', icon:'settings-2' },
+        ]},
+      ],
+    },
+    roles: {
+      label: { en: 'Roles & permissions', ar: 'الأدوار والصلاحيات' }, active: 'staff',
+      groups: (ar) => [
+        { label: ar ? 'الإدارة' : 'Administration', items: [
+          { id:'staff', label: ar?'الموظفون':'Staff & roles', icon:'shield-check' },
+          { id:'audit', label: ar?'سجل التدقيق':'Audit log', icon:'scroll-text' },
+          { id:'billing', label: ar?'الفوترة':'Billing', icon:'wallet' },
+          { id:'settings', label: ar?'الإعدادات':'Settings', icon:'settings-2' },
+        ]},
+      ],
+    },
+  };
+
+  function App() {
+    const [mod, setMod] = React.useState('pos');
+    const [ar, setAr] = React.useState(false);
+    const [active, setActive] = React.useState('pos');
+    React.useEffect(() => { setActive(MODULES[mod].active); }, [mod]);
+
+    const dir = ar ? 'rtl' : 'ltr';
+    const M = MODULES[mod];
+    const workspace = { initials:'BP', name: ar?'صيدلية بلسم':'Balsm Pharmacy', branch: ar?'وسط البلد · القاهرة':'Downtown · Cairo', color:'#1283FF', onClick:()=>{} };
+    const account = { initials:'MS', name: ar?'محمود صالح':'Mahmoud Saleh', role: ar?'صيدلي · وسط البلد':'Pharmacist · Downtown', color:'#1283FF', onClick:()=>{} };
+
+    return (
+      <div className="frame" dir={dir} style={{ fontFamily: ar ? "'IBM Plex Sans Arabic','Cairo',sans-serif" : undefined }}>
+        <ProSidebar
+          dir={dir}
+          workspace={workspace}
+          groups={M.groups(ar)}
+          active={active}
+          onNavigate={setActive}
+          account={account}
+        />
+        <div className="pane">
+          <div className="pane-top">
+            <span className="pane-title">{M.label[ar?'ar':'en']}</span>
+            <span className="tag">· {ar?'نفس الهيكل المشترك':'shared chrome'}</span>
+            <span className="spacer" />
+            <div className="seg">
+              <button className={!ar?'on':''} onClick={()=>setAr(false)}>EN</button>
+              <button className={ar?'on':''} onClick={()=>setAr(true)} style={{fontSize:13,fontFamily:"'IBM Plex Sans Arabic',sans-serif"}}>ع</button>
+            </div>
+          </div>
+          <div className="pane-body">
+            <div className="modrow">
+              {Object.keys(MODULES).map(k => (
+                <button key={k} className={'modbtn'+(mod===k?' on':'')} onClick={()=>setMod(k)}>
+                  {MODULES[k].label[ar?'ar':'en']}
+                </button>
+              ))}
+            </div>
+            <p className="note">{ar
+              ? 'هذا هو نفس مكوّن ProSidebar في كل وحدات Balsm-Pro. بدّل الوحدة بالأعلى — يتغيّر تكوين التنقّل فقط، بينما تبقى العلامة ومبدّل مساحة العمل وبطاقة الحساب ثابتة.'
+              : 'This is the same ProSidebar component across every Balsm-Pro module. Switch modules above — only the nav config changes; the brand mark, workspace switcher, and account card stay identical.'}</p>
+            <div className="card">
+              <p className="note" style={{margin:0}}>{ar
+                ? 'الوحدة النشطة: ' : 'Active module: '}<b>{M.label[ar?'ar':'en']}</b> · {ar?'العنصر':'item'} <span className="tag">{active}</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

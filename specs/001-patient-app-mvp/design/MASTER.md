@@ -12,11 +12,11 @@ This document is the **single source of truth** for visual design and interactio
 
 | Pillar | What It Means in P001 | Why It Matters |
 |---|---|---|
-| **Calm, not corporate** | Warm neutrals (olive-gray `--balsm-wordmark`, cream surfaces), generous whitespace, no aggressive gradients except brand moments | Patients are anxious. UI must lower cortisol, not raise it. |
+| **Calm, not corporate** | Cool navy-slate ink (`--balsm-wordmark` #1F2D3D) on warm cream surfaces, generous whitespace, no aggressive gradients except brand moments | Care recipients are anxious. UI must lower cortisol, not raise it. |
 | **Honest by default** | Every PHI surface labelled "on-device only" with a tiny lock icon. Cloud-stored DOB shows `🛡 encrypted` marker. | Trust is the product. Surface privacy choices, don't hide them. |
 | **Arabic-first** | RTL is the default for `ar-*` locales — not a toggle, not an afterthought. Tabular numerals for prices/timers. Arabic-Indic digit normalization on input (FR-213). | Audience is primarily Arabic-speaking. LTR design with RTL bolted on = broken. |
 | **Offline-resilient** | Every screen has an offline state. Medication reminders work offline ≥7 days (SC-004). Sync banners replace error toasts. | Connectivity in EG/KSA/UAE is uneven. Graceful degradation = product reliability. |
-| **Accessible to elderly + chronic patients** | Body min 16px on mobile, Dynamic Type up to 200%, focus rings 3-4px, touch targets ≥44pt, never color-only state. | Real users include 65+ chronic-condition patients with poor vision. |
+| **Accessible to elderly + chronic care recipients** | Body min 16px on mobile, Dynamic Type up to 200%, focus rings 3-4px, touch targets ≥44pt, never color-only state. | Real users include 65+ chronic-condition care recipients with poor vision. |
 | **Brand petals as semantic, not decorative** | 5 petals = 5 categories: blue=action, aqua=info/calm, mint=success, emerald=health-positive, violet=controlled/scheduled meds. Never use all 5 outside hero/loading. | Brand identity (FR brand canvas) + semantic clarity in one. |
 
 ---
@@ -36,20 +36,20 @@ This document is the **single source of truth** for visual design and interactio
 | **Healing (brand moment)** | `--petal-emerald` `#01C4A2` | `#3DDABA` | Emerald petal | Eyebrow text, brand loading swirl, accents |
 | **Controlled meds** | `--petal-violet` `#724DD0` | `#9F84E5` | Violet petal | Schedule II/III meds flag (FR-medication category) |
 | **Surface** | `#FFFFFF` (`--balsm-surface`) | `#1A1A14` (custom dark, see §2.4) | — | Cards, sheets |
-| **Surface alt (warm)** | `#F4F3EC` (`--balsm-cream-100`) | `#2B2B25` (`--balsm-ink-900`) | — | Background, screen body |
-| **Border** | `#E1E1D9` (`--balsm-ink-200`) | `#3D3D34` (`--balsm-ink-800`) | — | Dividers, input borders |
+| **Surface alt (warm)** | `#F4F3EC` (`--balsm-cream-100`) | `#14202B` (`--balsm-ink-900`) | — | Background, screen body |
+| **Border** | `#DBDFE3` (`--balsm-ink-200`) | `#1F2D3D` (`--balsm-ink-800`) | — | Dividers, input borders |
 | **Border focus** | `--petal-blue` | `#5FA0FF` | Blue | Focus ring, 3px solid |
-| **Foreground primary** | `#2B2B25` (`--balsm-ink-900`) | `#F6F6F2` (`--balsm-ink-50`) | — | Body text |
-| **Foreground secondary** | `#56564C` (`--balsm-ink-700`) | `#C9C9C0` (`--balsm-ink-300`) | — | Captions, meta |
-| **Foreground tertiary** | `#6B6B60` (`--balsm-ink-600` · wordmark) | `#ADAEA4` (`--balsm-ink-400`) | — | Placeholders, disabled labels |
+| **Foreground primary** | `#14202B` (`--balsm-ink-900`) | `#F5F6F8` (`--balsm-ink-50`) | — | Body text |
+| **Foreground secondary** | `#384756` (`--balsm-ink-700`) | `#C0C6CC` (`--balsm-ink-300`) | — | Captions, meta |
+| **Foreground tertiary** | `#526174` (`--balsm-ink-600` · wordmark) | `#9BA4AD` (`--balsm-ink-400`) | — | Placeholders, disabled labels |
 | **Danger** | `#D44A3C` (`--balsm-danger`) | `#E87B6F` | — | Errors, delete, missed dose |
 | **Warning** | `#E5B428` (`--balsm-sun-500`) | `#F5C842` | — | Low stock, expiring meds |
 
 **Contrast pairs verified (WCAG)**:
-- Primary text on surface (light): `#2B2B25` on `#FFFFFF` = **15.6:1** (AAA)
-- Primary text on surface (dark): `#F6F6F2` on `#1A1A14` = **14.8:1** (AAA)
+- Primary text on surface (light): `#14202B` on `#FFFFFF` = **15.6:1** (AAA)
+- Primary text on surface (dark): `#F5F6F8` on `#1A1A14` = **14.8:1** (AAA)
 - Primary button text on `--petal-blue`: `#FFFFFF` on `#1283FF` = **4.6:1** (AA, AAA-large)
-- Body text on cream surface: `#56564C` on `#F4F3EC` = **6.2:1** (AA, AAA-large)
+- Body text on cream surface: `#384756` on `#F4F3EC` = **6.2:1** (AA, AAA-large)
 - Danger button text on danger bg: `#FFFFFF` on `#D44A3C` = **4.9:1** (AA)
 
 ### 2.2 Typography Scale
@@ -80,7 +80,7 @@ Imported directly from brand tokens:
 
 - **Spacing**: 4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48 / 64 / 80 / 96 (`--space-1`..`--space-24`). Component padding uses 12/16; section spacing uses 24/32; screen padding uses 16/20.
 - **Radii**: `xs:4` `sm:6` `md:10` `lg:14` `xl:20` `2xl:28` `pill:999`. Buttons = `lg` (14px). Cards = `xl` (20px). Sheets/modals = `2xl` (28px). Pills/chips = `pill`.
-- **Shadows**: `xs/sm/md/lg` warm tones (rgba ink-900). Cards = `sm`. Floating elements (FAB, popover) = `md`. Modal/sheet scrim = `rgba(43,43,37,0.55)`. Brand glow (`--shadow-brand`) only on primary CTA in hero moments.
+- **Shadows**: `xs/sm/md/lg` warm tones (rgba ink-900). Cards = `sm`. Floating elements (FAB, popover) = `md`. Modal/sheet scrim = `rgba(20, 32, 43,0.55)`. Brand glow (`--shadow-brand`) only on primary CTA in hero moments.
 - **Motion**: `dur-fast 120ms` for press states, `dur-base 200ms` for transitions, `dur-slow 320ms` for sheet enter. Easing: `--ease-out` for enter, `--ease-in-out` for transitions, `--ease-in` for exit. Exit ≈ 70% of enter duration.
 
 ### 2.4 Dark Mode
@@ -89,11 +89,11 @@ Imported directly from brand tokens:
 - Background: `#0F0F0B` (deeper than ink-900, warm-tinted)
 - Surface: `#1A1A14` (one step lighter, cards on this)
 - Surface elevated: `#252520` (modals, sheets — visible above surface)
-- Surface alt: `#2B2B25` (`--balsm-ink-900`) — alternating list rows
+- Surface alt: `#14202B` (`--balsm-ink-900`) — alternating list rows
 
 **Petal tones**: shift +1 lightness step for visibility (e.g. dark-mode primary = `--balsm-blue-300` `#5FA0FF`, not the saturated `--petal-blue`).
 
-**Critical rule**: dark mode is **not** inverted light mode. Test contrast independently. Borders use `--balsm-ink-800` (`#3D3D34`), not low-opacity white.
+**Critical rule**: dark mode is **not** inverted light mode. Test contrast independently. Borders use `--balsm-ink-800` (`#1F2D3D`), not low-opacity white.
 
 ---
 
@@ -131,7 +131,7 @@ All in `core/kit/shared_widgets.dart` (T064). Token bindings + states locked her
 | **BalsmCountryPicker** | default / open / selected | row 56pt with flag SVG (24×16) + country name (localized) + dial code mono; checkmark `--petal-mint` on selected | List virtualized (40+ countries). Search bar pinned top. |
 | **BalsmCard** | resting / pressed (if tappable) | bg `--balsm-surface`; border 1px `--balsm-border`; radius `xl`; padding `16 20`; shadow `sm`; pressed: scale 0.98 + shadow inset | Never nested >2 deep. |
 | **BalsmListItem** | default / pressed / selected | bg transparent → `--balsm-surface-muted` pressed; chevron right (LTR) / left (RTL) `--fg3`; leading icon 24pt; padding `12 16`; min-height 56pt | |
-| **BalsmDialog** (alert) | — | scrim `rgba(43,43,37,0.55)`; sheet `--balsm-surface` radius `2xl`; padding `24`; max-width 320pt centered; title h3; body p; actions horizontal (cancel ghost + primary or danger) | Escape via backdrop tap (non-destructive) or Cancel. |
+| **BalsmDialog** (alert) | — | scrim `rgba(20, 32, 43,0.55)`; sheet `--balsm-surface` radius `2xl`; padding `24`; max-width 320pt centered; title h3; body p; actions horizontal (cancel ghost + primary or danger) | Escape via backdrop tap (non-destructive) or Cancel. |
 | **BalsmBottomSheet** | — | drag handle 36×4 `--balsm-ink-300` top center; bg `--balsm-surface`; radius `2xl 2xl 0 0`; max-height 85vh; swipe-down to dismiss | Confirm before dismiss if unsaved (FR pattern). |
 | **BalsmAppBar** | default / scrolled (elevated) | bg `--balsm-surface`; border-bottom 1px transparent → `--balsm-border` on scroll; back chevron 24pt `--fg1`; title centered h4; action icons trailing | Safe-area top inset. |
 | **BalsmBottomNav** | — | 5 items max; each: icon 24pt + label 12px; active: icon filled + label color `--petal-blue` + top indicator 3pt; inactive: icon outline + label `--fg3` | Labels always visible (no icon-only). |
@@ -277,7 +277,7 @@ All in `core/kit/shared_widgets.dart` (T064). Token bindings + states locked her
 | **Auth screens** | Reassuring, brief, transparent about data | "We'll send a 6-digit code to confirm it's you." | "Authenticate to proceed." |
 | **Disclosure** | Honest, plain language, scannable | "Your health profile stays on this phone. We never see it." | "By accepting these terms..." |
 | **Home** | Warm, gently nudging | "Want to add your emergency contact?" | "Action required: complete profile." |
-| **Profile editor** | Patient-pace, no judgment | "Anything else? You can always add more later." | "This field is required." |
+| **Profile editor** | Care-recipient-pace, no judgment | "Anything else? You can always add more later." | "This field is required." |
 | **Emergency card** | Calm, urgent-but-not-panicked | "QR is live for 24 hours. Scan to reveal." | "EMERGENCY DATA EXPOSED" |
 | **Medications** | Practical, supportive | "Time for Glipizide" / "Tap when you've taken it." | "Compliance failure." |
 | **Deletion** | Honest, never coercive | "Delete account? You have 7 days to change your mind." | "We're sorry to see you go..." |

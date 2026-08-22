@@ -1,0 +1,55 @@
+<!-- @dsCard group="Components" name="Input" subtitle="label · hint · error · icon addons · disabled · textarea · RTL" viewport="700x380" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    html,body{margin:0;background:#fff}
+    .wrap{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  let _uid = 0;
+  function Input({ type='text', label, hint, error, placeholder, value, defaultValue, onChange, onBlur, onFocus, disabled=false, readOnly=false, required=false, leadingIcon=null, trailingIcon=null, size='md', fullWidth=false, multiline=false, rows=4, id, name, dir, className='', style, inputStyle, ...rest }) {
+    const uid = id || React.useRef(`inp-${++_uid}`).current;
+    const fieldCls = ['b-field', fullWidth&&'b-field--full', className].filter(Boolean).join(' ');
+    const inputCls = [multiline?'b-textarea':'b-input', !multiline&&`b-input--${size}`, error&&(multiline?'b-textarea--error':'b-input--error'), !multiline&&leadingIcon&&'b-input--has-leading', !multiline&&trailingIcon&&'b-input--has-trailing', disabled&&'b-input--disabled'].filter(Boolean).join(' ');
+    const shared = { id:uid, name, dir, placeholder, value, defaultValue, onChange, onBlur, onFocus, disabled, readOnly, required, style:inputStyle, 'aria-invalid':error?true:undefined };
+    return (
+      <div className={fieldCls} style={style}>
+        {label && <label htmlFor={uid} className="b-field__label">{label}{required&&<span className="b-field__req" aria-hidden="true">*</span>}</label>}
+        {multiline
+          ? <textarea className={inputCls} rows={rows} {...shared} {...rest}/>
+          : <div className="b-input-wrap">
+              {leadingIcon && <span className="b-input__leading" aria-hidden="true">{leadingIcon}</span>}
+              <input type={type} className={inputCls} {...shared} {...rest}/>
+              {trailingIcon && <span className="b-input__trailing" aria-hidden="true">{trailingIcon}</span>}
+            </div>
+        }
+        {(hint||error) && <p className={error?'b-field__error':'b-field__hint'}>{error||hint}</p>}
+      </div>
+    );
+  }
+
+  const SearchIco = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="7" cy="7" r="4"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>;
+  const LockIco  = () => <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><rect x="4" y="8" width="8" height="6" rx="1"/><path d="M5 8V6a3 3 0 016 0v2"/></svg>;
+
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <div className="wrap">
+      <Input label="Patient name" required hint="As it appears on national ID" defaultValue="Mona Hassan"/>
+      <Input label="Medication search" leadingIcon={<SearchIco/>} placeholder="Search by name or barcode…" hint="Ctrl+K to focus"/>
+      <Input label="National ID" error="Must be 14 digits" defaultValue="2 9912 22 1234"/>
+      <Input label="Stock threshold" disabled defaultValue="50 units" trailingIcon={<LockIco/>} hint="Set by branch admin"/>
+      <Input label="Clinical notes" multiline placeholder="Notes visible to dispensing staff…" rows={3}/>
+      <Input label="اسم المريض" dir="rtl" required placeholder="أدخل الاسم الكامل" hint="كما يظهر في الهوية الوطنية"/>
+    </div>
+  );
+</script>
+</body>
+</html>

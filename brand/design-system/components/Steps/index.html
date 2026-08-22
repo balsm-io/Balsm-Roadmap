@@ -1,0 +1,73 @@
+<!-- @dsCard group="Components" name="Steps" subtitle="stepper · onboarding & dispense flows · numbered / dot / vertical · RTL" viewport="760x420" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    html,body{margin:0;background:#fff}
+    .wrap{padding:26px 28px;display:flex;flex-direction:column;gap:26px}
+    .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;font-family:var(--font-body);margin-bottom:13px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+    .rtl{direction:rtl}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const StepCheck=()=><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7.5l2.5 2.5 5.5-6"/></svg>;
+  function Steps({ steps=[], current=0, variant='numbered', color='primary', orientation='horizontal', className='', ...rest }) {
+    const cls=['b-steps', orientation==='vertical'&&'b-steps--vertical', variant==='dot'&&'b-steps--dot', color!=='primary'&&`b-steps--${color}`, className].filter(Boolean).join(' ');
+    return <div className={cls} role="list" {...rest}>{steps.map((s,i)=>{
+      const status=s.status||(i<current?'done':i===current?'active':'upcoming'); const isLast=i===steps.length-1;
+      return <div className={`b-step b-step--${status}`} role="listitem" key={i}>
+        <div className="b-step__node">
+          <span className="b-step__marker">{status==='done'?<StepCheck/>:(variant==='dot'?null:i+1)}</span>
+          {(s.label||s.description)&&<span className="b-step__text">{s.label&&<span className="b-step__label">{s.label}</span>}{s.description&&<span className="b-step__desc">{s.description}</span>}</span>}
+        </div>
+        {!isLast&&<span className="b-step__line" aria-hidden="true"/>}
+      </div>;
+    })}</div>;
+  }
+
+  function Demo() {
+    const flow=[{label:'Identify'},{label:'Verify Rx'},{label:'Dispense'},{label:'Counsel'},{label:'Done'}];
+    const [cur,setCur]=React.useState(2);
+    React.useEffect(()=>{const t=setInterval(()=>setCur(c=>(c>=4?1:c+1)),1900);return()=>clearInterval(t)},[]);
+    const arFlow=[{label:'تعريف'},{label:'مراجعة'},{label:'صرف'},{label:'إرشاد'}];
+    const onboard=[
+      {label:'Create account',description:'Phone or NID'},
+      {label:'Verify identity',description:'OTP sent'},
+      {label:'Link records',description:'On your device'},
+      {label:'You’re set',description:'Record is yours'},
+    ];
+    return (
+      <div className="wrap">
+        <div>
+          <div className="lbl">Numbered · dispense flow (live)</div>
+          <Steps steps={flow} current={cur}/>
+        </div>
+        <div className="two">
+          <div>
+            <div className="lbl">Dot · compact</div>
+            <Steps steps={flow} current={cur} variant="dot" color="success"/>
+          </div>
+          <div>
+            <div className="lbl">Numbered · RTL · عربي</div>
+            <div className="rtl"><Steps steps={arFlow} current={2}/></div>
+          </div>
+        </div>
+        <div>
+          <div className="lbl">Vertical · onboarding with descriptions</div>
+          <div style={{maxWidth:280}}><Steps steps={onboard} current={2} orientation="vertical"/></div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>

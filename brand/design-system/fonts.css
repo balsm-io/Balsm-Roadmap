@@ -1,0 +1,73 @@
+/* ============================================================
+   Balsm Design System — Self-hosted webfonts
+
+   Offline-default is value #1 of this product, and Sovereignty
+   (الملكية) is value #2. A stylesheet that fetches its type from
+   a third-party CDN honours neither: the pharmacy with no signal
+   renders in fallback glyphs, and every page load reports the
+   visitor to another company's server.
+
+   So every family is declared here against a file in fonts/.
+   Nothing in the type stack touches the network at runtime.
+
+   No local() sources. A locally installed static copy would match
+   the family name and then be stretched across the whole declared
+   weight range, turning every bold into a browser-synthesised fake.
+   Shipping the real axis is worth the download.
+
+   font-display:swap — text paints immediately in the fallback and
+   reflows when the face arrives. Never an invisible-text pause.
+   ============================================================ */
+
+/* ── Montserrat — display / headings ───────────────────────────
+   Variable, wght 100–900. One file per style covers the entire
+   heading scale. */
+@font-face{font-family:'Montserrat';font-style:normal;font-weight:100 900;font-display:swap;src:url('fonts/Montserrat-VariableFont_wght.ttf') format('truetype')}
+@font-face{font-family:'Montserrat';font-style:italic;font-weight:100 900;font-display:swap;src:url('fonts/Montserrat-Italic-VariableFont_wght.ttf') format('truetype')}
+
+/* ── IBM Plex Sans — body / data / UI ──────────────────────────
+   Variable on two axes: wght 100–700 and wdth 85–100. The design
+   system only ever asks for the 100% width, but declaring the axis
+   keeps the door open for condensed data tables later. */
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:100 700;font-stretch:85% 100%;font-display:swap;src:url('fonts/IBMPlexSans-VariableFont_wdth_wght.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Sans';font-style:italic;font-weight:100 700;font-stretch:85% 100%;font-display:swap;src:url('fonts/IBMPlexSans-Italic-VariableFont_wdth_wght.ttf') format('truetype')}
+
+/* ── IBM Plex Sans Arabic — Arabic / RTL, the primary script ───
+   Supplied as seven static faces rather than a variable file, so
+   each weight is declared on its own. Arabic is not a translation
+   layer here — it is the original — so the full range ships, not
+   just the four weights the current components happen to use. */
+@font-face{font-family:'IBM Plex Sans Arabic';font-style:normal;font-weight:100;font-display:swap;src:url('fonts/IBMPlexSansArabic-Thin.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Sans Arabic';font-style:normal;font-weight:200;font-display:swap;src:url('fonts/IBMPlexSansArabic-ExtraLight.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Sans Arabic';font-style:normal;font-weight:300;font-display:swap;src:url('fonts/IBMPlexSansArabic-Light.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Sans Arabic';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/IBMPlexSansArabic-Regular.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Sans Arabic';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/IBMPlexSansArabic-Medium.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Sans Arabic';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Sans Arabic';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/IBMPlexSansArabic-Bold.ttf') format('truetype')}
+
+/* ── Cairo — Arabic display ────────────────────────────────────
+   Variable on two axes (slnt, wght); we declare wght 200–1000 and
+   leave slnt at its 0 default — there is no oblique Arabic role in
+   this system, and slanted Arabic is a Latin habit that doesn't
+   transfer. */
+@font-face{font-family:'Cairo';font-style:normal;font-weight:200 1000;font-display:swap;src:url('fonts/Cairo-VariableFont_slnt_wght.ttf') format('truetype')}
+
+/* ── IBM Plex Mono — numerics, IDs, batch codes ────────────────
+   Fourteen static faces (seven weights × roman/italic). Plex Mono
+   earns its place on a dispensing screen: the slashed zero and
+   serifed one keep a batch code or a national ID unambiguous where
+   a proportional face would not. */
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:100;font-display:swap;src:url('fonts/IBMPlexMono-Thin.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:italic;font-weight:100;font-display:swap;src:url('fonts/IBMPlexMono-ThinItalic.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:200;font-display:swap;src:url('fonts/IBMPlexMono-ExtraLight.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:italic;font-weight:200;font-display:swap;src:url('fonts/IBMPlexMono-ExtraLightItalic.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:300;font-display:swap;src:url('fonts/IBMPlexMono-Light.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:italic;font-weight:300;font-display:swap;src:url('fonts/IBMPlexMono-LightItalic.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/IBMPlexMono-Regular.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:italic;font-weight:400;font-display:swap;src:url('fonts/IBMPlexMono-Italic.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/IBMPlexMono-Medium.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:italic;font-weight:500;font-display:swap;src:url('fonts/IBMPlexMono-MediumItalic.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/IBMPlexMono-SemiBold.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:italic;font-weight:600;font-display:swap;src:url('fonts/IBMPlexMono-SemiBoldItalic.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/IBMPlexMono-Bold.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:italic;font-weight:700;font-display:swap;src:url('fonts/IBMPlexMono-BoldItalic.ttf') format('truetype')}

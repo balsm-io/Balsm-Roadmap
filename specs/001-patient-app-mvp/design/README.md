@@ -1,6 +1,6 @@
 # P001 Design Folder
 
-Generated 2026-06-16 by `/ui-ux-pro-max` skill, anchored on `Balsm-Core/brand/colors_and_type.css` and the existing `balsm-design` plugin skill skeleton.
+Generated 2026-06-16 by `/ui-ux-pro-max` skill, anchored on `Balsm-Core/brand/design-system/` (then mirrored in the `balsm-design` plugin skill; the skill is now a pointer).
 
 ## Folder map
 
@@ -92,16 +92,16 @@ These gaps are documented and will be filled in the second-pass review.
 ## Authority of files
 
 When in doubt:
-1. `Balsm-Core/brand/colors_and_type.css` wins over `tokens.css` (snapshot can drift; brand source is canonical)
+1. `Balsm-Core/brand/design-system/colors_and_type.css` wins over `tokens.css` (snapshot can drift; the design system is canonical)
 2. `pages/<id>.md` wins over `MASTER.md` for the specified screen
 3. `MASTER.md` wins over `SCREEN-INVENTORY.md` notes
 4. Findings (resolved) win over earlier prototype state — update both prototype + override doc when fixing
 
 ## Updating tokens snapshot
 
-After any brand token change in `Balsm-Core/brand/colors_and_type.css`:
+After any brand token change in `Balsm-Core/brand/design-system/colors_and_type.css`:
 ```bash
-cp ../../brand/colors_and_type.css tokens.css
+cp ../../brand/design-system/colors_and_type.css tokens.css
 # then re-open prototype/index.html to verify
 ```
 

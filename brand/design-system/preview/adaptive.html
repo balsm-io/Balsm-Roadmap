@@ -1,0 +1,133 @@
+<!doctype html>
+<!-- @dsCard group="Spacing" name="Responsive & adaptive" subtitle="one scale · media + container queries · touch · RTL-safe" viewport="780x620" -->
+<html lang="en">
+<head>
+<meta charset="utf-8"><title>Responsive &amp; adaptive</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../adaptive.css">
+<style>
+  html,body{margin:0;background:#fff;color:var(--fg1);font-family:var(--font-body)}
+  .card{padding:24px;display:flex;flex-direction:column;gap:22px}
+  .h{font-family:var(--font-display);font-weight:700;font-size:15px;margin:0}
+  .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600}
+  .sub{font-size:12px;color:var(--fg2);line-height:1.55;margin:0;max-width:70ch}
+  code{font-family:var(--font-mono);font-size:.9em;color:var(--balsm-ink-800);background:var(--balsm-ink-50);padding:1px 5px;border-radius:4px}
+
+  /* breakpoint ruler */
+  .ruler{display:flex;gap:4px;align-items:stretch}
+  .bp{flex:1;border:1px solid var(--balsm-ink-100);border-radius:var(--radius-sm);padding:9px 10px;display:flex;flex-direction:column;gap:3px;background:var(--balsm-cream-50)}
+  .bp b{font-family:var(--font-display);font-size:12px;font-weight:700}
+  .bp span{font-family:var(--font-mono);font-size:10px;color:var(--fg3)}
+  .bp small{font-size:9.5px;color:var(--fg3);letter-spacing:.04em}
+  .bp:nth-child(1){flex:0.75} .bp:nth-child(2){flex:0.9}
+
+  /* two definitions */
+  .defs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .def{border:1px solid var(--balsm-ink-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+  .def--resp{background:var(--petal-blue-50)} .def--adapt{background:var(--petal-aqua-50)}
+  .def h4{margin:0;font-family:var(--font-display);font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
+  .pip{width:8px;height:8px;border-radius:50%}
+  .def p{margin:0;font-size:11.5px;color:var(--fg2);line-height:1.5}
+
+  /* live adaptive demo */
+  .demo-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .seg{height:30px;padding:0 13px;border:1px solid var(--balsm-ink-200);background:#fff;border-radius:var(--radius-pill);cursor:pointer;font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--fg2);display:inline-flex;align-items:center;gap:6px}
+  .seg[aria-pressed="true"]{border-color:var(--balsm-primary);color:var(--balsm-ink-900);box-shadow:0 0 0 3px var(--petal-blue-50)}
+  .seg small{font-family:var(--font-mono);font-size:10px;color:var(--fg3)}
+  .wtag{margin-inline-start:auto;font-family:var(--font-mono);font-size:11px;color:var(--fg3)}
+  .stage{background:var(--balsm-cream-100);border:1px solid var(--balsm-ink-100);border-radius:var(--radius-lg);padding:18px;text-align:center;overflow:hidden}
+  .frame{display:inline-block;text-align:start;vertical-align:top;width:100%;max-width:100%;background:#fff;border:1px solid var(--balsm-ink-200);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);overflow:hidden}
+  .frame[data-w="phone"]{width:360px} .frame[data-w="tablet"]{width:720px} .frame[data-w="desktop"]{width:1040px} .frame[data-w="fluid"]{width:100%}
+  .frame-in{padding:16px;display:flex;flex-direction:column;gap:14px}
+
+  .demo-split .aside{background:var(--petal-aqua-50);border-radius:var(--radius-sm);padding:12px;font-size:11px;color:var(--balsm-ink-800)}
+  .demo-split .main{background:var(--balsm-ink-50);border-radius:var(--radius-sm);padding:12px;font-size:11px;color:var(--balsm-ink-800);min-height:64px}
+  .pillrow .chip{height:30px;padding:0 12px;border-radius:var(--radius-pill);background:var(--petal-blue-50);color:var(--balsm-ink-800);font-size:11px;font-weight:600;display:inline-flex;align-items:center}
+  .field{flex:1;min-width:0}
+  .field .lbl{display:block;margin-bottom:4px}
+  .field .box{height:34px;border:1px solid var(--balsm-ink-200);border-radius:var(--radius-md);background:#fff}
+  .note{font-size:11px;color:var(--fg3);line-height:1.5}
+  .note b{color:var(--fg2)}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div style="display:flex;flex-direction:column;gap:5px">
+    <span class="lbl">§6.5 · One scale, all stacks</span>
+    <h1 class="h" style="font-size:19px">Responsive &amp; adaptive</h1>
+    <p class="sub">Balsm spans phone → tablet → desktop POS → web admin → widgets → print. The same numeric scale maps to Flutter <code>LayoutBuilder</code>, Tailwind <code>sm/md/lg/xl</code>, and CSS <code>@media</code> / <code>@container</code>.</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span class="lbl">Breakpoint scale — <code>--bp-*</code></span>
+    <div class="ruler">
+      <div class="bp"><b>xs</b><span>375</span><small>small phone</small></div>
+      <div class="bp"><b>sm</b><span>480</span><small>large phone</small></div>
+      <div class="bp"><b>md</b><span>768</span><small>tablet</small></div>
+      <div class="bp"><b>lg</b><span>1024</span><small>desktop / POS</small></div>
+      <div class="bp"><b>xl</b><span>1280</span><small>wide desktop</small></div>
+    </div>
+  </div>
+
+  <div class="defs">
+    <div class="def def--resp">
+      <h4><span class="pip" style="background:var(--petal-blue)"></span>Responsive</h4>
+      <p>Fluid reflow across a continuous range — driven by the <b>viewport</b>. Marketing web, admin UI. Use <code>.container</code>, <code>.grid</code>, <code>.card-grid</code>, fluid type.</p>
+    </div>
+    <div class="def def--adapt">
+      <h4><span class="pip" style="background:var(--petal-aqua)"></span>Adaptive</h4>
+      <p>Distinct layouts swapped at a boundary — driven by the element's own <b>container</b>, so it adapts inside a narrow pane / foldable. Patient app, POS. Use <code>.cq</code> + <code>.adaptive-*</code>.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+      <span class="lbl">Live — container-driven</span>
+      <span class="note">resize the frame; layout reacts to the <b>frame</b>, not the window</span>
+    </div>
+    <div class="demo-controls">
+      <button class="seg" data-set="phone" aria-pressed="false">Phone <small>375</small></button>
+      <button class="seg" data-set="tablet" aria-pressed="false">Tablet <small>768</small></button>
+      <button class="seg" data-set="desktop" aria-pressed="true">Desktop <small>1024+</small></button>
+      <button class="seg" data-set="fluid" aria-pressed="false">Fluid <small>100%</small></button>
+      <span class="wtag" id="wtag">1040px</span>
+    </div>
+    <div class="stage">
+      <div class="frame cq" data-w="desktop" id="frame">
+        <div class="frame-in">
+          <div class="adaptive-row pillrow">
+            <span class="lbl" style="white-space:nowrap">.adaptive-row</span>
+            <div class="adaptive-cluster" style="flex:1">
+              <span class="chip">In stock</span><span class="chip">Low</span><span class="chip">Expiring</span><span class="chip">Synced</span>
+            </div>
+          </div>
+          <div class="adaptive-split demo-split">
+            <div class="aside">.adaptive-split · aside<br><span style="color:var(--fg3)">sidebar → top on narrow</span></div>
+            <div class="main">.adaptive-split · main<br><span style="color:var(--fg3)">single column under md (768)</span></div>
+          </div>
+          <div class="adaptive-row">
+            <label class="field"><span class="lbl">Field</span><span class="box"></span></label>
+            <label class="field"><span class="lbl">Field</span><span class="box"></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note"><b>Touch &amp; pointer:</b> hit targets <code>.touch-target</code> ≥44px (48 on coarse pointers); hover affordances are pointer-only. &nbsp;<b>RTL:</b> every utility uses logical properties, so it mirrors under <code>dir="rtl"</code> at every breakpoint.</p>
+</div>
+
+<script>
+  var frame=document.getElementById('frame'), wtag=document.getElementById('wtag');
+  var W={phone:'360px',tablet:'720px',desktop:'1040px',fluid:'100%'};
+  document.querySelectorAll('.seg').forEach(function(b){
+    b.addEventListener('click',function(){
+      var k=b.getAttribute('data-set');
+      frame.setAttribute('data-w',k);
+      document.querySelectorAll('.seg').forEach(function(x){x.setAttribute('aria-pressed', x===b?'true':'false');});
+      wtag.textContent = k==='fluid' ? 'fluid · 100%' : W[k];
+    });
+  });
+</script>
+</body></html>

@@ -10,7 +10,7 @@
 
 ## Purpose
 
-Dispensation correctness: may this medication be handed to this person, by whom, against what authorization. Owns the QR scan-to-dispense flow (the Slice-1 ↔ Slice-2 connector), controlled-substance gating, and delivery tracking. Explicitly **not** stock (Inventory — `PharmacyInventory` was moved there) and **not** payment (Point of Sale).
+Dispensation correctness: may this medication be handed to this person, by whom, against what authorization. Owns the QR scan-to-dispense flow (the Balsm Pharmacy ↔ Balsm Care connector), controlled-substance gating, and delivery tracking. Explicitly **not** stock (Inventory — `PharmacyInventory` was moved there) and **not** payment (Point of Sale).
 
 ## Ubiquitous Language
 

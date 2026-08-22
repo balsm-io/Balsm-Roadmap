@@ -2,7 +2,7 @@
 
 > Generic rules for creating UI designs via the Figma MCP HTML-to-Design workflow and implementing UI in Flutter across all Balsm apps.
 
-**Design contract:** see [../../design.md](../../design.md) — synthesizes brand, color, type, spacing, motion, voice. Full skill bundle (tokens, preview cards, UI kits, patient-app prototype, pharmacy POS kit) lives under [../skills/balsm-design/](../skills/balsm-design/). Pull `colors_and_type.css` from there as the single source of truth for tokens.
+**Design contract:** see [../../design.md](../../design.md) — synthesizes brand, color, type, spacing, motion, voice. The full system (tokens, preview cards, UI kits, care-app prototype, pharmacy POS kit) lives under [../../brand/design-system/](../../brand/design-system/). Pull `colors_and_type.css` from there as the single source of truth for tokens. The `balsm-design` skill in the `balsm-ai` plugin points at that directory and holds no copy of its own.
 
 ---
 

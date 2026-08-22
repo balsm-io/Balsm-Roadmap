@@ -152,13 +152,13 @@ Three moments capture everything Balsm promises to feel like:
 
 ## Product Architecture
 
-The product ships in three slices:
+The product ships as three surfaces:
 
-| Slice | Surface | Status |
+| Surface | Scope | Status |
 |---|---|---|
-| **Slice 1** | Pharmacy POS · Inventory · Admin | UI kit built → `ui_kits/balsm_pharmacy/` |
-| **Slice 2** | Patient app · Doctor encounter · Full care loop | Patient app prototype built → `patient_app/` |
-| **Slice 3** | Balsm Network (paid cloud tier) | Not yet designed |
+| **Balsm Pharmacy** | Pharmacy POS · Inventory · Admin | UI kit built → `ui_kits/balsm_pharmacy/` |
+| **Balsm Care** | Patient app · Doctor encounter · Full care loop | Patient app prototype built → `patient_app/` |
+| **Balsm Network** | Paid cloud tier | Not yet designed |
 
 **Differentiators:** Arabic-first / full RTL · Offline-default · Egypt-localized (EGP, NID, Law 182/1960, 27 governorates, DD/MM/YYYY) · Calm clinical aesthetic — five-petal mark, no medical-cliché iconography.
 
@@ -265,8 +265,8 @@ The **five-petal flower mark** (`brand/logo-vertical.svg`) is the only Balsm-bes
 | `colors_and_type.css` | All CSS tokens (color, type, spacing, radii, shadows, motion) |
 | `brand/` | Logo SVG, white reverse PNG, watercolor background |
 | `uploads/balsm-brand-canvas.md` | Brand Model Canvas — mission, voice, values, positioning (canonical) |
-| `ui_kits/balsm_pharmacy/` | Pharmacy POS + admin UI kit (Slice 1) |
-| `patient_app/` | Patient app prototype — auth + self-reporting (Slice 2) |
+| `ui_kits/balsm_pharmacy/` | Balsm Pharmacy — POS + admin UI kit |
+| `patient_app/` | Balsm Care — patient app prototype, auth + self-reporting |
 
 ---
 

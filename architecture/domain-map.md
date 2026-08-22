@@ -107,7 +107,7 @@ Problems whose solution differentiates Balsm. Deepest modeling, best effort, ric
 
 - **Problem:** Patients cannot find, evaluate, or reach providers.
 - **Phases:** P003, P016, P017 (test search)
-- **Context(s):** [Provider Directory](./bounded-contexts/provider-directory.md) (+ the discoverability slice of [Balsm Network](./bounded-contexts/balsm-network.md) — the one documented subdomain/context blur)
+- **Context(s):** [Provider Directory](./bounded-contexts/provider-directory.md) (+ the discoverability capability of [Balsm Network](./bounded-contexts/balsm-network.md) — the one documented subdomain/context blur)
 
 #### 8. Diagnostics
 
@@ -185,7 +185,7 @@ Problems whose solution differentiates Balsm. Deepest modeling, best effort, ric
 | 4 | Pharmacy Retail Operations | Supporting | Inventory + Point of Sale + Customer Relations |
 | 5 | Medication Dispensing | Supporting | Pharmacy |
 | 6 | Care Scheduling | Supporting | Appointment |
-| 7 | Care Relationship & Discovery | Supporting | Provider Directory (+ Balsm Network slice) |
+| 7 | Care Relationship & Discovery | Supporting | Provider Directory (+ Balsm Network discoverability) |
 | 8 | Diagnostics | Supporting | Labs + Radiology |
 | 9 | Inpatient & Remote Care | Supporting | Care Delivery |
 | 10 | Healthcare Commerce | Supporting | Billing & Finance |
@@ -202,7 +202,7 @@ Problems whose solution differentiates Balsm. Deepest modeling, best effort, ric
 **Invariants of the mapping:**
 
 - Core problems ↔ Core contexts align 3↔3 — the investment story is consistent across problem and solution space.
-- No context serves two subdomains — no model pulled by two problem masters (sole documented blur: Balsm Network's discoverability slice serving subdomain 7).
+- No context serves two subdomains — no model pulled by two problem masters (sole documented blur: Balsm Network's discoverability capability serving subdomain 7).
 - Roadmap tiers ≈ subdomain activation order: Tier A → 1, 4, 5, 16 · Tier B → 2, 3, 6, 10, 11 · Tier C → 7, 8, 9, 12 · Tier D → 13, 14, 15.
 
 ---
