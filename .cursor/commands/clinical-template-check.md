@@ -1,0 +1,1 @@
+../../.claude/commands/clinical-template-check.md

@@ -2,13 +2,13 @@
 
 ## Overview
 
-The Balsm.IO API provides a comprehensive interface for healthcare data management, clinical workflows, and patient care coordination.
+The Balsm API provides a comprehensive interface for healthcare data management, clinical workflows, and patient care coordination.
 
 ## Base URL
 
 ```
-Production: https://api.balsm.io/v1
-Staging: https://staging-api.balsm.io/v1
+Production: https://api.balsm.health/v1
+Staging: https://staging-api.balsm.health/v1
 ```
 
 ## Authentication
@@ -19,7 +19,7 @@ All API requests require authentication using Bearer tokens. See [Authentication
 
 ```bash
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-     https://api.balsm.io/v1/health
+     https://api.balsm.health/v1/health
 ```
 
 ## API Sections
@@ -57,4 +57,4 @@ All errors follow a consistent format:
 
 ## Support
 
-For API support, email api@balsm.io or visit our [developer portal](https://developers.balsm.io).
+For API support, email api@balsm.health or visit our [developer portal](https://developers.balsm.health).

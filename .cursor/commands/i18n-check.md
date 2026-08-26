@@ -1,0 +1,1 @@
+../../.claude/commands/i18n-check.md

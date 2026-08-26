@@ -1,0 +1,106 @@
+<!-- @dsCard group="Components" name="Select" subtitle="dropdown · searchable · error · disabled · RTL" viewport="700x360" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    html,body{margin:0;background:#fff}
+    .wrap{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  function Select({ options=[], value=null, onChange, placeholder='Select…', label, hint, error, disabled=false, searchable=false, size='md', fullWidth=false, id, dir, className='', style }) {
+    const [open, setOpen] = React.useState(false);
+    const [search, setSearch] = React.useState('');
+    const ref = React.useRef(null);
+    const searchRef = React.useRef(null);
+    const uid = id || React.useRef(`sel-${Math.random().toString(36).slice(2,6)}`).current;
+
+    React.useEffect(() => {
+      if (!open) return;
+      const fn = e => { if (ref.current && !ref.current.contains(e.target)) close(); };
+      document.addEventListener('mousedown', fn);
+      return () => document.removeEventListener('mousedown', fn);
+    }, [open]);
+
+    React.useEffect(() => {
+      if (!open) return;
+      const fn = e => { if (e.key==='Escape') close(); };
+      document.addEventListener('keydown', fn);
+      return () => document.removeEventListener('keydown', fn);
+    }, [open]);
+
+    React.useEffect(() => { if (open && searchable && searchRef.current) searchRef.current.focus(); }, [open]);
+
+    const close = () => { setOpen(false); setSearch(''); };
+    const toggle = () => { if (!disabled) setOpen(o => !o); };
+    const filtered = searchable && search ? options.filter(o => o.label.toLowerCase().includes(search.toLowerCase())) : options;
+    const selected = options.find(o => o.value === value);
+
+    const wrapCls = ['b-select-wrap', fullWidth&&'b-select-wrap--full', className].filter(Boolean).join(' ');
+    const triggerCls = ['b-select',`b-select--${size}`, open&&'b-select--open', error&&'b-select--error', disabled&&'b-select--disabled'].filter(Boolean).join(' ');
+
+    const Chevron = () => <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+    const Check  = () => <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+
+    return (
+      <div className={wrapCls} style={style} ref={ref}>
+        {label && <label className="b-field__label" onClick={toggle}>{label}</label>}
+        <div className="b-select-container">
+          <button type="button" id={uid} className={triggerCls} onClick={toggle} disabled={disabled} aria-haspopup="listbox" aria-expanded={open} dir={dir}>
+            {selected ? <span className="b-select__value">{selected.label}</span> : <span className="b-select__placeholder">{placeholder}</span>}
+            <span className="b-select__chevron" aria-hidden="true"><Chevron/></span>
+          </button>
+          {open && (
+            <div className="b-select-menu" role="listbox" dir={dir}>
+              {searchable && <div className="b-select-search"><input ref={searchRef} className="b-select-search__input" placeholder="Search…" value={search} onChange={e=>setSearch(e.target.value)} onClick={e=>e.stopPropagation()}/></div>}
+              {filtered.length===0 ? <div className="b-select-empty">No results</div>
+                : filtered.map(opt => (
+                  <div key={opt.value} role="option" aria-selected={opt.value===value}
+                    className={['b-select-option', opt.value===value&&'b-select-option--selected', opt.disabled&&'b-select-option--disabled'].filter(Boolean).join(' ')}
+                    onClick={() => { if (!opt.disabled) { onChange?.(opt.value); close(); } }}>
+                    <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{opt.label}</span>
+                    {opt.value===value && <span className="b-select-option__check"><Check/></span>}
+                  </div>
+                ))
+              }
+            </div>
+          )}
+        </div>
+        {(hint||error) && <p className={error?'b-field__error':'b-field__hint'}>{error||hint}</p>}
+      </div>
+    );
+  }
+
+  const DRUGS = [
+    {value:'para',label:'Paracetamol 500mg'},{value:'amox',label:'Amoxicillin 250mg'},
+    {value:'ibup',label:'Ibuprofen 400mg'},{value:'omep',label:'Omeprazole 20mg'},
+    {value:'metr',label:'Metformin 500mg'},{value:'ator',label:'Atorvastatin 10mg'},
+  ];
+  const DOSAGE = [
+    {value:'od',label:'Once daily'},{value:'bd',label:'Twice daily'},
+    {value:'tds',label:'Three times daily'},{value:'prn',label:'As needed (PRN)'},
+  ];
+
+  function Demo() {
+    const [drug, setDrug]     = React.useState('para');
+    const [dosage, setDosage] = React.useState(null);
+    return (
+      <div className="wrap">
+        <Select label="Medication" options={DRUGS} value={drug} onChange={setDrug} searchable hint="Type to filter" fullWidth/>
+        <Select label="Dosage" options={DOSAGE} value={dosage} onChange={setDosage} placeholder="Choose dosage…" error={!dosage?'Required':undefined} fullWidth/>
+        <Select label="Dispensing unit" options={DRUGS} value={null} disabled placeholder="Disabled state" fullWidth/>
+        <Select label="وحدة الصرف" options={[{value:'tab',label:'أقراص'},{value:'cap',label:'كبسولات'},{value:'syp',label:'شراب'}]} value="tab" onChange={()=>{}} dir="rtl" fullWidth/>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!-- @dsCard group="Components" name="Spinner" subtitle="petal-mark loader · inline ring · sizes & semantics" viewport="760x300" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    html,body{margin:0;background:#fff}
+    .wrap{padding:26px 24px;display:flex;flex-direction:column;gap:26px}
+    .row{display:flex;gap:38px;align-items:flex-end;flex-wrap:wrap}
+    .sect{display:flex;flex-direction:column;gap:14px}
+    .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);
+         font-weight:600;font-family:var(--font-body)}
+    .cell{display:flex;flex-direction:column;align-items:center;gap:9px}
+    .cap{font-size:11px;color:var(--fg3)}
+    .brand-card{display:flex;align-items:center;gap:20px;background:var(--balsm-cream-50);
+      border:1px solid var(--balsm-ink-100);border-radius:var(--radius-lg);padding:18px 24px}
+    .brand-txt{display:flex;flex-direction:column;gap:3px}
+    .brand-ttl{font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--fg1)}
+    .brand-sub{font-size:12px;color:var(--fg3)}
+    .ar{font-family:var(--font-arabic)}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  function Spinner({ size=28, thickness, variant='primary', label, className='', style, ...rest }) {
+    const w = thickness ?? Math.max(2, Math.round(size/9));
+    const cls = ['b-ring-spinner', variant!=='primary'&&`b-ring-spinner--${variant}`, className].filter(Boolean).join(' ');
+    const ring = <span className={cls} style={{width:size,height:size,'--ring-w':`${w}px`,...style}} role="status" aria-label={label||'Loading'} {...rest}/>;
+    if(!label) return ring;
+    return <span className="b-spin-wrap">{ring}<span className="b-spin-wrap__label">{label}</span></span>;
+  }
+  function PetalSpinner({ size='md', label, className='', style, ...rest }) {
+    const sizeCls = typeof size==='string'?`b-petal-spinner--${size}`:'';
+    const sizeStyle = typeof size==='number'?{width:size,height:size}:undefined;
+    const node = <span className={['b-petal-spinner',sizeCls,className].filter(Boolean).join(' ')} style={{...sizeStyle,...style}} role="status" aria-label={label||'Loading'} {...rest}>
+      <span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/><span className="b-petal-spinner__petal"/>
+    </span>;
+    if(!label) return node;
+    return <span className="b-spin-wrap">{node}<span className="b-spin-wrap__label">{label}</span></span>;
+  }
+
+  function Demo() {
+    return (
+      <div className="wrap">
+        <div className="row">
+          <div className="sect">
+            <div className="lbl">Five-petal mark · brand loading</div>
+            <div className="row" style={{gap:30,alignItems:'flex-end'}}>
+              <div className="cell"><PetalSpinner size="sm"/><span className="cap">sm</span></div>
+              <div className="cell"><PetalSpinner size="md"/><span className="cap">md</span></div>
+              <div className="cell"><PetalSpinner size="lg"/><span className="cap">lg</span></div>
+            </div>
+          </div>
+          <div className="sect">
+            <div className="lbl">Inline ring · semantic</div>
+            <div className="row" style={{gap:24,alignItems:'flex-end'}}>
+              <div className="cell"><Spinner size={20}/><span className="cap">primary</span></div>
+              <div className="cell"><Spinner size={26} variant="accent"/><span className="cap">accent</span></div>
+              <div className="cell"><Spinner size={26} variant="success"/><span className="cap">success</span></div>
+              <div className="cell"><Spinner size={26} variant="violet"/><span className="cap">violet</span></div>
+              <div className="cell"><Spinner size={26} variant="ink"/><span className="cap">ink</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="brand-card">
+          <PetalSpinner size={56}/>
+          <div className="brand-txt">
+            <span className="brand-ttl">Preparing your health record</span>
+            <span className="brand-sub">On your device, by design.</span>
+            <span className="brand-sub ar">نُجهّز سجلّك الصحي — على جهازك، بالتصميم.</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>

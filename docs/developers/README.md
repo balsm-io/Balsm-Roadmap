@@ -2,7 +2,7 @@
 
 ## Overview
 
-This section contains technical documentation for developers working on or integrating with Balsm.IO.
+This section contains technical documentation for developers working on or integrating with Balsm.
 
 ## Architecture
 
@@ -22,7 +22,7 @@ This section contains technical documentation for developers working on or integ
 ### Repositories
 
 - [Balsm-API-DotNet](https://github.com/balsm-health/Balsm-API-DotNet) - Backend API (.NET)
-- [balsm_app_flutter](https://github.com/balsm-health/balsm_app_flutter) - Mobile app (Flutter)
+- [balsm_app](https://github.com/balsm-health/balsm_app) - Mobile app (Flutter)
 - [website](https://github.com/balsm-health/website) - Marketing website
 - [Balsm-Core](https://github.com/balsm-health/Balsm-Core) - Product roadmap
 
@@ -83,5 +83,5 @@ This section contains technical documentation for developers working on or integ
 ## Support
 
 - [Development Discord](https://discord.gg/balsm-dev)
-- [GitHub Discussions](https://github.com/orgs/Balsm-IO/discussions)
-- Email: dev@balsm.io
+- [GitHub Discussions](https://github.com/orgs/balsm-health/discussions)
+- Email: dev@balsm.health

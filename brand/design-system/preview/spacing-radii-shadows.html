@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Radii & Shadows</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;background:#fff;color:var(--fg1);font-family:var(--font-body)}
+  .card{padding:24px;display:flex;flex-direction:column;gap:18px}
+  .group{display:flex;gap:14px;align-items:flex-end}
+  .label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;width:90px}
+  .swatch{width:72px;height:54px;background:#fff;border:1px solid var(--balsm-border);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-family:var(--font-mono);font-size:10px;color:var(--fg3)}
+  .sh{width:120px;height:60px;background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;color:var(--fg3)}
+</style></head>
+<body>
+<div class="card">
+  <div class="group">
+    <div class="label">Radii</div>
+    <div class="swatch" style="border-radius:6px">6</div>
+    <div class="swatch" style="border-radius:10px">10</div>
+    <div class="swatch" style="border-radius:14px">14 ★</div>
+    <div class="swatch" style="border-radius:20px">20</div>
+    <div class="swatch" style="border-radius:28px">28</div>
+    <div class="swatch" style="border-radius:999px;width:120px">pill</div>
+  </div>
+  <div class="group">
+    <div class="label">Shadows</div>
+    <div class="sh" style="box-shadow:var(--shadow-xs)">xs</div>
+    <div class="sh" style="box-shadow:var(--shadow-sm)">sm ★</div>
+    <div class="sh" style="box-shadow:var(--shadow-md)">md</div>
+    <div class="sh" style="box-shadow:var(--shadow-lg)">lg</div>
+    <div class="sh" style="box-shadow:var(--shadow-brand);background:var(--balsm-primary);color:#fff;border:0">brand</div>
+  </div>
+</div>
+</body></html>

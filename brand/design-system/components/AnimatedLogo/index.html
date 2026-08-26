@@ -1,0 +1,251 @@
+<!-- @dsCard group="Brand" name="Logo Animation" subtitle="the Balsm mark blooms · idle breathe / loader · reduced-motion safe" viewport="820x560" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <style>
+    html, body { margin: 0; background: #14150F; }
+    .stage {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      color: #F5F6F8;
+      font-family: var(--font-body);
+    }
+    /* Hero — dark canvas with a soft, still vignette */
+    .hero {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      padding: 48px;
+      background:
+        radial-gradient(120% 120% at 50% 42%, #1E2018 0%, #14150F 62%, #0F0F0B 100%);
+      overflow: hidden;
+    }
+    .lockup { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .wm {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 30px;
+      letter-spacing: -0.02em;
+      color: #F5F6F8;
+    }
+    .wm .tld { color: #78838F; font-weight: 500; }
+    .tagline {
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #78838F;
+      margin: 0;
+    }
+    /* Variant strip */
+    .strip {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      padding: 14px 22px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .chip { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .chip small {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      color: #78838F;
+    }
+    .chip--onlight {
+      background: #F5F6F8; padding: 10px; border-radius: 12px;
+    }
+    /* Control panel */
+    .panel {
+      background: #FFFFFF;
+      color: var(--fg1);
+      padding: 30px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      border-left: 1px solid var(--balsm-border);
+    }
+    .panel h3 {
+      font-family: var(--font-display);
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      margin: 0;
+    }
+    .ctl { display: flex; flex-direction: column; gap: 9px; }
+    .ctl > label {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--fg3);
+    }
+    .seg { display: flex; gap: 6px; }
+    .seg button {
+      flex: 1;
+      font-family: var(--font-body);
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--balsm-border);
+      background: var(--balsm-surface);
+      color: var(--fg2);
+      cursor: pointer;
+      transition: all 140ms;
+    }
+    .seg button:hover { border-color: var(--balsm-border-strong); }
+    .seg button[aria-pressed="true"] {
+      background: var(--balsm-ink-900);
+      border-color: var(--balsm-ink-900);
+      color: #fff;
+    }
+    .replay {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 600;
+      padding: 12px 16px; border-radius: var(--radius-md);
+      border: none; cursor: pointer;
+      background: var(--petal-blue); color: #fff;
+      transition: filter 140ms;
+    }
+    .replay:hover { filter: brightness(1.06); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .grid button {
+      font-family: var(--font-body); font-size: 13px; padding: 8px 10px;
+      border-radius: var(--radius-md); border: 1px solid var(--balsm-border);
+      background: var(--balsm-surface); color: var(--fg2); cursor: pointer; transition: all 140ms;
+    }
+    .grid button:hover { border-color: var(--balsm-border-strong); }
+    .grid button[aria-pressed="true"] {
+      background: var(--balsm-ink-900); border-color: var(--balsm-ink-900); color: #fff;
+    }
+    .note { font-size: 12px; line-height: 1.5; color: var(--fg3); margin: 0; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+  const { AnimatedLogo } = window.BalsmDesignSystem_51cdbf;
+
+  const VARIANTS = [
+    ['bloom', 'Bloom'], ['cascade', 'Cascade'], ['pop', 'Pop'], ['wave', 'Wave'],
+    ['unwind', 'Unwind'], ['fade', 'Fade'], ['spin-in', 'Spin'], ['iris', 'Iris'],
+  ];
+  const CREATIVE = [
+    ['liquid', 'Liquid'], ['heartbeat', 'Heartbeat'], ['orbit', 'Orbit'], ['fold', 'Fold'],
+    ['develop', 'Develop'], ['magnetic', 'Magnetic'], ['draw', 'Draw'],
+  ];
+
+  function ReplayIcon() {
+    return (
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <path d="M13 8a5 5 0 1 1-1.6-3.7M13 2v3h-3" stroke="currentColor" strokeWidth="1.6"
+          strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+  }
+
+  function Demo() {
+    const [token, setToken]     = React.useState(0);
+    const [idle, setIdle]       = React.useState('breathe');
+    const [variant, setVariant] = React.useState('bloom');
+    const replay = () => setToken(t => t + 1);
+
+    return (
+      <div className="stage">
+        <div className="hero">
+          <div className="lockup">
+            <AnimatedLogo size={188} variant={variant} idle={idle} replay={token} />
+            <div className="wm">balsm<span className="tld">.health</span></div>
+          </div>
+          <p className="tagline">Open · Arab · Owned</p>
+
+          <div className="strip">
+            <div className="chip">
+              <AnimatedLogo size={44} variant={variant} idle="rotate" replay={token} />
+              <small>loader</small>
+            </div>
+            <div className="chip">
+              <AnimatedLogo size={44} variant={variant} idle="breathe" replay={token} />
+              <small>app icon</small>
+            </div>
+            <div className="chip chip--onlight">
+              <AnimatedLogo size={44} variant={variant} idle="none" replay={token} />
+            </div>
+            <div className="chip">
+              <AnimatedLogo size={44} variant={variant} color="#F5F6F8" idle="none" replay={token} />
+              <small>mono</small>
+            </div>
+          </div>
+        </div>
+
+        <div className="panel">
+          <h3>Logo Animation</h3>
+          <button className="replay" onClick={replay}>
+            <ReplayIcon /> Replay
+          </button>
+
+          <div className="ctl">
+            <label>Reveal</label>
+            <div className="grid">
+              {VARIANTS.map(([v, lbl]) => (
+                <button key={v} aria-pressed={variant === v}
+                  onClick={() => { setVariant(v); replay(); }}>
+                  {lbl}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="ctl">
+            <label>Creative</label>
+            <div className="grid">
+              {CREATIVE.map(([v, lbl]) => (
+                <button key={v} aria-pressed={variant === v}
+                  onClick={() => { setVariant(v); replay(); }}>
+                  {lbl}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="ctl">
+            <label>Idle behaviour</label>
+            <div className="seg">
+              {['breathe', 'rotate', 'none'].map(m => (
+                <button key={m} aria-pressed={idle === m}
+                  onClick={() => { setIdle(m); replay(); }}>
+                  {m === 'breathe' ? 'Breathe' : m === 'rotate' ? 'Rotate' : 'Still'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <p className="note">
+            Fifteen reveals. Eight ordinary — five stagger the petals
+            (<code className="mono">bloom, cascade, pop, wave, unwind</code>), three move the
+            whole mark (<code className="mono">fade, spin, iris</code>). Seven creative —
+            <code className="mono">liquid, heartbeat, orbit, fold, develop, magnetic,
+            draw</code>. Idle rests as a soft breath or slow rotate;
+            <code className="mono">prefers-reduced-motion</code> shows the finished mark.
+          </p>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>

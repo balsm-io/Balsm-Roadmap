@@ -164,7 +164,7 @@ export default defineConfig({
         text: 'Legal',
         collapsed: true,
         items: [
-          { text: 'Commercial License (BCL v1.4)', link: '/legal/baslm-commercial-license-bcl-v1.4' },
+          { text: 'Commercial License (BCL v1.4)', link: '/legal/balsm-commercial-license-bcl-v1.4' },
           { text: 'Contributor License Agreement', link: '/legal/cla' },
         ],
       },

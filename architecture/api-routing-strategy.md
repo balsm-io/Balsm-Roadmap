@@ -812,6 +812,7 @@ https://api.balsm.health/docs
 
 ## Related Documentation
 
+- [routing-best-practices.md](./routing-best-practices.md) — Cross-cutting routing standards (idempotency, ETags, bulk, deprecation, CORS, tracing)
 - [subdomain-classification.md](./subdomain-classification.md) — Subdomain strategic analysis
 - [communication-architecture.md](./communication-architecture.md) — Three-tier architecture
 - [CODING_STANDARDS.md](../agents/rules/CODING_STANDARDS.md) — API coding standards
@@ -819,4 +820,4 @@ https://api.balsm.health/docs
 
 ---
 
-*Last updated: 2026-03-21*
+*Last updated: 2026-06-16*

@@ -1,0 +1,1 @@
+../../.claude/commands/critical-alert-check.md

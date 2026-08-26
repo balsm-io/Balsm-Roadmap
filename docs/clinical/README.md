@@ -2,7 +2,7 @@
 
 ## Overview
 
-This section documents clinical workflows, healthcare compliance requirements, and medical protocols specific to Balsm.IO.
+This section documents clinical workflows, healthcare compliance requirements, and medical protocols specific to Balsm.
 
 ## Regulatory Compliance
 
@@ -98,6 +98,6 @@ This section documents clinical workflows, healthcare compliance requirements, a
 ## Contact
 
 For clinical workflow questions:
-- Clinical Team: clinical@balsm.io
-- Compliance: compliance@balsm.io
-- Safety: safety@balsm.io
+- Clinical Team: clinical@balsm.health
+- Compliance: compliance@balsm.health
+- Safety: safety@balsm.health

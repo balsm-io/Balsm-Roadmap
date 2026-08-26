@@ -1,356 +1,128 @@
 # Subdomain Classification
 
-**Balsm Healthcare Platform - Domain-Driven Design Subdomain Analysis**
+**Balsm Healthcare Platform — Domain-Driven Design Subdomain Analysis**
+
+> Aligned with constitution v1.8.0 (20 canonical contexts + 2 provisional). Per-context canvases: [`bounded-contexts/`](./bounded-contexts/README.md). This file carries the *why* of each classification and the investment guidance.
+>
+> This doc is **context-keyed** (solution space). The **problem-keyed** decomposition — domain vision, 17 subdomains, subdomain → context mapping — lives in [`domain-map.md`](./domain-map.md).
 
 ---
 
 ## Overview
 
-In Domain-Driven Design, subdomains are classified into three strategic categories:
+Subdomains fall into three strategic categories:
 
-- **Core Domain**: Your competitive advantage, where you innovate and differentiate
-- **Supporting Subdomain**: Important for the business but not differentiating, custom-built to fit your needs
-- **Generic Subdomain**: Common solutions that could be bought or use off-the-shelf solutions
+- **Core Domain**: competitive advantage — innovate and differentiate here
+- **Supporting Subdomain**: important, custom-built, not differentiating
+- **Generic Subdomain**: commodity — buy, wrap, or use off-the-shelf
 
-This classification guides investment priorities, team allocation, and architectural decisions.
-
----
-
-## Subdomain Classification
-
-### Core Domains (Competitive Advantage)
-
-These are the subdomains that make Balsm unique and provide competitive differentiation in the healthcare market.
-
-#### 1. Clinical Records
-**Bounded Context**: Clinical Records
-**Why Core**:
-- Balsm's unique clinical documentation workflow and AI-assisted scribe features
-- Immutable audit trail and timeline visualization
-- Integration of care team coordination
-- Self-report and discharge follow-up workflows
-
-**Investment**: Maximum — this is where Balsm's innovation happens
-**Complexity**: Very High
-**Volatility**: High — evolves with clinical best practices and AI capabilities
-
-**Key Entities**: PatientRecord, Entry, CareTeam, Referral, Consent, SelfReport, DischargeFollowUp, Timeline
+Contexts are additionally organized by **data-ownership plane** (ADR-10): Consumer (patient-owned PHI), Provider (entity-owned), Platform (Balsm-owned, non-PHI), Cross-plane.
 
 ---
 
-#### 2. Prescriptions
-**Bounded Context**: Prescriptions
-**Why Core**:
-- Advanced drug interaction detection and allergy checking
-- Pharmacovigilance integration
-- Recurring prescription management with intelligent scheduling
-- Real-time validity checking and clinical decision support
+## Core Domains
 
-**Investment**: Maximum — patient safety and clinical quality differentiator
-**Complexity**: Very High
-**Volatility**: High — regulatory changes, new drug databases, safety rules
+### 1. Personal Health *(Consumer plane)*
+**Why Core**: Balsm's consumer differentiation — the emergency card / lock-screen QR is the viral hook (P001 impact 5/5), and the patient-owned-data architecture (local SQLite primary + user's Drive/iCloud, Balsm holds zero PHI) is the privacy story competitors can't easily copy. The append-only timeline (ADR-12) is the substrate all provider data eventually mirrors into.
+**Investment**: Maximum · **Complexity**: High · **Volatility**: High
+**Canvas**: [personal-health.md](./bounded-contexts/personal-health.md)
 
-**Key Entities**: Prescription, Medication, DrugInteraction, Validity, RecurringPrescription
+### 2. Clinical Records *(Provider plane)*
+**Why Core**: unique clinical documentation workflow, AI-assisted scribe, immutable audit trail, timeline visualization, cross-entity patient record.
+**Investment**: Maximum · **Complexity**: Very High · **Volatility**: High
+**Canvas**: [clinical-records.md](./bounded-contexts/clinical-records.md)
 
----
-
-#### 3. Charitable Donations
-**Bounded Context**: Charitable Donations
-**Why Core**:
-- Unique to Balsm's social impact mission
-- Transparent donation tracking and case updates
-- Integration with clinical care for charity patients
-
-**Investment**: High — unique market differentiator for social impact
-**Complexity**: Medium
-**Volatility**: Medium — business rules evolve with charity programs
-
-**Key Entities**: Charity, DonationCase, Donation, CaseUpdate
+### 3. Prescriptions *(Provider plane)*
+**Why Core**: safety-critical lifecycle FSM, drug interaction/allergy checking, CDSS, and the QR published language that closes the doctor→patient→pharmacy loop (the platform's viral spine, P013 impact 5/5).
+**Investment**: Maximum · **Complexity**: Very High · **Volatility**: High
+**Canvas**: [prescriptions.md](./bounded-contexts/prescriptions.md)
 
 ---
 
-#### 4. Marketplace
-**Bounded Context**: Marketplace
-**Why Core**:
-- Balsm's platform extensibility strategy
-- Third-party developer ecosystem
-- Add-on review and approval workflows
+## Supporting Subdomains
 
-**Investment**: High — enables ecosystem growth and revenue expansion
-**Complexity**: Medium-High
-**Volatility**: Medium — evolves with platform strategy
-
-**Key Entities**: AddOn, AddOnDeveloper, AddOnReview, AddOnListing
-
----
-
-### Supporting Subdomains (Custom-Built, Domain-Specific)
-
-These subdomains require custom solutions tailored to Balsm's healthcare workflows but don't provide primary competitive differentiation.
-
-#### 5. Appointment
-**Bounded Context**: Appointment
-**Why Supporting**:
-- Standard scheduling with Balsm-specific features (house visits, questionnaires, cost estimates)
-- Waiting list management
-- Integration with clinical workflow
-
-**Investment**: Moderate — important but well-understood domain
-**Complexity**: Medium-High
-**Volatility**: Low-Medium
-
-**Key Entities**: Appointment, Slot, Schedule, WaitingList, HouseVisit, Questionnaire, CostEstimate
+| Context | Plane | Why Supporting | Canvas |
+|---|---|---|---|
+| Provider Directory | Consumer | Curated public map/search; anchors B2C→B2B handoff; standard geo patterns (OSM/PostGIS, ADR-06) | [provider-directory.md](./bounded-contexts/provider-directory.md) |
+| Entity Management | Provider | Org structure (workspace/entity/branch/dept/room/bed); foundational, not complex | [entity-management.md](./bounded-contexts/entity-management.md) |
+| Inventory | Provider | Stock + catalog with domain-specific rules: controlled-substance schedules (Law 182/1960), FIFO-by-expiry, never-negative invariant. *Reclassified from Generic (2026-07-10): Egyptian regulatory tagging + POS atomicity make off-the-shelf ERP a poor fit* | [inventory.md](./bounded-contexts/inventory.md) |
+| Point of Sale | Provider | Highest-impact standalone deliverable (P007), but well-understood retail patterns | [point-of-sale.md](./bounded-contexts/point-of-sale.md) |
+| Customer Relations | Provider | Pharmacy's model of a person + unclaimed→claim identity bridge | [customer-relations.md](./bounded-contexts/customer-relations.md) |
+| Appointment | Provider | Scheduling with Balsm specifics (house visits, questionnaires, cost estimates); reused by Labs (CF) and Care Delivery | [appointment.md](./bounded-contexts/appointment.md) |
+| Pharmacy | Provider | Dispensation correctness + QR verify + controlled gating; important, not differentiating | [pharmacy.md](./bounded-contexts/pharmacy.md) |
+| Billing & Finance | Provider | Complex but not unique; gateways behind ACL, PCI-DSS tokenization | [billing-finance.md](./bounded-contexts/billing-finance.md) |
+| Labs | Provider | Deep model (ADR-13 analyte↔test↔bundle, demographic ranges, chain of custody) but a stable, standardized domain | [labs.md](./bounded-contexts/labs.md) |
+| Radiology | Provider | Standard workflow on DICOM/PACS standards behind ACL | [radiology.md](./bounded-contexts/radiology.md) |
+| Care Delivery | Provider | ADT/occupancy/telehealth — operational workflow distinct from documentation | [care-delivery.md](./bounded-contexts/care-delivery.md) |
+| Charitable Donations | Provider/Platform | Transparency workflow is valuable but not deep; **corrected from stale "Core" label** — constitution has classified it Supporting since v1.x | [charitable-donations.md](./bounded-contexts/charitable-donations.md) |
+| Balsm Network | Platform | Federation pairing, sharing policy (§1.4), entitlements (§1.7); policy is domain, sync plumbing is SharedKernel (ADR-08) | [balsm-network.md](./bounded-contexts/balsm-network.md) |
+| Marketplace | Platform | Ecosystem play; **corrected from stale "Core" label** per constitution | [marketplace.md](./bounded-contexts/marketplace.md) |
 
 ---
 
-#### 6. Labs
-**Bounded Context**: Labs
-**Why Supporting**:
-- Standard lab workflow with quality control
-- LOINC integration
-- Specimen tracking
+## Generic Subdomains
 
-**Investment**: Moderate — critical but not differentiating
-**Complexity**: Medium-High
-**Volatility**: Low — stable domain
-
-**Key Entities**: LabOrder, Specimen, TestResult, QualityControl
+| Context | Plane | Recommendation | Canvas |
+|---|---|---|---|
+| Identity & Access | Cross-plane | Lean on Supabase Auth as IdP forever (ADR-03 JWT bridge — no migration); custom PBAC layer on top; dual-mode cloud/local auth is deployment, not domain | [identity-access.md](./bounded-contexts/identity-access.md) |
+| Messaging & Notifications | Cross-plane | Wrap FCM/APNs/SMS/OpenWA behind adapters; no PHI over third-party channels (Principle XIV) | [messaging-notifications.md](./bounded-contexts/messaging-notifications.md) |
+| Platform Access | Platform | Standard OAuth 2.0 + PKCE, API keys, rate limiting; healthcare-specific consent model is the only custom part | [platform-access.md](./bounded-contexts/platform-access.md) |
 
 ---
 
-#### 7. Radiology
-**Bounded Context**: Radiology
-**Why Supporting**:
-- Standard radiology workflow
-- DICOM/PACS integration
-- Structured reporting
+## Provisional (P021 — not canonical)
 
-**Investment**: Moderate — critical but standardized
-**Complexity**: Medium-High
-**Volatility**: Low — stable domain with DICOM standards
-
-**Key Entities**: ImagingOrder, Study, RadiologyReport, PACS
-
----
-
-#### 8. Pharmacy
-**Bounded Context**: Pharmacy
-**Why Supporting**:
-- Dispensation workflow specific to Balsm's model
-- QR code verification
-- Delivery tracking
-
-**Investment**: Moderate — important for operational workflow
-**Complexity**: Medium
-**Volatility**: Low-Medium
-
-**Key Entities**: Pharmacy, PharmacyInventory, Dispensation, QRCode, Delivery
-
----
-
-#### 9. Billing & Finance
-**Bounded Context**: Billing & Finance
-**Why Supporting**:
-- Healthcare billing is complex but not unique to Balsm
-- Insurance integration required
-- Revenue tracking specific to multi-entity model
-
-**Investment**: Moderate — essential but not differentiating
-**Complexity**: High
-**Volatility**: Medium — regulatory and insurance changes
-
-**Key Entities**: Bill, Claim, Payment, InsurancePolicy, Revenue
-
----
-
-#### 10. Entity Management
-**Bounded Context**: Entity Management
-**Why Supporting**:
-- Multi-tenant organization structure specific to Balsm's model
-- Branch, department, room, bed hierarchy
-
-**Investment**: Moderate — foundational but not complex
-**Complexity**: Medium
-**Volatility**: Low
-
-**Key Entities**: Entity, Branch, Department, Room, Bed
-
----
-
-### Generic Subdomains (Commodity Solutions)
-
-These subdomains solve common problems that don't require Balsm-specific implementations. Consider using or integrating third-party solutions.
-
-#### 11. Identity & Access
-**Bounded Context**: Identity & Access
-**Why Generic**:
-- Standard authentication, authorization, session management
-- Permission-based access control
-- Could use Auth0, Keycloak, or similar
-
-**Investment**: Low-Moderate — use existing solutions where possible
-**Complexity**: Medium
-**Volatility**: Low
-**Recommendation**: Consider OAuth/OIDC provider, custom PBAC layer on top
-
-**Key Entities**: User, Account, Permission, PermissionGroup, Team, Session, Authentication, Caregiver, EmergencyProfile, HealthPassport
-
----
-
-#### 12. Inventory
-**Bounded Context**: Inventory
-**Why Generic**:
-- Standard inventory management
-- Purchase orders, vendor management, stock tracking
-- Off-the-shelf ERP integration possible
-
-**Investment**: Low — minimize custom code
-**Complexity**: Medium
-**Volatility**: Low
-**Recommendation**: Integrate with existing inventory system or use lightweight ERP
-
-**Key Entities**: Item, PurchaseOrder, Vendor, StockLevel
-
----
-
-#### 13. Messaging & Notifications
-**Bounded Context**: Messaging & Notifications
-**Why Generic**:
-- Standard messaging and notification patterns
-- Could use Twilio, SendGrid, Firebase, etc.
-
-**Investment**: Low — use third-party services
-**Complexity**: Low-Medium
-**Volatility**: Low
-**Recommendation**: Use notification service provider + thin wrapper
-
-**Key Entities**: Conversation, Message, Notification, Announcement
+| Candidate | Proposed class | Dissolution alternative |
+|---|---|---|
+| [Community](./bounded-contexts/community.md) | Supporting | Fold into Messaging transport + Personal Health matching input |
+| [Population Insights](./bounded-contexts/population-insights.md) | Supporting | Reporting pipeline inside Balsm Network |
 
 ---
 
 ## Strategic Investment Map
 
 ```
-High Investment (Core Domains)
-├─ Clinical Records ████████████ (Maximum)
-├─ Prescriptions ████████████ (Maximum)
-├─ Charitable Donations ███████ (High)
-└─ Marketplace ███████ (High)
+High Investment (Core)
+├─ Personal Health      ████████████ (Maximum)
+├─ Clinical Records     ████████████ (Maximum)
+└─ Prescriptions        ████████████ (Maximum)
 
-Moderate Investment (Supporting Subdomains)
-├─ Appointment ████ (Moderate)
-├─ Labs ████ (Moderate)
-├─ Radiology ████ (Moderate)
-├─ Pharmacy ████ (Moderate)
-├─ Billing & Finance ████ (Moderate)
-└─ Entity Management ████ (Moderate)
+Moderate Investment (Supporting)
+├─ Labs, Billing & Finance, Balsm Network, Care Delivery  █████
+├─ Appointment, Point of Sale, Pharmacy, Inventory        ████
+└─ Entity Mgmt, Customer Relations, Directory,
+   Donations, Marketplace                                 ███
 
-Low Investment (Generic Subdomains)
-├─ Identity & Access ██ (Low-Moderate, leverage existing)
-├─ Inventory ██ (Low, integrate/buy)
-└─ Messaging & Notifications ██ (Low, use services)
+Low Investment (Generic — buy/wrap)
+├─ Identity & Access        ██ (Supabase + PBAC layer)
+├─ Messaging & Notifications ██ (provider adapters)
+└─ Platform Access          ██ (standard OAuth2 stack)
 ```
 
----
-
-## Team Allocation Recommendations
-
-### Core Domain Teams (Highly Skilled, Domain Experts)
-
-**Clinical Records Team**
-- Senior developers with healthcare domain knowledge
-- Clinical SME collaboration
-- AI/ML specialists for ambient scribe features
-
-**Prescriptions Team**
-- Senior developers with pharmaceutical knowledge
-- Pharmacist SME on team
-- Focus on safety-critical systems
-
-**Charitable Donations Team**
-- Mid-senior developers
-- Social impact/NGO domain knowledge
-
-**Marketplace Team**
-- Senior developers with platform/API design expertise
-- Developer experience (DX) focus
-
-### Supporting Domain Teams (Solid Developers)
-
-**Clinical Operations Team** (Appointment, Labs, Radiology, Pharmacy)
-- Mid-level developers
-- Healthcare workflow knowledge
-- Integration specialists
-
-**Business Operations Team** (Billing, Entity Management)
-- Mid-level developers
-- Financial/ERP domain knowledge
-
-### Generic Subdomain Teams (Junior-Mid Level)
-
-**Infrastructure Team** (Identity, Messaging, Inventory)
-- Junior-mid developers
-- Focus on integration, not invention
-- DevOps/SRE collaboration
+Target split: 60-70% of engineering time on Core, 20-30% Supporting, ~10% Generic.
 
 ---
 
 ## Architecture Implications
 
 ### Core Domains
-- **Architecture**: Rich domain models, tactical DDD patterns (aggregates, domain events, value objects)
-- **Testing**: Extensive unit, integration, and domain tests
-- **Documentation**: Comprehensive business rule documentation
-- **Refactoring**: Continuous improvement and innovation
+Rich domain models, full tactical DDD (aggregates, domain events, value objects, specifications); exhaustive tests (safety-critical paths constitutional: prescription validation edge cases, auth 100%); continuous refactoring.
 
 ### Supporting Subdomains
-- **Architecture**: Clean architecture, domain models where needed
-- **Testing**: Good test coverage, focus on integration tests
-- **Documentation**: Workflow and integration documentation
-- **Refactoring**: Periodic improvement, stable patterns
+Clean architecture, domain models where warranted, good integration-test coverage, stable patterns. Do not over-engineer (constitution: simple CRUD stays lightweight).
 
 ### Generic Subdomains
-- **Architecture**: Thin wrappers around third-party services or simple CRUD
-- **Testing**: Integration tests with external services
-- **Documentation**: Integration guides
-- **Refactoring**: Minimal, consider replacement with better solutions
-
----
-
-## Integration Strategy
-
-### Core Domains
-- Custom integrations, owned by Balsm
-- Anti-corruption layers for external systems
-- Domain events for cross-context communication
-
-### Supporting Subdomains
-- Standard integration patterns
-- Adapter/port architecture for flexibility
-- Shared kernel where appropriate
-
-### Generic Subdomains
-- Use standard protocols (OAuth, SMTP, REST, WebSocket)
-- Vendor SDKs and libraries
-- Interchangeable adapters
+Thin wrappers/adapters around services; integration tests against providers; interchangeable vendors.
 
 ---
 
 ## Evolution Strategy
 
-### Regular Review (Quarterly)
-- Re-evaluate subdomain classification as business evolves
-- Move subdomains between categories as strategy changes
-- Examples:
-  - If Balsm develops unique inventory optimization → move Inventory to Supporting
-  - If AI messaging becomes a differentiator → move Messaging to Core
-  - If third-party prescription service emerges → consider moving Prescriptions to Supporting
-
-### Investment Rebalancing
-- Track effort spent per subdomain
-- Ensure 60-70% of engineering time is on Core Domains
-- 20-30% on Supporting Subdomains
-- 10% on Generic Subdomains
+Re-evaluate classification **each milestone** (constitutional requirement):
+- Unique inventory optimization emerges → Inventory pressure toward Core
+- AI messaging becomes differentiator → Messaging toward Supporting/Core
+- Third-party prescription-safety service matures → Prescriptions pressure toward Supporting
+- P021 spec confirms or dissolves the two provisional contexts
 
 ---
 
@@ -358,17 +130,19 @@ Low Investment (Generic Subdomains)
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| 2026-03-21 | Initial subdomain classification | Based on Balsm's competitive positioning and technical analysis of 13 bounded contexts |
-| | Clinical Records classified as Core | AI-assisted documentation and unique workflow is key differentiator |
-| | Prescriptions classified as Core | Safety-critical, complex rules, competitive advantage in clinical decision support |
-| | Identity classified as Generic | Standard auth patterns, consider Auth0/Keycloak integration |
-| | Messaging classified as Generic | Standard patterns, use Twilio/SendGrid/Firebase |
+| 2026-03-21 | Initial classification of 13 contexts | Based on competitive positioning analysis |
+| 2026-07-10 | **13 → 20 canonical contexts** (constitution v1.8.0); three-plane organization | Derived from PHASED_ROADMAP.md P000-P023: consumer track (ADR-10 patient-owned PHI), pharmacy counter (P007/P008), network/platform tiers (P016/P023) don't map honestly into the 13. New: Personal Health, Provider Directory, Point of Sale, Customer Relations, Care Delivery, Balsm Network, Platform Access |
+| 2026-07-10 | Personal Health classified Core | Emergency-card viral hook + patient-owned-data privacy architecture = consumer differentiation |
+| 2026-07-10 | Charitable Donations + Marketplace corrected to Supporting | This doc was stale vs constitution; constitution prevails |
+| 2026-07-10 | Inventory reclassified Generic → Supporting | Egypt Law 182/1960 controlled-substance tagging, FIFO-by-expiry, POS-atomic deduction — custom fit required |
+| 2026-07-10 | `PharmacyInventory` moved Pharmacy → Inventory | One context owns stock |
+| 2026-07-10 | Community + Population Insights provisional | P021 too distant to commit; dissolution alternatives documented |
 
 ---
 
 ## References
 
-- [AGENTS.md](../agents/rules/AGENTS.md) — Bounded context definitions
-- [communication-architecture.md](./communication-architecture.md) — Communication patterns
-- Eric Evans, *Domain-Driven Design* (2003) — Subdomain classification theory
-- Vaughn Vernon, *Implementing Domain-Driven Design* (2013) — Strategic design patterns
+- [bounded-contexts/README.md](./bounded-contexts/README.md) — canonical context map + canvases
+- [AGENTS.md](../agents/rules/AGENTS.md) — agent rules
+- Constitution Principle IV (v1.8.0) — binding context list
+- Eric Evans, *Domain-Driven Design* (2003); Vaughn Vernon, *Implementing DDD* (2013)

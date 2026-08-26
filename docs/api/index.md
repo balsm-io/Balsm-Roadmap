@@ -1,12 +1,12 @@
 # API Documentation
 
-Complete REST API reference for Balsm.IO healthcare platform.
+Complete REST API reference for Balsm healthcare platform.
 
 ## Quick Start
 
 ### Base URL
 ```
-https://api.balsm.io/v1
+https://api.balsm.health/v1
 ```
 
 ### Authentication
@@ -35,4 +35,4 @@ All API requests require authentication via API key or OAuth 2.0 token.
 - HL7 FHIR compatible  
 - SOC 2 Type II certified
 
-*For support, contact api-support@balsm.io*
+*For support, contact api-support@balsm.health*

@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light" data-locale="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balsm Patient App MVP (P001) — Design Prototype</title>
+  <link rel="stylesheet" href="../tokens.css" />
+  <link rel="stylesheet" href="styles/prototype.css" />
+</head>
+<body>
+
+<!-- ============================================================
+     PROTOTYPE SHELL
+     ============================================================ -->
+<div class="proto-shell">
+
+  <!-- Toolbar -->
+  <header class="proto-toolbar">
+    <div class="proto-toolbar__brand">
+      <span class="proto-toolbar__brand-mark" aria-hidden="true"></span>
+      <span>Balsm <span class="muted">· P001 Prototype</span></span>
+    </div>
+
+    <div class="proto-toolbar__group">
+      <span class="proto-toolbar__label">Locale</span>
+      <select id="locale-select" aria-label="Choose locale">
+        <option value="en">English (en)</option>
+        <option value="ar-EG">العربية — مصر (ar-EG)</option>
+        <option value="ar-SA">العربية — السعودية (ar-SA)</option>
+        <option value="ar-AE">العربية — الإمارات (ar-AE)</option>
+      </select>
+    </div>
+
+    <div class="proto-toolbar__group">
+      <span class="proto-toolbar__label">Theme</span>
+      <button class="proto-toolbar__toggle proto-toolbar__toggle--active" data-theme-btn="light">Light</button>
+      <button class="proto-toolbar__toggle" data-theme-btn="dark">Dark</button>
+    </div>
+
+    <div class="proto-toolbar__group">
+      <span class="proto-toolbar__label">Frame</span>
+      <button class="proto-toolbar__toggle proto-toolbar__toggle--active" data-frame-btn="ios">iOS</button>
+      <button class="proto-toolbar__toggle" data-frame-btn="web">Web</button>
+    </div>
+
+    <div class="proto-toolbar__spacer"></div>
+    <span class="proto-toolbar__status" id="status">Loading…</span>
+  </header>
+
+  <!-- Left rail: flow navigation -->
+  <nav class="proto-rail" aria-label="Screen navigation">
+    <div class="proto-rail__section">Auth & Disclosure</div>
+    <button class="proto-rail__item" data-screen="auth-country"><span class="proto-rail__bullet"></span>Country picker</button>
+    <button class="proto-rail__item" data-screen="auth-email"><span class="proto-rail__bullet"></span>Email signup</button>
+    <button class="proto-rail__item" data-screen="auth-otp"><span class="proto-rail__bullet"></span>OTP verification</button>
+    <button class="proto-rail__item" data-screen="auth-social"><span class="proto-rail__bullet"></span>Social sign-in</button>
+    <button class="proto-rail__item" data-screen="auth-lockout"><span class="proto-rail__bullet"></span>Lockout</button>
+    <button class="proto-rail__item" data-screen="auth-blocked"><span class="proto-rail__bullet"></span>Geofence blocked</button>
+    <button class="proto-rail__item" data-screen="disclosure"><span class="proto-rail__bullet"></span>Consolidated disclosure</button>
+
+    <div class="proto-rail__section">Home & Profile</div>
+    <button class="proto-rail__item" data-screen="home"><span class="proto-rail__bullet"></span>Home (filled)</button>
+    <button class="proto-rail__item" data-screen="account-handle"><span class="proto-rail__bullet"></span>Handle claim</button>
+    <button class="proto-rail__item" data-screen="profile-editor"><span class="proto-rail__bullet"></span>Health profile editor</button>
+
+    <div class="proto-rail__section">Emergency Card</div>
+    <button class="proto-rail__item" data-screen="emergency-card"><span class="proto-rail__bullet"></span>Emergency card</button>
+    <button class="proto-rail__item" data-screen="emergency-qr"><span class="proto-rail__bullet"></span>QR display</button>
+    <button class="proto-rail__item" data-screen="emergency-public"><span class="proto-rail__bullet"></span>Public emergency (Web)</button>
+
+    <div class="proto-rail__section">Medications</div>
+    <button class="proto-rail__item" data-screen="meds-list"><span class="proto-rail__bullet"></span>Medication list</button>
+    <button class="proto-rail__item" data-screen="meds-add"><span class="proto-rail__bullet"></span>Add medication</button>
+    <button class="proto-rail__item" data-screen="meds-today"><span class="proto-rail__bullet"></span>Today</button>
+
+    <div class="proto-rail__section">Deletion</div>
+    <button class="proto-rail__item" data-screen="deletion-preconfirm"><span class="proto-rail__bullet"></span>Pre-confirm</button>
+    <button class="proto-rail__item" data-screen="deletion-confirm"><span class="proto-rail__bullet"></span>Final confirm</button>
+    <button class="proto-rail__item" data-screen="deletion-public"><span class="proto-rail__bullet"></span>Public delete (Web)</button>
+
+    <div class="proto-rail__section">Settings</div>
+    <button class="proto-rail__item" data-screen="sessions-list"><span class="proto-rail__bullet"></span>Active sessions</button>
+    <button class="proto-rail__item" data-screen="account-language"><span class="proto-rail__bullet"></span>Language</button>
+
+    <div class="proto-rail__section">System</div>
+    <button class="proto-rail__item" data-screen="not-found"><span class="proto-rail__bullet"></span>NotFound 404</button>
+  </nav>
+
+  <!-- Stage: device frame holding screens -->
+  <main class="proto-stage" aria-label="Screen preview">
+    <div class="device" id="device">
+      <div class="device__notch" aria-hidden="true"></div>
+      <div class="device__viewport" id="viewport">
+
+        <!-- ====================================================
+             SCREEN: auth-country
+             ==================================================== -->
+        <section class="screen" data-screen="auth-country">
+          <div class="device__status-bar">
+            <span>9:41</span>
+            <span class="row" style="gap:4px"><span>•••</span><span>5G</span><span>87%</span></span>
+          </div>
+          <header class="appbar">
+            <span style="width:40px"></span>
+            <h1 class="appbar__title" data-t="appbar.country">Choose your country</h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="search-bar">
+            <input class="search-bar__input" type="search" placeholder="Search country" aria-label="Search country" data-t-placeholder="search.country">
+          </div>
+          <div class="content" style="padding:0">
+            <div class="country-row" tabindex="0">
+              <span class="country-row__flag">🇪🇬</span>
+              <span class="country-row__name" data-t="country.eg">Egypt</span>
+              <span class="country-row__code">+20</span>
+            </div>
+            <div class="country-row" tabindex="0">
+              <span class="country-row__flag">🇸🇦</span>
+              <span class="country-row__name" data-t="country.sa">Saudi Arabia</span>
+              <span class="country-row__code">+966</span>
+            </div>
+            <div class="country-row" tabindex="0">
+              <span class="country-row__flag">🇦🇪</span>
+              <span class="country-row__name" data-t="country.ae">United Arab Emirates</span>
+              <span class="country-row__code">+971</span>
+            </div>
+            <div class="country-row" tabindex="0">
+              <span class="country-row__flag">🇯🇴</span>
+              <span class="country-row__name" data-t="country.jo">Jordan</span>
+              <span class="country-row__code">+962</span>
+            </div>
+            <div class="country-row country-row--blocked" aria-disabled="true">
+              <span class="country-row__flag">🇮🇷</span>
+              <span class="country-row__name" data-t="country.ir">Iran</span>
+              <span class="country-row__code">+98</span>
+            </div>
+            <div class="country-row" tabindex="0">
+              <span class="country-row__flag">🇰🇼</span>
+              <span class="country-row__name" data-t="country.kw">Kuwait</span>
+              <span class="country-row__code">+965</span>
+            </div>
+            <div class="country-row" tabindex="0">
+              <span class="country-row__flag">🇶🇦</span>
+              <span class="country-row__name" data-t="country.qa">Qatar</span>
+              <span class="country-row__code">+974</span>
+            </div>
+            <div class="country-row" tabindex="0">
+              <span class="country-row__flag">🇧🇭</span>
+              <span class="country-row__name" data-t="country.bh">Bahrain</span>
+              <span class="country-row__code">+973</span>
+            </div>
+            <div class="country-row" tabindex="0">
+              <span class="country-row__flag">🇴🇲</span>
+              <span class="country-row__name" data-t="country.om">Oman</span>
+              <span class="country-row__code">+968</span>
+            </div>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: auth-email
+             ==================================================== -->
+        <section class="screen" data-screen="auth-email">
+          <div class="device__status-bar">
+            <span>9:41</span>
+            <span class="row" style="gap:4px"><span>•••</span><span>5G</span><span>87%</span></span>
+          </div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back" data-t-aria="back">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <h1 class="appbar__title"></h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="content content--gap">
+            <div>
+              <p class="eyebrow" data-t="auth.eyebrow">Welcome to Balsm</p>
+              <h2 class="title" data-t="auth.signup.title">Enter your email to continue</h2>
+              <p class="subtitle" data-t="auth.signup.subtitle">We'll send a 6-digit code. No password to remember.</p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" data-t="auth.email.label">Email</label>
+              <input class="field__input" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" style="direction:ltr">
+              <span class="field__help" data-t="auth.email.help">We only use this to send your sign-in code.</span>
+            </div>
+
+            <div class="row" style="gap:var(--space-3); align-items:center;">
+              <span style="flex:1; height:1px; background:var(--balsm-border)"></span>
+              <span class="muted" style="font-size:var(--fs-xs)" data-t="auth.or">or continue with</span>
+              <span style="flex:1; height:1px; background:var(--balsm-border)"></span>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn--secondary" aria-label="Sign in with Google">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22.5 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.28-1.93-6.15-4.53H2.18v2.84A11 11 0 0 0 12 23z" fill="#34A853"/><path d="M5.85 14.11A6.6 6.6 0 0 1 5.5 12c0-.73.12-1.44.35-2.11V7.05H2.18A11 11 0 0 0 1 12c0 1.77.43 3.45 1.18 4.95l3.67-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.46 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.05l3.67 2.84C6.72 7.31 9.14 5.38 12 5.38z" fill="#EA4335"/></svg>
+                Google
+              </button>
+              <button class="btn btn--secondary" aria-label="Sign in with Apple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Apple
+              </button>
+            </div>
+          </div>
+
+          <div class="cta-bar">
+            <button class="btn btn--primary btn--lg" data-t="cta.send-code">Send code</button>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: auth-otp
+             ==================================================== -->
+        <section class="screen" data-screen="auth-otp">
+          <div class="device__status-bar">
+            <span>9:41</span>
+            <span class="row" style="gap:4px"><span>•••</span><span>5G</span><span>87%</span></span>
+          </div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <h1 class="appbar__title"></h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="content content--gap">
+            <div>
+              <h2 class="title" data-t="auth.otp.title">Check your inbox</h2>
+              <p class="subtitle"><span data-t="auth.otp.sent">We sent a 6-digit code to</span> <strong style="color:var(--fg1); direction:ltr; display:inline-block">noor@example.com</strong></p>
+            </div>
+
+            <div class="otp">
+              <div class="otp__cell otp__cell--filled">4</div>
+              <div class="otp__cell otp__cell--filled">8</div>
+              <div class="otp__cell otp__cell--filled">2</div>
+              <div class="otp__cell" aria-label="digit 4">&nbsp;</div>
+              <div class="otp__cell" aria-label="digit 5">&nbsp;</div>
+              <div class="otp__cell" aria-label="digit 6">&nbsp;</div>
+            </div>
+
+            <p class="text-center" style="font-size:var(--fs-sm)">
+              <span class="muted" data-t="auth.otp.expires">Code expires in</span>
+              <span class="mono" style="color:var(--fg1); font-weight:600; margin-inline-start:6px">9:43</span>
+            </p>
+
+            <p class="text-center">
+              <button class="btn btn--ghost btn--sm" data-t="auth.otp.resend">Resend code</button>
+            </p>
+
+            <div class="banner banner--info">
+              <span class="banner__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              </span>
+              <div class="banner__body">
+                <div class="banner__title" data-t="auth.otp.tip.title">Tip</div>
+                <span data-t="auth.otp.tip.body">If you don't see it, check spam or Junk.</span>
+              </div>
+            </div>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: auth-social
+             ==================================================== -->
+        <section class="screen" data-screen="auth-social">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar"><span style="width:40px"></span><h1 class="appbar__title"></h1><span style="width:40px"></span></header>
+          <div class="center-state">
+            <div class="logo-mark logo-mark--lg" aria-hidden="true"><span class="logo-mark__core"></span></div>
+            <div>
+              <h2 class="title" data-t="auth.social.title">One tap to start</h2>
+              <p class="subtitle" data-t="auth.social.subtitle">Use your Google or Apple account. We don't ask for a password.</p>
+            </div>
+            <div class="col" style="width:100%">
+              <button class="btn btn--secondary btn--lg">
+                <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.5 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.28-1.93-6.15-4.53H2.18v2.84A11 11 0 0 0 12 23z" fill="#34A853"/><path d="M5.85 14.11A6.6 6.6 0 0 1 5.5 12c0-.73.12-1.44.35-2.11V7.05H2.18A11 11 0 0 0 1 12c0 1.77.43 3.45 1.18 4.95l3.67-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.46 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.05l3.67 2.84C6.72 7.31 9.14 5.38 12 5.38z" fill="#EA4335"/></svg>
+                Continue with Google
+              </button>
+              <button class="btn btn--secondary btn--lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Continue with Apple
+              </button>
+              <button class="btn btn--ghost" data-t="auth.social.email">Use email instead</button>
+            </div>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: auth-lockout
+             ==================================================== -->
+        <section class="screen" data-screen="auth-lockout">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar"><span style="width:40px"></span><h1 class="appbar__title"></h1><span style="width:40px"></span></header>
+          <div class="center-state">
+            <div style="width:88px; height:88px; border-radius:50%; background:var(--balsm-danger-bg); display:grid; place-items:center; color:var(--balsm-danger)">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <h2 class="title" data-t="lockout.title">Locked for a few minutes</h2>
+              <p class="subtitle" data-t="lockout.body">Too many failed sign-in attempts. For your safety we've paused this account.</p>
+            </div>
+            <div class="card" style="width:100%; text-align:center">
+              <p class="muted" style="margin:0 0 var(--space-2); font-size:var(--fs-sm)" data-t="lockout.unlock-in">Unlocks in</p>
+              <p class="countdown countdown--urgent" aria-live="polite">12:47</p>
+            </div>
+            <button class="btn btn--ghost" data-t="lockout.support">Contact support</button>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: auth-blocked
+             ==================================================== -->
+        <section class="screen" data-screen="auth-blocked">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar"><span style="width:40px"></span><h1 class="appbar__title"></h1><span style="width:40px"></span></header>
+          <div class="center-state">
+            <div style="width:88px; height:88px; border-radius:50%; background:var(--balsm-warning-bg); display:grid; place-items:center; color:var(--balsm-sun-600)">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>
+            </div>
+            <div>
+              <h2 class="title" data-t="blocked.title">Not yet available here</h2>
+              <p class="subtitle" data-t="blocked.body">Balsm isn't offered in your country yet. We're working on it.</p>
+            </div>
+            <div class="card" style="width:100%">
+              <p class="card__sub" data-t="blocked.help">Need help with an existing account? Visit our support page from any country.</p>
+            </div>
+            <button class="btn btn--secondary" data-t="blocked.notify">Notify me when available</button>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: disclosure
+             ==================================================== -->
+        <section class="screen" data-screen="disclosure">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <h1 class="appbar__title" data-t="disclosure.title">How Balsm works</h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="content disclosure">
+            <div class="disclosure__authority">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span><span data-t="disclosure.regulator">Regulated by</span> <strong data-t="disclosure.authority.eg">Egypt PDPC</strong></span>
+            </div>
+
+            <h3 data-t="disclosure.h.phi">Your health profile stays on this phone</h3>
+            <p data-t="disclosure.p.phi">Allergies, medications, conditions, contacts — all stored on your device. We never see them. If you lose your phone, your health profile is gone with it (unless you sign in on a new device using your email/Google/Apple — then we restore from your encrypted backup).</p>
+
+            <h3 data-t="disclosure.h.cloud">What we do see</h3>
+            <p data-t="disclosure.p.cloud">Only your account info: email, name, country, language, and date of birth (encrypted on our server, so even our staff can't read it without an audited reason).</p>
+
+            <h3 data-t="disclosure.h.emergency">If you share an emergency QR</h3>
+            <p data-t="disclosure.p.emergency">The QR carries a copy of your card encrypted with a key only the QR holds. Anyone scanning it sees your card. You can revoke it any time.</p>
+
+            <h3 data-t="disclosure.h.delete">If you decide to leave</h3>
+            <p data-t="disclosure.p.delete">Settings → Delete account → 7 days to change your mind → everything gone. No "hidden retention", no marketing list.</p>
+
+            <p style="font-size:var(--fs-xs); color:var(--fg3);">
+              <span data-t="disclosure.read.more">Read our full</span>
+              <a href="#" style="color:var(--balsm-primary)" data-t="disclosure.privacy">Privacy notice</a>
+              ·
+              <a href="#" style="color:var(--balsm-primary)" data-t="disclosure.terms">Terms</a>
+            </p>
+          </div>
+          <div class="cta-bar">
+            <button class="btn btn--primary btn--lg" data-t="cta.accept">Accept and continue</button>
+            <p class="muted text-center" style="margin-top:var(--space-3); font-size:var(--fs-xs)" data-t="disclosure.consent">By tapping Accept you confirm you've read this.</p>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: home
+             ==================================================== -->
+        <section class="screen" data-screen="home">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar" style="border-bottom:0">
+            <div>
+              <p class="meta" style="margin:0" data-t="home.greeting.prefix">Good morning,</p>
+              <h1 class="appbar__title" style="text-align:start" data-t="home.greeting.name">Noor</h1>
+            </div>
+            <span class="flex-1"></span>
+            <button class="appbar__action" aria-label="Settings">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+          </header>
+          <div class="content content--gap">
+            <div class="card card--accent">
+              <h3 class="card__title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--balsm-primary)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span data-t="home.emergency.title">Your emergency card</span>
+              </h3>
+              <p class="card__sub" data-t="home.emergency.sub">3 of 4 sections completed — add a contact to finish</p>
+              <div style="margin-top:var(--space-3)">
+                <button class="btn btn--primary btn--sm" data-t="home.emergency.cta">Finish card</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="card__title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--petal-emerald)"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg>
+                <span data-t="home.today.title">Today at a glance</span>
+              </h3>
+              <div class="card__row">
+                <span class="card__row-label" data-t="home.today.next">Next dose</span>
+                <span class="card__row-value">Glipizide <span class="mono muted">· 14:00</span></span>
+              </div>
+              <div class="card__row">
+                <span class="card__row-label" data-t="home.today.taken">Taken today</span>
+                <span class="card__row-value success-text">2 / 4</span>
+              </div>
+              <div class="card__row">
+                <span class="card__row-label" data-t="home.today.missed">Missed</span>
+                <span class="card__row-value danger-text">0</span>
+              </div>
+            </div>
+
+            <div class="section-header">
+              <h3 data-t="home.suggestions">Suggested</h3>
+            </div>
+
+            <div class="list-item" tabindex="0">
+              <div class="list-item__icon list-item__icon--primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8a7 7 0 0 1 14 0v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/></svg>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title" data-t="home.handle.title">Claim your handle</div>
+                <div class="list-item__meta" data-t="home.handle.sub">Pick @noor.health — keep your name across countries</div>
+              </div>
+              <span class="list-item__chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+            </div>
+
+            <div class="list-item" tabindex="0">
+              <div class="list-item__icon list-item__icon--success">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M12 9v6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title" data-t="home.profile.title">Complete your profile</div>
+                <div class="list-item__meta" data-t="home.profile.sub">Blood type + 1 allergy added · 3 of 5 done</div>
+              </div>
+              <span class="list-item__chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+            </div>
+          </div>
+
+          <nav class="bottom-nav" aria-label="Main">
+            <button class="bottom-nav__item bottom-nav__item--active">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 12L12 4l9 8v8a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.home">Home</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.card">Card</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 4 14a4 4 0 0 1 0-6l1-1a4 4 0 0 1 6 0L19.5 14M14 5l5 5M10 9l5 5"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.meds">Meds</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.sessions">Devices</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.settings">Settings</span>
+            </button>
+          </nav>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: account-handle
+             ==================================================== -->
+        <section class="screen" data-screen="account-handle">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <h1 class="appbar__title" data-t="handle.title">Claim handle</h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="content content--gap">
+            <p class="subtitle" data-t="handle.body">Pick a unique name to share. Letters, numbers, _ and . only. 3-30 characters.</p>
+
+            <div class="field">
+              <label class="field__label field__label--required" data-t="handle.label">Your handle</label>
+              <div style="position:relative">
+                <input class="field__input" value="noor.health" style="padding-inline-start:36px; direction:ltr">
+                <span style="position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%); color:var(--fg3); font-weight:600">@</span>
+              </div>
+              <span class="field__help success-text" style="display:flex; align-items:center; gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <span data-t="handle.available">Available!</span>
+              </span>
+            </div>
+
+            <div>
+              <p class="meta" style="margin-bottom:var(--space-2)" data-t="handle.suggestions">Or try these:</p>
+              <div class="chip-row">
+                <button class="chip">@noor</button>
+                <button class="chip">@noor_health</button>
+                <button class="chip">@nooor</button>
+                <button class="chip">@noor.86</button>
+              </div>
+            </div>
+
+            <div class="banner banner--info">
+              <span class="banner__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+              <div class="banner__body">
+                <div class="banner__title" data-t="handle.global.title">One handle, everywhere</div>
+                <span data-t="handle.global.body">Your handle stays with you across all countries Balsm supports.</span>
+              </div>
+            </div>
+          </div>
+          <div class="cta-bar">
+            <button class="btn btn--primary btn--lg" data-t="handle.cta">Claim @noor.health</button>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: profile-editor
+             ==================================================== -->
+        <section class="screen" data-screen="profile-editor">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <h1 class="appbar__title" data-t="profile.title">Health profile</h1>
+            <button class="appbar__action" aria-label="Save"><span style="color:var(--balsm-primary); font-weight:600; font-size:var(--fs-md)" data-t="profile.save">Save</span></button>
+          </header>
+          <div class="content content--gap">
+            <span class="privacy-marker">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span data-t="profile.privacy">On-device only · never sent to Balsm servers</span>
+            </span>
+
+            <div class="card">
+              <h3 class="card__title" data-t="profile.blood">Blood type</h3>
+              <div class="chip-row">
+                <button class="chip chip--selected">O+</button>
+                <button class="chip">O−</button>
+                <button class="chip">A+</button>
+                <button class="chip">A−</button>
+                <button class="chip">B+</button>
+                <button class="chip">B−</button>
+                <button class="chip">AB+</button>
+                <button class="chip">AB−</button>
+                <button class="chip" data-t="profile.unknown">Unknown</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="row row--between" style="margin-bottom:var(--space-3)">
+                <h3 class="card__title" data-t="profile.allergies">Allergies (2)</h3>
+                <button class="btn btn--ghost btn--sm" style="width:auto">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                  <span data-t="profile.add">Add</span>
+                </button>
+              </div>
+              <div class="list-item" style="padding:var(--space-3) 0; border:0; min-height:auto">
+                <div class="list-item__icon list-item__icon--danger" style="width:32px; height:32px">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                </div>
+                <div class="list-item__body">
+                  <div class="list-item__title">Penicillin</div>
+                  <div class="list-item__meta" data-t="profile.allergy.severe">Severe</div>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="list-item" style="padding:var(--space-3) 0; border:0; min-height:auto">
+                <div class="list-item__icon list-item__icon--danger" style="width:32px; height:32px">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                </div>
+                <div class="list-item__body">
+                  <div class="list-item__title">Peanuts</div>
+                  <div class="list-item__meta" data-t="profile.allergy.moderate">Moderate</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="row row--between" style="margin-bottom:var(--space-3)">
+                <h3 class="card__title" data-t="profile.conditions">Chronic conditions (1)</h3>
+                <button class="btn btn--ghost btn--sm" style="width:auto"><span data-t="profile.add">Add</span></button>
+              </div>
+              <div class="list-item" style="padding:var(--space-3) 0; border:0; min-height:auto">
+                <div class="list-item__icon list-item__icon--violet" style="width:32px; height:32px">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <div class="list-item__body">
+                  <div class="list-item__title">Type 2 Diabetes</div>
+                  <div class="list-item__meta">ICD-10 E11 · since 2018</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="row row--between" style="margin-bottom:var(--space-3)">
+                <h3 class="card__title" data-t="profile.contacts">Emergency contacts (1)</h3>
+                <button class="btn btn--ghost btn--sm" style="width:auto"><span data-t="profile.add">Add</span></button>
+              </div>
+              <div class="list-item" style="padding:var(--space-3) 0; border:0; min-height:auto">
+                <div class="list-item__icon list-item__icon--primary" style="width:32px; height:32px">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
+                <div class="list-item__body">
+                  <div class="list-item__title">Mama (Hala)</div>
+                  <div class="list-item__meta mono" style="direction:ltr">+20 100 555 0142</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: emergency-card
+             ==================================================== -->
+        <section class="screen" data-screen="emergency-card">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <h1 class="appbar__title" data-t="emergency.title">Emergency card</h1>
+            <button class="appbar__action" aria-label="Edit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+          </header>
+          <div class="content content--gap">
+            <div class="card" style="border-color:var(--balsm-danger); border-width:1.5px">
+              <div class="row" style="gap:var(--space-3); margin-bottom:var(--space-4)">
+                <div style="width:48px; height:48px; border-radius:50%; background:var(--balsm-danger); color:white; display:grid; place-items:center;">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                </div>
+                <div>
+                  <h2 style="margin:0; font-family:var(--font-display); font-size:var(--fs-xl); font-weight:700; color:var(--fg1)" data-t="emergency.who">Noor Hassan, 32</h2>
+                  <p class="meta" style="margin:2px 0 0" data-t="emergency.lang">Speaks: العربية · English</p>
+                </div>
+              </div>
+              <div class="card__row">
+                <span class="card__row-label" data-t="emergency.blood">Blood type</span>
+                <span class="card__row-value" style="color:var(--balsm-danger); font-size:var(--fs-xl)">O+</span>
+              </div>
+              <div class="card__row">
+                <span class="card__row-label" data-t="emergency.allergies">Allergies</span>
+                <span class="card__row-value">Penicillin <span class="muted" style="font-weight:400">· Peanuts</span></span>
+              </div>
+              <div class="card__row">
+                <span class="card__row-label" data-t="emergency.conditions">Conditions</span>
+                <span class="card__row-value">T2 Diabetes</span>
+              </div>
+              <div class="card__row">
+                <span class="card__row-label" data-t="emergency.meds">Current meds</span>
+                <span class="card__row-value">Glipizide 5mg</span>
+              </div>
+              <div class="card__row">
+                <span class="card__row-label" data-t="emergency.contact">Contact</span>
+                <span class="card__row-value mono" style="direction:ltr">+20 100 555 0142</span>
+              </div>
+            </div>
+
+            <button class="btn btn--primary btn--lg">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span data-t="emergency.share">Share via QR</span>
+            </button>
+
+            <span class="privacy-marker">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span data-t="emergency.privacy">Card stays on-device until you share</span>
+            </span>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: emergency-qr
+             ==================================================== -->
+        <section class="screen" data-screen="emergency-qr">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <h1 class="appbar__title" data-t="emergency.qr.title">Emergency QR</h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="content content--gap text-center">
+            <p class="subtitle" data-t="emergency.qr.help">Anyone who scans this can see your card. Choose how long it lives.</p>
+
+            <div class="qr">
+              <svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block">
+                <!-- Stylized QR pattern -->
+                <rect x="0" y="0" width="20" height="20" fill="#14202B"/>
+                <rect x="3" y="3" width="14" height="14" fill="white"/>
+                <rect x="6" y="6" width="8" height="8" fill="#14202B"/>
+
+                <rect x="80" y="0" width="20" height="20" fill="#14202B"/>
+                <rect x="83" y="3" width="14" height="14" fill="white"/>
+                <rect x="86" y="6" width="8" height="8" fill="#14202B"/>
+
+                <rect x="0" y="80" width="20" height="20" fill="#14202B"/>
+                <rect x="3" y="83" width="14" height="14" fill="white"/>
+                <rect x="6" y="86" width="8" height="8" fill="#14202B"/>
+
+                <!-- random modules -->
+                <g fill="#14202B">
+                  <rect x="25" y="3" width="3" height="3"/><rect x="32" y="3" width="3" height="3"/>
+                  <rect x="42" y="3" width="3" height="3"/><rect x="48" y="3" width="3" height="3"/>
+                  <rect x="60" y="3" width="3" height="3"/><rect x="68" y="3" width="3" height="3"/>
+                  <rect x="25" y="10" width="3" height="3"/><rect x="38" y="10" width="3" height="3"/>
+                  <rect x="55" y="10" width="3" height="3"/><rect x="72" y="10" width="3" height="3"/>
+                  <rect x="28" y="17" width="3" height="3"/><rect x="42" y="17" width="3" height="3"/>
+                  <rect x="58" y="17" width="3" height="3"/><rect x="68" y="17" width="3" height="3"/>
+                  <rect x="3" y="25" width="3" height="3"/><rect x="20" y="25" width="3" height="3"/>
+                  <rect x="30" y="25" width="3" height="3"/><rect x="42" y="25" width="3" height="3"/>
+                  <rect x="55" y="25" width="3" height="3"/><rect x="68" y="25" width="3" height="3"/>
+                  <rect x="85" y="25" width="3" height="3"/>
+                  <rect x="8" y="32" width="3" height="3"/><rect x="22" y="32" width="3" height="3"/>
+                  <rect x="36" y="32" width="3" height="3"/><rect x="50" y="32" width="3" height="3"/>
+                  <rect x="64" y="32" width="3" height="3"/><rect x="78" y="32" width="3" height="3"/>
+                  <rect x="92" y="32" width="3" height="3"/>
+                  <rect x="3" y="40" width="3" height="3"/><rect x="15" y="40" width="3" height="3"/>
+                  <rect x="28" y="40" width="3" height="3"/><rect x="42" y="40" width="3" height="3"/>
+                  <rect x="55" y="40" width="3" height="3"/><rect x="68" y="40" width="3" height="3"/>
+                  <rect x="82" y="40" width="3" height="3"/>
+                  <rect x="10" y="48" width="3" height="3"/><rect x="22" y="48" width="3" height="3"/>
+                  <rect x="35" y="48" width="3" height="3"/><rect x="60" y="48" width="3" height="3"/>
+                  <rect x="72" y="48" width="3" height="3"/><rect x="88" y="48" width="3" height="3"/>
+                  <rect x="3" y="55" width="3" height="3"/><rect x="20" y="55" width="3" height="3"/>
+                  <rect x="33" y="55" width="3" height="3"/><rect x="48" y="55" width="3" height="3"/>
+                  <rect x="65" y="55" width="3" height="3"/><rect x="80" y="55" width="3" height="3"/>
+                  <rect x="92" y="55" width="3" height="3"/>
+                  <rect x="8" y="62" width="3" height="3"/><rect x="25" y="62" width="3" height="3"/>
+                  <rect x="40" y="62" width="3" height="3"/><rect x="55" y="62" width="3" height="3"/>
+                  <rect x="70" y="62" width="3" height="3"/><rect x="85" y="62" width="3" height="3"/>
+                  <rect x="3" y="70" width="3" height="3"/><rect x="18" y="70" width="3" height="3"/>
+                  <rect x="32" y="70" width="3" height="3"/><rect x="48" y="70" width="3" height="3"/>
+                  <rect x="62" y="70" width="3" height="3"/><rect x="78" y="70" width="3" height="3"/>
+                  <rect x="92" y="70" width="3" height="3"/>
+                  <rect x="25" y="78" width="3" height="3"/><rect x="38" y="78" width="3" height="3"/>
+                  <rect x="52" y="78" width="3" height="3"/><rect x="65" y="78" width="3" height="3"/>
+                  <rect x="78" y="78" width="3" height="3"/><rect x="92" y="78" width="3" height="3"/>
+                  <rect x="28" y="85" width="3" height="3"/><rect x="42" y="85" width="3" height="3"/>
+                  <rect x="55" y="85" width="3" height="3"/><rect x="68" y="85" width="3" height="3"/>
+                  <rect x="82" y="85" width="3" height="3"/>
+                  <rect x="25" y="92" width="3" height="3"/><rect x="38" y="92" width="3" height="3"/>
+                  <rect x="55" y="92" width="3" height="3"/><rect x="72" y="92" width="3" height="3"/>
+                  <rect x="85" y="92" width="3" height="3"/>
+                </g>
+              </svg>
+              <div class="qr__logo">
+                <div style="width:24px; height:24px; border-radius:50%; background:var(--grad-petal)"></div>
+              </div>
+            </div>
+
+            <div>
+              <p class="meta" style="margin:0 0 var(--space-2)" data-t="emergency.qr.expires">Expires in</p>
+              <p class="countdown">23:47:12</p>
+            </div>
+
+            <div>
+              <p class="meta" style="margin:0 0 var(--space-2)" data-t="emergency.qr.ttl">Time-to-live</p>
+              <div class="chip-row" style="justify-content:center">
+                <button class="chip">1h</button>
+                <button class="chip">6h</button>
+                <button class="chip chip--selected">24h</button>
+                <button class="chip">7d</button>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn--secondary" data-t="emergency.qr.regen">Regenerate</button>
+              <button class="btn btn--danger" data-t="emergency.qr.revoke">Revoke</button>
+            </div>
+
+            <p class="meta" style="font-size:var(--fs-xs)" data-t="emergency.qr.hint">QR re-generates if your card changes</p>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: emergency-public (WEB FRAME)
+             ==================================================== -->
+        <section class="screen" data-screen="emergency-public" data-frame="web">
+          <header class="web-header">
+            <div class="web-header__brand">
+              <span class="web-header__mark"></span>
+              <span>Balsm <span class="muted" style="font-weight:500">Emergency</span></span>
+            </div>
+            <span class="web-header__locale">English ▾</span>
+          </header>
+          <div class="content content--gap" style="padding:var(--space-6) var(--space-5)">
+            <div class="banner banner--danger" style="margin-bottom:var(--space-2)">
+              <span class="banner__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              </span>
+              <div class="banner__body">
+                <div class="banner__title">Emergency medical card</div>
+                <span>Issued by Balsm Health · Valid until 16 June 2026, 09:41</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2 style="margin:0 0 var(--space-2); font-family:var(--font-display); font-size:var(--fs-2xl); font-weight:700; color:var(--fg1)">Noor Hassan, 32</h2>
+              <p class="meta" style="margin:0 0 var(--space-4)">Egypt · Speaks العربية · English</p>
+
+              <div class="card__row" style="padding:var(--space-3) 0; border:0; border-top:1px solid var(--balsm-border)">
+                <span class="card__row-label">Blood type</span>
+                <span class="card__row-value" style="color:var(--balsm-danger); font-size:var(--fs-2xl)">O+</span>
+              </div>
+              <div class="card__row" style="padding:var(--space-3) 0">
+                <span class="card__row-label">Allergies</span>
+                <div style="text-align:end">
+                  <div style="font-weight:600; color:var(--balsm-danger)">Penicillin (severe)</div>
+                  <div style="color:var(--fg2); font-size:var(--fs-sm)">Peanuts (moderate)</div>
+                </div>
+              </div>
+              <div class="card__row" style="padding:var(--space-3) 0">
+                <span class="card__row-label">Chronic conditions</span>
+                <span class="card__row-value">Type 2 Diabetes</span>
+              </div>
+              <div class="card__row" style="padding:var(--space-3) 0">
+                <span class="card__row-label">Current medications</span>
+                <span class="card__row-value">Glipizide 5mg (morning + evening)</span>
+              </div>
+            </div>
+
+            <a class="btn btn--primary btn--lg" href="tel:+201005550142" style="text-decoration:none">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>Call Hala (Mother)</span>
+              <span class="mono" style="margin-inline-start:auto; font-size:var(--fs-sm); opacity:0.85">+20 100 555 0142</span>
+            </a>
+
+            <p class="meta" style="text-align:center; font-size:var(--fs-xs)">This card was decrypted in your browser using the key from the QR. Balsm servers never saw the data.</p>
+          </div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: meds-list
+             ==================================================== -->
+        <section class="screen" data-screen="meds-list">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <span style="width:40px"></span>
+            <h1 class="appbar__title" data-t="meds.title">Medications</h1>
+            <button class="appbar__action" aria-label="Filter"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></button>
+          </header>
+          <div class="content content--gap" style="position:relative">
+
+            <div class="list-item">
+              <div class="list-item__icon list-item__icon--primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 4 14a4 4 0 0 1 0-6l1-1a4 4 0 0 1 6 0L19.5 14M14 5l5 5M10 9l5 5"/></svg>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title">Glipizide 5mg</div>
+                <div class="list-item__meta" data-t="meds.daily">Daily · 08:00, 20:00</div>
+              </div>
+              <span class="chip chip--success" style="min-height:auto; padding:4px 10px; font-size:var(--fs-xs)" data-t="meds.taken">On track</span>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item__icon list-item__icon--violet">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 4 14a4 4 0 0 1 0-6l1-1a4 4 0 0 1 6 0L19.5 14M14 5l5 5M10 9l5 5"/></svg>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title">Tramadol 50mg <span class="chip chip--controlled" style="min-height:auto; padding:2px 8px; font-size:11px; margin-inline-start:6px" data-t="meds.controlled">Controlled</span></div>
+                <div class="list-item__meta" data-t="meds.as-needed">As needed · max 4 / day</div>
+              </div>
+              <span class="list-item__chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item__icon list-item__icon--success">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 4 14a4 4 0 0 1 0-6l1-1a4 4 0 0 1 6 0L19.5 14M14 5l5 5M10 9l5 5"/></svg>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title">Atorvastatin 20mg</div>
+                <div class="list-item__meta" data-t="meds.weekly">Sun, Wed, Fri · 22:00</div>
+              </div>
+              <span class="list-item__chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+            </div>
+
+            <div class="banner banner--info">
+              <span class="banner__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+              <div class="banner__body" data-t="meds.privacy">Medications + dose history live only on this phone.</div>
+            </div>
+
+            <button class="fab" aria-label="Add medication">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+
+          <nav class="bottom-nav">
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.home">Home</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.card">Card</span>
+            </button>
+            <button class="bottom-nav__item bottom-nav__item--active">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 20.5 4 14a4 4 0 0 1 0-6l1-1a4 4 0 0 1 6 0L19.5 14M14 5l5 5M10 9l5 5"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.meds">Meds</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.sessions">Devices</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.settings">Settings</span>
+            </button>
+          </nav>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: meds-add
+             ==================================================== -->
+        <section class="screen" data-screen="meds-add">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Cancel"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+            <h1 class="appbar__title" data-t="meds.add.title">Add medication</h1>
+            <button class="appbar__action"><span style="color:var(--balsm-primary); font-weight:600; font-size:var(--fs-md)" data-t="profile.save">Save</span></button>
+          </header>
+          <div class="content content--gap">
+            <div class="field">
+              <label class="field__label field__label--required" data-t="meds.add.name">Medication name</label>
+              <input class="field__input" placeholder="e.g. Metformin">
+              <span class="field__help" data-t="meds.add.name.help">Brand or generic — we don't tell anyone.</span>
+            </div>
+
+            <div class="row" style="gap:var(--space-3)">
+              <div class="field flex-1">
+                <label class="field__label" data-t="meds.add.dose">Dose</label>
+                <input class="field__input" placeholder="500" inputmode="numeric" style="direction:ltr">
+              </div>
+              <div class="field flex-1">
+                <label class="field__label" data-t="meds.add.unit">Unit</label>
+                <input class="field__input" value="mg" style="direction:ltr">
+              </div>
+            </div>
+
+            <div>
+              <label class="field__label" data-t="meds.add.shape">Schedule</label>
+              <div class="chip-row" style="margin-top:var(--space-2)">
+                <button class="chip chip--selected" data-t="meds.add.shape.daily">Daily</button>
+                <button class="chip" data-t="meds.add.shape.weekly">Weekly</button>
+                <button class="chip" data-t="meds.add.shape.custom">Custom</button>
+                <button class="chip" data-t="meds.add.shape.asneeded">As needed</button>
+              </div>
+            </div>
+
+            <div>
+              <label class="field__label" data-t="meds.add.days">Days</label>
+              <div class="schedule-grid" style="margin-top:var(--space-2)">
+                <div class="schedule-grid__day schedule-grid__day--on" data-t-short="dow.sat">S</div>
+                <div class="schedule-grid__day schedule-grid__day--on" data-t-short="dow.sun">S</div>
+                <div class="schedule-grid__day schedule-grid__day--on" data-t-short="dow.mon">M</div>
+                <div class="schedule-grid__day schedule-grid__day--on" data-t-short="dow.tue">T</div>
+                <div class="schedule-grid__day schedule-grid__day--on" data-t-short="dow.wed">W</div>
+                <div class="schedule-grid__day schedule-grid__day--on" data-t-short="dow.thu">T</div>
+                <div class="schedule-grid__day schedule-grid__day--on" data-t-short="dow.fri">F</div>
+              </div>
+            </div>
+
+            <div>
+              <label class="field__label" data-t="meds.add.times">Times</label>
+              <div class="col" style="margin-top:var(--space-2)">
+                <div class="list-item" style="border:0; background:var(--balsm-surface-muted)">
+                  <div class="list-item__icon list-item__icon--primary" style="width:36px; height:36px">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  </div>
+                  <div class="list-item__body">
+                    <div class="list-item__title mono" style="direction:ltr">08:00</div>
+                  </div>
+                  <button class="appbar__action" aria-label="Remove">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+                <div class="list-item" style="border:0; background:var(--balsm-surface-muted)">
+                  <div class="list-item__icon list-item__icon--primary" style="width:36px; height:36px">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  </div>
+                  <div class="list-item__body">
+                    <div class="list-item__title mono" style="direction:ltr">20:00</div>
+                  </div>
+                  <button class="appbar__action" aria-label="Remove">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+                <button class="btn btn--ghost" data-t="meds.add.time.add">+ Add time</button>
+              </div>
+            </div>
+
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: meds-today
+             ==================================================== -->
+        <section class="screen" data-screen="meds-today">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar" style="border-bottom:0">
+            <span style="width:40px"></span>
+            <h1 class="appbar__title" data-t="today.title">Today</h1>
+            <button class="appbar__action" aria-label="Calendar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
+          </header>
+          <div class="content content--gap">
+            <p class="meta" style="margin:0" data-t="today.subtitle">Sunday · 16 June 2026</p>
+
+            <div class="banner banner--warning">
+              <span class="banner__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></span>
+              <div class="banner__body">
+                <div class="banner__title" data-t="today.tz.title">Did you travel?</div>
+                <span data-t="today.tz.body">We noticed a timezone shift. Tap to confirm reminder times.</span>
+              </div>
+            </div>
+
+            <div class="section-header"><h3 data-t="today.upcoming">Upcoming</h3></div>
+
+            <div class="list-item">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:2px; min-width:48px">
+                <span class="mono" style="font-size:var(--fs-md); font-weight:700; color:var(--fg1); direction:ltr">14:00</span>
+                <span class="meta" style="font-size:11px" data-t="today.in.3h">in 3h</span>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title">Glipizide 5mg</div>
+                <div class="list-item__meta">2 tablets</div>
+              </div>
+              <button class="btn btn--secondary btn--sm" style="width:auto" data-t="today.taken">Taken</button>
+            </div>
+
+            <div class="list-item">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:2px; min-width:48px">
+                <span class="mono" style="font-size:var(--fs-md); font-weight:700; color:var(--fg1); direction:ltr">20:00</span>
+                <span class="meta" style="font-size:11px" data-t="today.in.9h">in 9h</span>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title">Glipizide 5mg</div>
+                <div class="list-item__meta">2 tablets</div>
+              </div>
+              <button class="btn btn--ghost btn--sm" style="width:auto" data-t="today.snooze">Snooze</button>
+            </div>
+
+            <div class="section-header"><h3 data-t="today.taken.heading">Earlier</h3></div>
+
+            <div class="list-item" style="opacity:0.7">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:2px; min-width:48px">
+                <span class="mono" style="font-size:var(--fs-md); font-weight:700; color:var(--fg3); direction:ltr; text-decoration:line-through">08:00</span>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title">Glipizide 5mg</div>
+                <div class="list-item__meta success-text">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-2px"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span data-t="today.taken.at">Taken at 08:14</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <nav class="bottom-nav">
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.home">Home</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.card">Card</span>
+            </button>
+            <button class="bottom-nav__item bottom-nav__item--active">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 20.5 4 14a4 4 0 0 1 0-6l1-1a4 4 0 0 1 6 0L19.5 14M14 5l5 5M10 9l5 5"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.meds">Meds</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.sessions">Devices</span>
+            </button>
+            <button class="bottom-nav__item">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+              <span class="bottom-nav__item-label" data-t="nav.settings">Settings</span>
+            </button>
+          </nav>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: deletion-preconfirm
+             ==================================================== -->
+        <section class="screen" data-screen="deletion-preconfirm">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <h1 class="appbar__title" data-t="delete.title">Delete account</h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="content content--gap">
+            <h2 class="title" style="font-size:var(--fs-2xl)" data-t="delete.h">Before you go — here's exactly what happens</h2>
+
+            <div class="card card--danger">
+              <h3 class="card__title" style="color:var(--balsm-danger)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                <span data-t="delete.deleted">Deleted now</span>
+              </h3>
+              <ul class="proto-notes__rules" style="margin:0">
+                <li data-t="delete.deleted.1">All cloud-side records: email, country, language, encrypted DOB, sessions, audit log</li>
+                <li data-t="delete.deleted.2">Any active emergency QR — revoked immediately</li>
+                <li data-t="delete.deleted.3">Apple/Google federated link revoked</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h3 class="card__title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span data-t="delete.wiped">Wiped from this phone</span>
+              </h3>
+              <ul class="proto-notes__rules" style="margin:0">
+                <li data-t="delete.wiped.1">Your health profile (allergies, conditions, contacts)</li>
+                <li data-t="delete.wiped.2">All medications + dose history</li>
+                <li data-t="delete.wiped.3">Local emergency card snapshot</li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h3 class="card__title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="10"/></svg>
+                <span data-t="delete.retained">Retained for 2 years</span>
+              </h3>
+              <ul class="proto-notes__rules" style="margin:0">
+                <li data-t="delete.retained.1">An anonymous deletion log (no name, no email) — required by regulators</li>
+              </ul>
+            </div>
+
+            <div class="banner banner--info">
+              <span class="banner__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></span>
+              <div class="banner__body">
+                <div class="banner__title" data-t="delete.grace.title">7 days to change your mind</div>
+                <span data-t="delete.grace.body">Sign back in within 7 days to cancel deletion.</span>
+              </div>
+            </div>
+          </div>
+          <div class="cta-bar">
+            <div class="btn-row">
+              <button class="btn btn--ghost flex-1" data-t="cta.cancel">Cancel</button>
+              <button class="btn btn--danger flex-1" data-t="delete.cta">Delete account</button>
+            </div>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: deletion-confirm
+             ==================================================== -->
+        <section class="screen" data-screen="deletion-confirm">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <h1 class="appbar__title" data-t="delete.confirm.title">Confirm deletion</h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="content content--gap">
+            <p class="subtitle" data-t="delete.confirm.body">For your safety, sign in again and type DELETE below.</p>
+
+            <div class="field">
+              <label class="field__label" data-t="auth.email.label">Email</label>
+              <input class="field__input" value="noor@example.com" style="direction:ltr" readonly>
+            </div>
+
+            <div class="field">
+              <label class="field__label field__label--required" data-t="delete.confirm.code">6-digit code from your inbox</label>
+              <div class="otp">
+                <div class="otp__cell otp__cell--filled">6</div>
+                <div class="otp__cell otp__cell--filled">2</div>
+                <div class="otp__cell otp__cell--filled">0</div>
+                <div class="otp__cell otp__cell--filled">3</div>
+                <div class="otp__cell otp__cell--filled">8</div>
+                <div class="otp__cell otp__cell--filled">9</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label field__label--required" data-t="delete.confirm.type">Type DELETE to confirm</label>
+              <input class="field__input" placeholder="DELETE" style="direction:ltr" value="DELETE">
+              <span class="field__help" data-t="delete.confirm.help">Case-sensitive. We're being careful on purpose.</span>
+            </div>
+          </div>
+          <div class="cta-bar">
+            <button class="btn btn--danger btn--lg" data-t="delete.confirm.cta">Permanently delete my account</button>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: deletion-public (WEB FRAME)
+             ==================================================== -->
+        <section class="screen" data-screen="deletion-public" data-frame="web">
+          <header class="web-header">
+            <div class="web-header__brand">
+              <span class="web-header__mark"></span>
+              <span>Balsm <span class="muted" style="font-weight:500">Account</span></span>
+            </div>
+            <span class="web-header__locale">English ▾</span>
+          </header>
+          <div class="content content--gap" style="padding:var(--space-6) var(--space-5)">
+            <h2 class="title" style="font-size:var(--fs-2xl)" data-t="delete.public.title">Delete your Balsm account</h2>
+            <p class="subtitle" data-t="delete.public.body">No app required. Sign in below to start deletion.</p>
+
+            <div class="field">
+              <label class="field__label" data-t="auth.email.label">Email</label>
+              <input class="field__input" type="email" placeholder="you@example.com" style="direction:ltr">
+            </div>
+
+            <div class="row" style="gap:var(--space-3); align-items:center;">
+              <span style="flex:1; height:1px; background:var(--balsm-border)"></span>
+              <span class="muted" style="font-size:var(--fs-xs)" data-t="auth.or">or continue with</span>
+              <span style="flex:1; height:1px; background:var(--balsm-border)"></span>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn--secondary">Google</button>
+              <button class="btn btn--secondary">Apple</button>
+            </div>
+
+            <button class="btn btn--primary btn--lg" data-t="cta.send-code">Send code</button>
+
+            <p class="meta" style="text-align:center; font-size:var(--fs-xs)" data-t="delete.public.foot">After sign-in we'll show exactly what's deleted, retained, and wiped — same as the in-app flow.</p>
+          </div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: sessions-list
+             ==================================================== -->
+        <section class="screen" data-screen="sessions-list">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <h1 class="appbar__title" data-t="sessions.title">Active devices</h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="content content--gap">
+            <div class="list-item">
+              <div class="list-item__icon list-item__icon--primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title">iPhone 15 Pro · this device</div>
+                <div class="list-item__meta success-text" data-t="sessions.now">Active now · Cairo</div>
+              </div>
+              <span class="chip chip--success" style="min-height:auto; padding:4px 8px; font-size:11px" data-t="sessions.you">You</span>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title">MacBook Air</div>
+                <div class="list-item__meta">Last seen 2 days ago · Cairo</div>
+              </div>
+              <button class="btn btn--ghost btn--sm" style="width:auto; color:var(--balsm-danger)" data-t="sessions.revoke">Revoke</button>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+              </div>
+              <div class="list-item__body">
+                <div class="list-item__title">Pixel 8</div>
+                <div class="list-item__meta">Last seen 12 days ago · Jeddah</div>
+              </div>
+              <button class="btn btn--ghost btn--sm" style="width:auto; color:var(--balsm-danger)" data-t="sessions.revoke">Revoke</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <button class="btn btn--danger" data-t="sessions.everywhere">Sign out everywhere except this device</button>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: account-language
+             ==================================================== -->
+        <section class="screen" data-screen="account-language">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar">
+            <button class="appbar__back" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="appbar__back-icon"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <h1 class="appbar__title" data-t="language.title">Language</h1>
+            <span style="width:40px"></span>
+          </header>
+          <div class="content content--gap">
+            <p class="subtitle" data-t="language.body">Pick how Balsm talks to you. Switching language updates the whole app instantly.</p>
+
+            <div class="col">
+              <button class="list-item" style="width:100%">
+                <div class="list-item__icon list-item__icon--primary">
+                  <span style="font-family:var(--font-display); font-weight:700; font-size:14px">EN</span>
+                </div>
+                <div class="list-item__body" style="text-align:start">
+                  <div class="list-item__title">English</div>
+                  <div class="list-item__meta">Default</div>
+                </div>
+                <span class="chip chip--success" style="min-height:auto; padding:4px 8px; font-size:11px">✓</span>
+              </button>
+
+              <button class="list-item" style="width:100%">
+                <div class="list-item__icon">
+                  <span style="font-family:var(--font-arabic); font-weight:700; font-size:14px; direction:rtl">EG</span>
+                </div>
+                <div class="list-item__body" style="text-align:start">
+                  <div class="list-item__title" style="font-family:var(--font-arabic)">العربية — مصر</div>
+                  <div class="list-item__meta">Egyptian Arabic · RTL</div>
+                </div>
+              </button>
+
+              <button class="list-item" style="width:100%">
+                <div class="list-item__icon">
+                  <span style="font-family:var(--font-arabic); font-weight:700; font-size:14px; direction:rtl">SA</span>
+                </div>
+                <div class="list-item__body" style="text-align:start">
+                  <div class="list-item__title" style="font-family:var(--font-arabic)">العربية — السعودية</div>
+                  <div class="list-item__meta">Saudi Arabic · RTL</div>
+                </div>
+              </button>
+
+              <button class="list-item" style="width:100%">
+                <div class="list-item__icon">
+                  <span style="font-family:var(--font-arabic); font-weight:700; font-size:14px; direction:rtl">AE</span>
+                </div>
+                <div class="list-item__body" style="text-align:start">
+                  <div class="list-item__title" style="font-family:var(--font-arabic)">العربية — الإمارات</div>
+                  <div class="list-item__meta">Emirati Arabic · RTL</div>
+                </div>
+              </button>
+            </div>
+
+            <div class="banner banner--info">
+              <span class="banner__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></span>
+              <div class="banner__body" data-t="language.numerals">Numbers can use Western (0-9) or Arabic-Indic (٠-٩). Pick in profile → display.</div>
+            </div>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+        <!-- ====================================================
+             SCREEN: not-found
+             ==================================================== -->
+        <section class="screen" data-screen="not-found">
+          <div class="device__status-bar"><span>9:41</span><span>87%</span></div>
+          <header class="appbar"><span style="width:40px"></span><h1 class="appbar__title"></h1><span style="width:40px"></span></header>
+          <div class="center-state">
+            <div style="font-family:var(--font-display); font-size:88px; font-weight:800; line-height:1; color:var(--fg4)">404</div>
+            <div>
+              <h2 class="title" data-t="404.title">We lost this page</h2>
+              <p class="subtitle" data-t="404.body">It may have moved, or never existed. Let's get you home.</p>
+            </div>
+            <button class="btn btn--primary" style="width:auto; padding:0 var(--space-8)" data-t="404.cta">Take me home</button>
+          </div>
+          <div class="device__home-indicator"></div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Right notes -->
+  <aside class="proto-notes" aria-label="Screen notes">
+    <p class="proto-notes__id">SCREEN · <span id="notes-id">auth-country</span></p>
+    <h3 id="notes-title">Country picker</h3>
+    <dl>
+      <div class="proto-notes__row"><dt>User story</dt><dd id="notes-us">US1</dd></div>
+      <div class="proto-notes__row"><dt>FR</dt><dd id="notes-fr">FR-201, FR-218, FR-300</dd></div>
+      <div class="proto-notes__row"><dt>SC</dt><dd id="notes-sc">SC-001a</dd></div>
+      <div class="proto-notes__row"><dt>Layout</dt><dd>List w/ sticky search + flag chips</dd></div>
+      <div class="proto-notes__row"><dt>A11y</dt><dd>Search announced, country select announces locale</dd></div>
+      <div class="proto-notes__row"><dt>RTL</dt><dd>List mirrors; flag stays LTR; phone code mono LTR</dd></div>
+    </dl>
+    <ul class="proto-notes__rules" id="notes-rules">
+      <li>Blocked countries shown disabled, not hidden</li>
+      <li>Country search debounced 200ms</li>
+      <li>Auto-suggest based on device locale</li>
+      <li>Confirm before triggering geofence check</li>
+    </ul>
+  </aside>
+</div>
+
+<script src="scripts/prototype.js"></script>
+</body>
+</html>

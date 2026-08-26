@@ -14,15 +14,29 @@ This directory contains architectural documentation, design decisions, and strat
 
 ### Strategic Design
 
+#### [domain-map.md](./domain-map.md)
+**Problem-Space Decomposition — Domain, Areas, Subdomains**
+
+The business problems Balsm solves, independent of software: domain vision statement, 5 narrative domain areas, 17 subdomains (3 Core / 12 Supporting / 2 Generic), subdomain → bounded-context mapping, evolution triggers.
+
+---
+
+#### [bounded-contexts/](./bounded-contexts/README.md)
+**Canonical Context Map & Per-Context Canvases**
+
+The authoritative decomposition (constitution v1.8.0): 20 canonical bounded contexts (+2 provisional) across three data-ownership planes (ADR-10). Context map with relationship patterns, one canvas per context, module → context and phase → context mappings.
+
+---
+
 #### [subdomain-classification.md](./subdomain-classification.md)
 **Domain-Driven Design Subdomain Analysis**
 
-Comprehensive classification of Balsm's 13 bounded contexts into:
-- **Core Domains** (4): Clinical Records, Prescriptions, Charitable Donations, Marketplace
-- **Supporting Subdomains** (6): Appointment, Labs, Radiology, Pharmacy, Billing & Finance, Entity Management
-- **Generic Subdomains** (3): Identity & Access, Inventory, Messaging & Notifications
+Classification of the 20 canonical bounded contexts into:
+- **Core Domains** (3): Personal Health, Clinical Records, Prescriptions
+- **Supporting Subdomains** (14): Provider Directory, Entity Management, Inventory, Point of Sale, Customer Relations, Appointment, Pharmacy, Billing & Finance, Labs, Radiology, Care Delivery, Charitable Donations, Balsm Network, Marketplace
+- **Generic Subdomains** (3): Identity & Access, Messaging & Notifications, Platform Access
 
-Includes investment strategies, team allocation recommendations, and architectural implications for each subdomain type.
+Includes investment strategies and architectural implications for each subdomain type.
 
 ---
 
@@ -57,10 +71,28 @@ Covers:
 
 ### Routing & URL Design
 
+#### [routing-best-practices.md](./routing-best-practices.md) ★
+**Cross-Cutting Routing Standards & Conventions**
+
+Comprehensive routing standards that apply across all API, website, and portal routes:
+- Idempotency patterns for safe retries (Idempotency-Key header)
+- ETag-based caching and optimistic concurrency (If-Match, If-None-Match)
+- Bulk operations through batch endpoints
+- API deprecation lifecycle (Sunset headers, migration policy)
+- Request tracing with correlation IDs
+- CORS configuration per environment
+- Standardized query parameter conventions (pagination, sorting, filtering, fields)
+- HTTP status code quick reference
+- Response envelope format (success + error)
+
+The companion reference for all other routing documents in this directory.
+
+---
+
 #### [api-routing-strategy.md](./api-routing-strategy.md)
 **API Endpoint Routing by Bounded Context**
 
-Complete REST API routing specification organized by all 13 bounded contexts:
+Complete REST API routing specification organized by bounded context (⚠ predates the v1.8.0 20-context amendment — routes for the seven new contexts pending):
 - URL structure and versioning strategy (`/v1/{context}/{resource}`)
 - Detailed endpoint listings for each subdomain (Core, Supporting, Generic)
 - HTTP methods, status codes, and response formats
@@ -236,7 +268,7 @@ Enables users to shape the product through feedback, vote on features, report is
 - No cross-module direct dependencies
 
 ### 2. Domain-Driven Design
-- 13 bounded contexts aligned with business domains
+- 20 canonical bounded contexts (+2 provisional) aligned with business domains across three data-ownership planes (see [bounded-contexts/](./bounded-contexts/README.md))
 - Ubiquitous language shared between technical and domain experts
 - Anti-corruption layers for external integrations
 
@@ -256,6 +288,18 @@ Enables users to shape the product through feedback, vote on features, report is
 - Field-level encryption for sensitive data
 - Immutable audit trails
 - Never log PHI
+
+### 6. Routing Principles
+- **Resource-oriented URLs**: Nouns for resources, HTTP verbs for actions
+- **Versioned APIs**: `/v1/` prefix for all API versions, n-1 support for 12 months
+- **Idempotent mutations**: Idempotency-Key header for retry-safe operations
+- **Optimistic concurrency**: ETag/If-Match for conflict detection
+- **Conditional responses**: ETag/If-None-Match for bandwidth efficiency
+- **Traceable requests**: Correlation IDs across all services
+- **Consistent pagination**: Page-based (default) + cursor-based (high-volume) with standardized parameters
+- **Self-describing responses**: Links (HATEOAS-style) and metadata in all responses
+- **Graceful deprecation**: Sunset headers with 12-month migration window
+- **API-first**: All portal features have corresponding API endpoints
 
 ---
 
@@ -289,6 +333,18 @@ Enables users to shape the product through feedback, vote on features, report is
 | **Optimistic Concurrency** | Concurrent edits | Version tokens, conflict detection |
 | **Event Sourcing** | Full audit trail | Clinical Records (for Entry timeline) |
 | **Cache-Aside** | Performance optimization | Prescription drug database, Appointment slots |
+
+### Routing Patterns
+
+| Pattern | When to Use | Specification |
+|---------|-------------|---------------|
+| **Idempotency Key** | Retry-safe mutations (payments, prescriptions) | `Idempotency-Key` header, 24h dedup window |
+| **ETag Concurrency** | Collaborative editing, conflict prevention | `ETag` → `If-Match` → `412 Precondition Failed` |
+| **Cursor Pagination** | High-volume lists (entries, notifications) | Base64-encoded cursor, `?cursor=` + `?limit=` |
+| **Sunset Deprecation** | API version retirement | `Deprecation` + `Sunset` headers, 12-month migration |
+| **Correlation Tracing** | Debugging across services | `X-Request-ID` + `X-Correlation-ID` in all logs |
+| **Batch Processing** | Bulk mutations | `POST /v1/batch` with ordered operations array |
+| **Sparse Fieldsets** | Bandwidth-sensitive clients | `?fields=id,firstName` for partial responses |
 
 ---
 
@@ -414,6 +470,7 @@ Events that require architectural review:
 - [CODING_STANDARDS.md](../agents/rules/CODING_STANDARDS.md) — Technical patterns
 - [BUSINESS_FEATURES.md](../BUSINESS_FEATURES.md) — Feature specifications
 - [NON_FUNCTIONAL_REQUIREMENTS.md](../NON_FUNCTIONAL_REQUIREMENTS.md) — Performance, scalability, compliance
+- [routing-best-practices.md](./routing-best-practices.md) — Cross-cutting routing standards
 
 ### External Resources
 - Eric Evans, *Domain-Driven Design* (2003)

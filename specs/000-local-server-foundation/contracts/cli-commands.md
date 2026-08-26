@@ -1,10 +1,12 @@
 # Contract: `balsm` CLI (Phase 0 surface)
 
+**Routing conventions**: The HTTP endpoints this CLI calls follow [`architecture/routing-best-practices.md`](../../architecture/routing-best-practices.md) — all responses include `X-Request-ID` for tracing, use the standard response envelope, and return status codes consistent with the routing conventions.
+
 The `balsm` CLI ships in the same self-contained installer as the single Standalone process (`Balsm.API` with `Balsm.Supervisor` loaded as a library). It is the **secondary** management surface (admin panel is primary). All write commands MUST emit an audit log entry (FR-016) with `actor = cli:<command-name>`.
 
 The CLI is implemented as a thin command-router that:
 
-1. For read-only commands (`status`, `version`, `backup list`, `audit tail`): calls the local HTTP surface on loopback HTTPS `:5051` using a short-lived local-OS-identity token (no admin password required; loopback identity is verified by the new `LocalOsTrustMiddleware` which trusts requests carrying an `X-Balsm-Local-Token` header whose value matches a file under `<install-dir>/var/local-cli.token` readable only by `root` / `Administrators`).
+1. For read-only commands (`status`, `version`, `backup list`, `audit tail`): calls the local HTTP surface on loopback HTTPS `:5051` using a short-lived local-OS-identity token (no admin password required; loopback identity is verified by the new `LocalOsTrustMiddleware`). `LocalOsTrustMiddleware` MUST: (a) require `Connection.RemoteIpAddress.IsLoopback` — the header is ignored otherwise; (b) constant-time compare (`CryptographicOperations.FixedTimeEquals`) the `X-Balsm-Local-Token` value against the file under `<install-dir>/var/local-cli.token` (readable only by `root` / `Administrators`); (c) grant ONLY the read-only routes in the table below — never restore, mode switch, or password flows (those go through the in-process OS-privilege path, not header trust); (d) reject the header outright when the request also carries `CF-Connecting-IP` / `X-Forwarded-*` (i.e. arrived via the Public-mode tunnel, where "loopback" is no longer a trust signal). The token is rotated by `LocalCliTokenService` every 24 h, not only at process start.
 2. For write commands (`backup`, `db restore`, `admin reset-password`, `mode`, `audit export`): performs the OS effective-UID check (`geteuid() == 0` on Unix / `IsUserAnAdmin()` on Windows) and then either calls the same loopback endpoint OR invokes the relevant service in-process via the SDK (`AdminAuthService.ChangePasswordAsync` is direct in-process to avoid surfacing the new password to a HTTP request log).
 
 All commands return exit code `0` on success, `>0` on failure, with structured JSON to stdout on `--json`.

@@ -1,0 +1,75 @@
+{
+  "$schema": "./crash-allowlist.schema.json",
+  "purpose": "FR-043 + SC-006 + SC-016 — Sentry beforeSend allowlist. Every field NOT in this list is replaced with the literal \"[redacted]\" before transport. CI fuzz corpus exercises ≥50 synthetic PHI payloads and asserts the wire body contains zero non-allowlisted field names AND that no denylist_regex_against_exception_value pattern survives inside the exception 'value' free-text field (assert on VALUE content, not only field names).",
+  "url_handling": "Every captured URL (event 'transaction', 'request.url', breadcrumb 'data.url', navigation breadcrumbs) MUST be reduced to a parameterized route template with the fragment stripped: '/emergency/:token' and '/account/...' — never a concrete URL. The emergency-QR AES key lives in the URL fragment (#k=...), so an un-stripped href would leak the decryption key to Sentry. beforeSend + beforeBreadcrumb strip '#...' and tokenized path segments from all URLs.",
+  "top_level_keys": [
+    "event_id",
+    "timestamp",
+    "platform",
+    "sdk",
+    "release",
+    "environment",
+    "level",
+    "logger",
+    "transaction"
+  ],
+  "tags_keys": [
+    "app_version",
+    "os_version",
+    "device_model",
+    "locale",
+    "anon_session_id",
+    "country_code",
+    "preferred_language"
+  ],
+  "exception_value_keys": [
+    "type",
+    "value",
+    "stacktrace"
+  ],
+  "stack_frame_keys": [
+    "abs_path",
+    "function",
+    "lineno",
+    "colno",
+    "in_app",
+    "module"
+  ],
+  "breadcrumb_keys": [
+    "timestamp",
+    "category",
+    "level",
+    "type"
+  ],
+  "_denylist_note": "Digit classes MUST match Eastern-Arabic-Indic (٠-٩ U+0660..0669) and Extended-Arabic-Indic (۰-۹ U+06F0..06F9) as well as ASCII, because FR-213/SC-209 accept those at input; date patterns MUST cover the DD/MM/YYYY UI mask as well as ISO; clinical keyword classes MUST include Arabic terms because the app is Arabic-first.",
+  "denylist_regex_against_exception_value": [
+    "[0-9٠-٩۰-۹]{11}",
+    "[0-9٠-٩۰-۹]{14}",
+    "\\+20[0-9٠-٩۰-۹]{10}",
+    "\\+966[0-9٠-٩۰-۹]{9}",
+    "\\+971[0-9٠-٩۰-۹]{9}",
+    "[0-9٠-٩۰-۹]{4}-[0-9٠-٩۰-۹]{2}-[0-9٠-٩۰-۹]{2}",
+    "[0-9٠-٩۰-۹]{1,2}/[0-9٠-٩۰-۹]{1,2}/[0-9٠-٩۰-۹]{4}",
+    "(?i)allerg",
+    "(?i)diabetes|hypertension|asthma|cancer|epilepsy",
+    "(?i)dose|tablet|capsule|mg|ml",
+    "(?i)blood.{0,3}type",
+    "حساسية|سكري|ضغط الدم|ربو|صرع|سرطان",
+    "دواء|جرعة|قرص|كبسولة|فصيلة الدم|ملغ|مل"
+  ],
+  "ci_fuzz_corpus_minimum_payloads": 50,
+  "ci_fuzz_corpus_includes": [
+    "synthetic Egyptian names (Arabic + Latin transliterations)",
+    "synthetic Saudi + UAE names",
+    "synthetic +20 / +966 / +971 phone numbers",
+    "synthetic Egyptian 14-digit National IDs (deterministic non-real seeds)",
+    "synthetic KSA Luhn-valid 10-digit IDs",
+    "synthetic UAE Emirates IDs",
+    "synthetic ISO DOB strings",
+    "synthetic free-text allergy / condition / medication names in ar-EG + ar-SA + ar-AE + en",
+    "synthetic emergency-contact phones (international formats)"
+  ],
+  "vendor": "sentry_flutter ^9.0 on Flutter 3.41.9 / Dart 3.11 (self-hosted Sentry server, AGPL-compatible deployment per Constitution Principle XII)",
+  "applies_via": "Sentry beforeSend + beforeBreadcrumb hooks installed at app boot in lib/core/crash/sentry_init.dart",
+  "alarm_path": "Any non-allowlisted field observed on the wire fails the build via CI guard test test/phi_leak_fuzz_test/sentry_allowlist_test.dart"
+}

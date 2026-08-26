@@ -4,7 +4,7 @@
 
 The data model is split across two stores that already exist in `Balsm-API-DotNet`:
 
-1. **SQLite domain database** (`balsm.db`) accessed via per-module EF Core DbContexts (`EntityDbContext`, `IdentityDbContext`, plus the new schemas owned by `Balsm.Infrastructure.{Audit, Backup, Lifecycle}`). All domain aggregates derive from `Balsm.SharedKernel.Domain.AggregateRoot`, which itself derives from `BaseEntity`. `BaseEntity` (existing, do not edit unless noted) defines:
+1. **SQLite domain database** (`balsm.db`) accessed via per-module EF Core DbContexts (`EntityDbContext`, `IdentityDbContext`, plus the new schemas owned by `Balsm.Infrastructure.{Audit, Backup, Lifecycle, Operations}` — `Operations` (EF schema `ops`) holds local-server operational state and is deliberately not named "Platform", which canonically denotes the Platform *plane* per `architecture/bounded-contexts/README.md`). All domain aggregates derive from `Balsm.SharedKernel.Domain.AggregateRoot`, which itself derives from `BaseEntity`. `BaseEntity` (existing, do not edit unless noted) defines:
    - `Guid Id` (primary key, generated client-side by default)
    - `DateTime CreatedAt`, `string? CreatedBy`
    - `DateTime? UpdatedAt`, `string? UpdatedBy`
@@ -98,7 +98,7 @@ Non-secret projection of `FileCredentialStore` data. Lives in `Modules/Identity/
 | LastLoginAt         | `DateTime?` | |
 | PasswordChangedAt   | `DateTime`| Used for cross-session-revocation checks |
 
-EF Core filtered unique index: `IX_AdminUserMirror_Active_Single` on `Id` `HasFilter("\"IsDeleted\" = 0")` — caps active rows at 1 (FR-018). `AdminAuthService.SetupAsync` writes both the credential file AND the mirror in the same logical transaction (no DB transaction crosses the two stores; the mirror is the dependent and is retried on next login if the prior attempt failed).
+EF Core single-admin enforcement (FR-018): add a constant discriminator column `SingletonKey` (fixed value `"AdminUser"`) and a filtered unique index `IX_AdminUserMirror_Active_Single` on `SingletonKey` `HasFilter("\"IsDeleted\" = 0")` — this caps active rows at 1. (A filtered unique index on `Id` would be a no-op: `Id` is already the unique PK, so it constrains nothing and the DB would happily store N active mirrors — same pattern as the Workspace singleton in A.1.) `AdminAuthService.SetupAsync` writes both the credential file AND the mirror in the same logical transaction (no DB transaction crosses the two stores; the mirror is the dependent and is retried on next login if the prior attempt failed).
 
 ### A.6 `audit.AuditLog` *(FR-016 / FR-016a)*
 
@@ -110,7 +110,7 @@ Append-only. Inherits `BaseEntity` but the EF model is configured **not** to hon
 | Sequence       | `long`    | Monotonic auto-increment column (`HasAnnotation("Sqlite:Autoincrement", true)`) — used for ordering |
 | OccurredAt     | `DateTime`| UTC |
 | Actor          | `string`  | `admin:<guid>`, `system`, `cli:<command>` |
-| SourceIp       | `string?` | NULL for `system` / `cli` |
+| SourceIp       | `string?` | NULL for `system` / `cli`. MUST be the real client IP (via `ForwardedHeadersMiddleware` trusting only the tunnel hop in Public mode), never the loopback proxy address — otherwise all remote actors record as loopback and FR-016 attribution is lost. |
 | Module         | `string`  | `Entity`, `Branch`, `Identity`, `Backup`, `Audit`, `Lifecycle`, `Mode`, `Recovery`, `Auth` |
 | Action         | `string`  | `Created`, `Updated`, `SoftDeleted`, `Reactivated`, `BackupTaken`, `RestoreStarted`, `RestoreCompleted`, `RestoreFailed`, `ModeChanged`, `RecoveryUsed`, `LoginFailed`, `LoginSucceeded`, `LockoutTripped`, `RecoveryCodeGenerated` |
 | TargetType     | `string?` | `EntityRoot`, `Branch`, `Workspace`, `BackupFile`, etc. |
@@ -133,6 +133,8 @@ Inherits `BaseEntity`.
 | LatestRowAt     | `DateTime`|
 | Sha256          | `string`  |
 
+JSONL archives hold personal data (admin emails, source IPs) and are written to the `0700`/service-user-only backup directory. Disposal (PDPL storage-limitation): archives and their rows older than `audit_retention_years + 1` year are deleted by `AuditRetentionJob` (T133a) so exported data is not retained forever after leaving the live `AuditLog`.
+
 ### A.8 `backup.BackupFile` *(FR-011 / FR-011a / FR-011b)*
 
 Inherits `BaseEntity`.
@@ -148,6 +150,8 @@ Inherits `BaseEntity`.
 
 Index: `IX_BackupFile_CreatedAt (CreatedAt DESC)` for reverse-chronological listing (US4 AS#3).
 
+At-rest protection: backup files are AES-256-GCM-encrypted with the `backupKeyBase64` credential-store key (§B) and written as `.db.enc` (no plaintext `.db` copy left on disk); `RestoreOrchestrator` decrypts before the integrity check. The backup directory is `0700`/service-user-only. A deployment that opts out of encryption MUST document full-disk-encryption as a prerequisite. There is no backup **download** endpoint — the API lists metadata only.
+
 ### A.9 `lifecycle.MigrationState` *(FR-010 / FR-010a)*
 
 Inherits `BaseEntity`.
@@ -162,7 +166,7 @@ Inherits `BaseEntity`.
 
 Invariant: any row with `CompletedAt IS NULL AND FailedAt IS NULL` at startup is recovered before `ReadinessGate` flips to ready.
 
-### A.10 `platform.ServerConfig` *(FR-011a, FR-013, FR-016a, FR-017, FR-019, FR-003)*
+### A.10 `ops.ServerConfig` *(FR-011a, FR-013, FR-016a, FR-017, FR-019, FR-003)*
 
 Inherits `BaseEntity`.
 
@@ -189,25 +193,27 @@ Seeded defaults:
 | `locale_default`          | `en`           | FR-019 |
 | `tunnel_provider`         | (empty)        | FR-013 R4 |
 
-### A.11 `platform.LockoutRecord` *(FR-017 / R3 composite per-(email, IP))*
+### A.11 `identity.LockoutRecord` *(FR-017 / R3 composite per-(email, IP))*
 
-Sibling to the existing per-account `AdminCredentials.LockoutEnd`. Inherits `BaseEntity`.
+Sibling to the existing per-account `AdminCredentials.LockoutEnd`. Inherits `BaseEntity`. Lives in `Modules/Identity/Balsm.Identity.Domain/LockoutRecord.cs` and is mapped by `IdentityDbContext` — lockout is Identity & Access ubiquitous language (Constitution §II), so the Identity context owns this state, not shared infrastructure.
 
 | Property              | C# type | Notes |
 |-----------------------|---------|-------|
 | AdminEmail            | `string`| Composite key part 1 |
-| SourceIp              | `string`| Composite key part 2 |
+| SourceIp              | `string`| Composite key part 2. MUST be the real client IP (see A.6) — in Public mode all internet traffic shares the loopback proxy address unless `ForwardedHeadersMiddleware` is configured, which would collapse per-(email,IP) lockout to per-email and enable a one-attacker lockout DoS against the real admin. |
 | ConsecutiveFailures   | `int`   | reset on success |
 | LockedUntil           | `DateTime?` | UTC; NULL when not locked |
 | LastFailureAt         | `DateTime?` | |
 
 Index: `UX_Lockout_Email_Ip (AdminEmail, SourceIp) UNIQUE`.
 
+Retention (PDPL data-minimization): rows with `LastFailureAt` older than 30 days are pruned by `AuditRetentionJob` (T133a) — lockout state is transient and MUST NOT accumulate personal data (email + IP) indefinitely.
+
 ---
 
 ## B. File-store schema (`AdminCredentials` JSON)
 
-Path: managed by `Balsm.Supervisor.Configuration.SupervisorOptions.CredentialStorePath`. Existing field shape unchanged; **five new fields added additively**.
+Path: managed by `Balsm.Supervisor.Configuration.SupervisorOptions.CredentialStorePath`. Existing field shape unchanged; **six new fields added additively**. The file holds the password hash, salt, recovery-code hash, and backup key, so it MUST be written atomically (temp + rename) with mode `0600` service-user ownership on Unix / a SYSTEM+Administrators-only ACL on Windows; the mode/ACL is verified (and re-tightened) at startup (T043a).
 
 ```jsonc
 {
@@ -222,13 +228,15 @@ Path: managed by `Balsm.Supervisor.Configuration.SupervisorOptions.CredentialSto
   "recoveryCodeHash": "<argon2id-encoded>",       // NEW
   "recoveryCodeCreatedAt": "2026-05-30T10:00:00Z",// NEW
   "recoveryCodeUsedAt": null,                     // NEW
-  "recoveryCodeRetiredAt": null                   // NEW
+  "recoveryCodeRetiredAt": null,                  // NEW
+  "backupKeyBase64": "<base64 32-byte AES-256 key>" // NEW — encrypts backups at rest (A.8); generated on first run
 }
 ```
 
 Backwards-compat rules:
 - Missing `passwordHashAlgorithm` → treat as `pbkdf2`; trigger lazy migration on next successful login (R2).
 - Missing recovery-code fields → admin prompted to generate a code on next login (audit-logged `RecoveryCodeGenerated`).
+- Missing `backupKeyBase64` → generate a fresh 32-byte CSPRNG key on next backup and persist it; pre-existing plaintext backups stay readable (they were never encrypted) and are re-encrypted on the next scheduled run.
 
 ---
 
@@ -236,12 +244,12 @@ Backwards-compat rules:
 
 ```text
 workspace (1) ──< entity_root (N) ──< branch (N)
-workspace (1) ──< platform.server_config (key→value)
+workspace (1) ──< ops.server_config (key→value)
 identity.admin_user_mirror (1) ──< audit.audit_log (N, joined on actor = "admin:<id>")
 backup.backup_file (N)               (rows index disk files)
 audit.audit_log (N)  ──exported-to──> audit.audit_archive (N JSONL files)
 lifecycle.migration_state (N)        (history; recovery checked at startup)
-platform.lockout_record (N per (email, ip))
+identity.lockout_record (N per (email, ip))
 
 (file store)
 admin_credentials.json (1) ── canonical admin password + recovery-code material
@@ -256,7 +264,7 @@ admin_credentials.json (1) ── canonical admin password + recovery-code mater
 | Workspace singleton | FR-005 | `CreateWorkspaceCommandHandler` + DB check |
 | Soft-delete only on domain tables | FR-015 | `BaseDbContext` global query filter (existing) |
 | Audit on every write / auth state change | FR-016 | `AuditSaveChangesInterceptor` + `AdminAuthService` domain events |
-| Audit retention 2 years configurable | FR-016a | `AuditRetentionJob` reads `platform.server_config.audit_retention_years` |
+| Audit retention 2 years configurable | FR-016a | `AuditRetentionJob` reads `ops.server_config.audit_retention_years` |
 | Single admin | FR-018 | App-layer + filtered unique index on `AdminUserMirror` |
 | Argon2id password hash | FR-017 / R2 | `Argon2idHasher` + lazy migration |
 | 5-failure / 15-min lockout | FR-017 / Constitution §II / R3 | `AdminAuthService` (per-account, existing) + `RateLimitMiddleware` (per-(email,IP), new) |

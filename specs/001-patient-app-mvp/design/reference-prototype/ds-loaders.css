@@ -1,0 +1,164 @@
+/* ds-loaders.css — Balsm DS loading / progress / skeleton layer
+   Lifted verbatim from the design system (components.css §Progress…Overlay)
+   so the patient app uses the exact same classes & motion.            */
+
+/* ============================ PROGRESS (linear) ============================ */
+.b-progress { width: 100%; font-family: var(--font-body); }
+.b-progress__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.b-progress__label { font-size: 13px; font-weight: 600; color: var(--balsm-ink-800); line-height: 1.3; }
+.b-progress__value { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--fg3); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.b-progress__track { position: relative; width: 100%; height: 8px; background: var(--balsm-ink-100); border-radius: var(--radius-pill); overflow: hidden; }
+.b-progress--sm .b-progress__track { height: 5px; }
+.b-progress--lg .b-progress__track { height: 12px; }
+.b-progress__fill { position: absolute; inset: 0 auto 0 0; height: 100%; width: 0; border-radius: var(--radius-pill); background: var(--balsm-primary); transition: width var(--dur-slow, 320ms) cubic-bezier(.16,1,.3,1); }
+.b-progress--primary  .b-progress__fill { background: var(--balsm-primary); }
+.b-progress--accent   .b-progress__fill { background: var(--petal-aqua); }
+.b-progress--success  .b-progress__fill { background: var(--petal-mint); }
+.b-progress--warning  .b-progress__fill { background: var(--balsm-warning); }
+.b-progress--danger   .b-progress__fill { background: var(--balsm-danger); }
+.b-progress--violet   .b-progress__fill { background: var(--petal-violet); }
+.b-progress--brand    .b-progress__fill { background: var(--grad-petal); }
+.b-progress--accent   .b-progress__track { background: var(--petal-aqua-50); }
+.b-progress--success  .b-progress__track { background: var(--petal-mint-50); }
+.b-progress--violet   .b-progress__track { background: var(--petal-violet-50); }
+.b-progress--indeterminate .b-progress__fill { width: 40%; border-radius: var(--radius-pill); animation: b-prog-slide 1.5s cubic-bezier(.65,0,.35,1) infinite; }
+@keyframes b-prog-slide { 0% { left: -42%; right: 100%; } 60% { left: 100%; right: -42%; } 100% { left: 100%; right: -42%; } }
+[dir="rtl"] .b-progress--indeterminate .b-progress__fill { animation-name: b-prog-slide-rtl; }
+@keyframes b-prog-slide-rtl { 0% { right: -42%; left: 100%; } 60% { right: 100%; left: -42%; } 100% { right: 100%; left: -42%; } }
+.b-progress--striped .b-progress__fill::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(-45deg, rgba(255,255,255,.28) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.28) 50%, rgba(255,255,255,.28) 75%, transparent 75%, transparent); background-size: 18px 18px; animation: b-prog-stripe 0.7s linear infinite; }
+@keyframes b-prog-stripe { to { background-position: 18px 0; } }
+.b-progress--paused .b-progress__fill { background: var(--balsm-expiring); }
+.b-progress--paused .b-progress__fill::after { animation-play-state: paused; opacity: .5; }
+.b-progress--queued .b-progress__fill { background: var(--balsm-ink-300); }
+
+/* ============================ PROGRESS RING ============================ */
+.b-progress-ring { display: inline-flex; align-items: center; justify-content: center; position: relative; font-family: var(--font-body); line-height: 0; }
+.b-progress-ring svg { transform: rotate(-90deg); display: block; }
+.b-progress-ring__track { fill: none; stroke: var(--balsm-ink-100); }
+.b-progress-ring__fill { fill: none; stroke: var(--balsm-primary); stroke-linecap: round; transition: stroke-dashoffset var(--dur-slow, 320ms) cubic-bezier(.16,1,.3,1); }
+.b-progress-ring--accent  .b-progress-ring__fill { stroke: var(--petal-aqua); }
+.b-progress-ring--success .b-progress-ring__fill { stroke: var(--petal-mint); }
+.b-progress-ring--warning .b-progress-ring__fill { stroke: var(--balsm-warning); }
+.b-progress-ring--danger  .b-progress-ring__fill { stroke: var(--balsm-danger); }
+.b-progress-ring--violet  .b-progress-ring__fill { stroke: var(--petal-violet); }
+.b-progress-ring__center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--balsm-ink-800); line-height: 1; }
+
+/* ============================ SPINNERS ============================ */
+.b-spin-wrap { display: inline-flex; flex-direction: column; align-items: center; gap: 12px; font-family: var(--font-body); }
+.b-spin-wrap__label { font-size: 13px; color: var(--fg2); line-height: 1.4; text-align: center; }
+.b-ring-spinner { display: inline-block; width: 28px; height: 28px; border-radius: 50%; background: conic-gradient(from 90deg, transparent, var(--balsm-primary)); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--ring-w, 3px)), #000 calc(100% - var(--ring-w, 3px))); mask: radial-gradient(farthest-side, transparent calc(100% - var(--ring-w, 3px)), #000 calc(100% - var(--ring-w, 3px))); animation: b-spin 0.85s linear infinite; }
+@keyframes b-spin { to { transform: rotate(360deg); } }
+.b-ring-spinner--accent  { background: conic-gradient(from 90deg, transparent, var(--petal-aqua)); }
+.b-ring-spinner--success { background: conic-gradient(from 90deg, transparent, var(--petal-mint)); }
+.b-ring-spinner--violet  { background: conic-gradient(from 90deg, transparent, var(--petal-violet)); }
+.b-ring-spinner--ink     { background: conic-gradient(from 90deg, transparent, var(--balsm-ink-400)); }
+.b-petal-spinner { position: relative; display: inline-block; width: 48px; height: 48px; animation: b-spin 3.6s linear infinite; }
+.b-petal-spinner__petal { position: absolute; top: 0; left: 50%; width: 28%; height: 28%; margin-left: -14%; border-radius: 50%; transform-origin: 50% 178%; opacity: .9; }
+.b-petal-spinner__petal:nth-child(1) { transform: rotate(0deg);   background: var(--petal-emerald); animation: b-petal-pulse 3.6s ease-in-out infinite; }
+.b-petal-spinner__petal:nth-child(2) { transform: rotate(72deg);  background: var(--petal-blue);    animation: b-petal-pulse 3.6s ease-in-out -0.72s infinite; }
+.b-petal-spinner__petal:nth-child(3) { transform: rotate(144deg); background: var(--petal-mint);    animation: b-petal-pulse 3.6s ease-in-out -1.44s infinite; }
+.b-petal-spinner__petal:nth-child(4) { transform: rotate(216deg); background: var(--petal-violet);  animation: b-petal-pulse 3.6s ease-in-out -2.16s infinite; }
+.b-petal-spinner__petal:nth-child(5) { transform: rotate(288deg); background: var(--petal-aqua);    animation: b-petal-pulse 3.6s ease-in-out -2.88s infinite; }
+@keyframes b-petal-pulse { 0%, 100% { opacity: .35; } 40% { opacity: 1; } }
+.b-petal-spinner--sm { width: 28px; height: 28px; }
+.b-petal-spinner--lg { width: 72px; height: 72px; }
+
+/* ============================ SKELETON ============================ */
+.b-skeleton { display: block; background: linear-gradient(90deg, var(--balsm-ink-200) 25%, var(--balsm-ink-100) 37%, var(--balsm-ink-200) 63%); background-size: 280% 100%; border-radius: var(--radius-sm); animation: b-shimmer 1.5s ease-in-out infinite; }
+@keyframes b-shimmer { 0% { background-position: 180% 0; } 100% { background-position: -180% 0; } }
+.b-skeleton--text   { height: 0.72em; border-radius: var(--radius-xs); margin: 0.18em 0; }
+.b-skeleton--title  { height: 1.25em; border-radius: var(--radius-xs); }
+.b-skeleton--circle { border-radius: 50%; }
+.b-skeleton--pill   { border-radius: var(--radius-pill); }
+.b-skeleton--card   { border-radius: var(--radius-lg); }
+.b-skeleton-lines { display: flex; flex-direction: column; gap: 9px; width: 100%; }
+
+/* ============================ STEPS ============================ */
+.b-steps { display: flex; align-items: flex-start; font-family: var(--font-body); width: 100%; }
+.b-step { display: flex; align-items: center; flex: 1 1 0; min-width: 0; }
+.b-step:last-child { flex: 0 0 auto; }
+.b-step__node { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.b-step__marker { position: relative; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--balsm-surface); border: 2px solid var(--balsm-ink-200); color: var(--fg3); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; flex-shrink: 0; transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
+.b-step__marker svg { width: 14px; height: 14px; }
+.b-step__text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.b-step__label { font-size: 13px; font-weight: 600; color: var(--balsm-ink-800); line-height: 1.3; }
+.b-step__desc  { font-size: 11px; color: var(--fg3); line-height: 1.35; }
+.b-step__line { flex: 1 1 auto; height: 2px; margin: 0 12px; background: var(--balsm-ink-200); border-radius: var(--radius-pill); position: relative; overflow: hidden; align-self: center; }
+.b-step__line::after { content: ''; position: absolute; inset: 0 100% 0 0; background: var(--balsm-primary); transition: inset var(--dur-slow) var(--ease-out); }
+.b-step--done .b-step__marker { background: var(--balsm-primary); border-color: var(--balsm-primary); color: #fff; }
+.b-step--done .b-step__label { color: var(--balsm-ink-900); }
+.b-step--done .b-step__line::after { inset: 0; }
+.b-step--active .b-step__marker { border-color: var(--balsm-primary); color: var(--balsm-primary); background: var(--balsm-surface); box-shadow: 0 0 0 4px var(--petal-blue-50); }
+.b-step--active .b-step__label { color: var(--balsm-primary); }
+.b-step--active .b-step__marker::before { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--balsm-primary); opacity: .35; animation: b-step-pulse 1.8s var(--ease-out) infinite; }
+@keyframes b-step-pulse { 0% { transform: scale(1); opacity: .45; } 70% { transform: scale(1.5); opacity: 0; } 100% { transform: scale(1.5); opacity: 0; } }
+.b-steps--dot .b-step__marker { width: 14px; height: 14px; border-width: 2px; }
+.b-steps--dot .b-step--done .b-step__marker, .b-steps--dot .b-step--active .b-step__marker { color: transparent; }
+.b-steps--dot .b-step__marker svg { display: none; }
+.b-steps--dot .b-step__line { margin: 0 8px; }
+[dir="rtl"] .b-step__line::after { inset: 0 0 0 100%; }
+[dir="rtl"] .b-step--done .b-step__line::after { inset: 0; }
+
+/* ============================ PROGRESS BUTTON ============================ */
+.b-progress-btn { position: relative; overflow: hidden; isolation: isolate; }
+.b-progress-btn__fill { position: absolute; inset: 0 auto 0 0; width: 0; background: rgba(255,255,255,.22); transition: width var(--dur-base) var(--ease-out); z-index: -1; pointer-events: none; }
+.b-progress-btn--secondary .b-progress-btn__fill, .b-progress-btn--ghost .b-progress-btn__fill { background: var(--petal-blue-50); }
+[dir="rtl"] .b-progress-btn__fill { inset: 0 0 0 auto; }
+.b-progress-btn--indeterminate .b-progress-btn__fill { width: 35%; animation: b-btn-sheen 1.25s cubic-bezier(.65,0,.35,1) infinite; }
+@keyframes b-btn-sheen { 0% { left: -35%; } 100% { left: 100%; } }
+.b-progress-btn__label { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ============================ TOP LOADING BAR ============================ */
+.b-toploader { position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 9500; pointer-events: none; background: transparent; }
+.b-toploader__bar { height: 100%; width: 0; background: var(--balsm-primary); border-radius: 0 var(--radius-pill) var(--radius-pill) 0; box-shadow: 0 0 8px rgba(18,131,255,.6), 0 0 2px rgba(18,131,255,.9); transition: width 240ms var(--ease-out), opacity 320ms ease 120ms; }
+.b-toploader--accent  .b-toploader__bar { background: var(--petal-aqua);   box-shadow: 0 0 8px rgba(2,187,181,.55); }
+.b-toploader--success .b-toploader__bar { background: var(--petal-mint);   box-shadow: 0 0 8px rgba(85,215,127,.55); }
+.b-toploader--brand   .b-toploader__bar { background: var(--grad-petal);   box-shadow: 0 0 8px rgba(114,77,208,.45); }
+.b-toploader--done .b-toploader__bar { opacity: 0; }
+.b-toploader--indeterminate .b-toploader__bar { position: relative; width: 32%; animation: b-top-slide 1.15s cubic-bezier(.65,0,.35,1) infinite; }
+@keyframes b-top-slide { 0% { margin-left: -34%; } 100% { margin-left: 100%; } }
+[dir="rtl"] .b-toploader__bar { border-radius: var(--radius-pill) 0 0 var(--radius-pill); }
+
+/* ============================ SEGMENTED METER ============================ */
+.b-meter { display: flex; flex-direction: column; gap: 12px; width: 100%; font-family: var(--font-body); }
+.b-meter__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.b-meter__title { font-size: 13px; font-weight: 600; color: var(--balsm-ink-800); }
+.b-meter__total { font-family: var(--font-mono); font-size: 12px; color: var(--fg3); font-variant-numeric: tabular-nums; }
+.b-meter__track { display: flex; width: 100%; height: 12px; background: var(--balsm-ink-100); border-radius: var(--radius-pill); overflow: hidden; }
+.b-meter--sm .b-meter__track { height: 8px; }
+.b-meter__seg { height: 100%; width: 0; background: var(--balsm-primary); transition: width var(--dur-slow) var(--ease-out); }
+.b-meter__seg--aqua { background: var(--petal-aqua); } .b-meter__seg--blue { background: var(--petal-blue); }
+.b-meter__seg--mint { background: var(--petal-mint); } .b-meter__seg--violet { background: var(--petal-violet); }
+.b-meter__seg--emerald { background: var(--petal-emerald); } .b-meter__seg--sun { background: var(--balsm-warning); }
+.b-meter__seg--danger { background: var(--balsm-danger); } .b-meter__seg--ink { background: var(--balsm-ink-300); }
+.b-meter__legend { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.b-meter__item { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--fg2); }
+.b-meter__swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.b-meter__val { font-family: var(--font-mono); color: var(--fg3); font-variant-numeric: tabular-nums; }
+
+/* ============================ LOADING OVERLAY ============================ */
+.b-overlay { position: absolute; inset: 0; z-index: 9400; display: flex; align-items: center; justify-content: center; padding: 24px; animation: b-overlay-in var(--dur-base) var(--ease-out) both; }
+@keyframes b-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+.b-overlay--cream { background: var(--balsm-cream-50); }
+.b-overlay--scrim { background: rgba(43,43,37,.55); }
+.b-overlay--brand { background: var(--balsm-cream-50); background-image: var(--overlay-bg, none); background-size: cover; background-position: center; }
+.b-overlay--brand::before { content: ''; position: absolute; inset: 0; background: rgba(250,250,247,.82); }
+.b-overlay__inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; max-width: 360px; }
+.b-overlay__msg { font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--fg1); line-height: 1.3; }
+.b-overlay--scrim .b-overlay__msg { color: #fff; }
+.b-overlay__sub { font-size: 13px; color: var(--fg3); line-height: 1.5; }
+.b-overlay__progress { width: 220px; max-width: 70vw; margin-top: 4px; }
+
+/* ============================ REDUCED MOTION ============================ */
+@media (prefers-reduced-motion: reduce) {
+  .b-progress__fill, .b-progress--indeterminate .b-progress__fill, .b-progress--striped .b-progress__fill::after,
+  .b-ring-spinner, .b-petal-spinner, .b-petal-spinner__petal, .b-skeleton,
+  .b-step--active .b-step__marker::before, .b-progress-btn--indeterminate .b-progress-btn__fill,
+  .b-toploader--indeterminate .b-toploader__bar {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+  }
+  .b-progress--indeterminate .b-progress__fill { width: 100%; left: 0; right: 0; }
+  .b-skeleton { background-position: 0 0; }
+  .b-petal-spinner__petal { opacity: .9; }
+  .b-overlay { animation: none; }
+}

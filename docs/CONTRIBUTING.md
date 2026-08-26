@@ -1,6 +1,6 @@
-# Contributing to Balsm.IO Documentation
+# Contributing to Balsm Documentation
 
-Thank you for your interest in improving Balsm.IO documentation! This guide will help you contribute effectively.
+Thank you for your interest in improving Balsm documentation! This guide will help you contribute effectively.
 
 ## How to Contribute
 
@@ -18,7 +18,7 @@ If you find errors, outdated information, or missing documentation:
 
 1. **Fork the repository**
    ```bash
-   gh repo fork Balsm-IO/docs --clone
+   gh repo fork balsm-health/docs --clone
    ```
 
 2. **Create a feature branch**
@@ -139,7 +139,7 @@ docs/
 ## Questions?
 
 - Create a [GitHub Discussion](https://github.com/balsm-health/docs/discussions)
-- Email: docs@balsm.io
+- Email: docs@balsm.health
 - Developer Discord: https://discord.gg/balsm-dev
 
 ## License

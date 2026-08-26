@@ -12,8 +12,16 @@ Balsm is a healthcare platform consisting of multiple repositories:
 |------|-------|-------------|
 | `Balsm-Core` | Markdown | Product roadmap, phased delivery plans, business features, and AI governance docs |
 | `Balsm-API-DotNet` | .NET (C#) | Backend API — modular monolith with clean architecture and DDD |
-| `balsm_app_flutter` | Flutter (Dart) | Cross-platform mobile/desktop client application |
+| `balsm_app` | Flutter (Dart) | Cross-platform mobile/desktop client application |
 | `website` | Web | Marketing and public-facing website |
+
+### P001 Patient App MVP — architecture notes
+
+- **Backend is .NET 10 (ASP.NET Core + EF Core 10 + Npgsql/PostgreSQL).** There is **no Supabase** — the 2026-06-17 pivot removed it. Auth is custom JWT (HS256, 15-min access / 30-day refresh) + password + Google/Apple OIDC; email OTP is used only for registration and password reset (email-OTP login was removed to conserve email quota — 2026-08-02). Cloud DB holds non-PHI only; PHI lives on-device (SQLite/SQLCipher via drift). `date_of_birth` is the one cloud PHI field — AES-256-GCM at the .NET application layer, audited on every write (FR-048).
+- **Backend layout**: `Balsm.API` + 7 modules (`Auth`, `Account`, `EmergencyQr`, `Deletion`, `Sessions`, `Disclosure`, plus shared) over `Balsm.Infrastructure`/`Balsm.SharedKernel`. Handlers that touch a DbContext live in `*.Infrastructure` (not `*.Application`) to avoid circular project deps.
+- **Flutter** is a **melos monorepo: 13 packages** — `core` shared kernel + `balsm_api` API-contract package + 10 DDD module packages (`auth`, `disclosure`, `home`, `account`, `profile`, `emergency_card`, `medications`, `sessions`, `deletion`, `geofence_block`) + `balsm_boundary_lint` + runnable `app` shell. Modules depend only on `core` and `balsm_api` (boundary lint's module list stays module-only, so both are importable). The client talks to the .NET API exclusively through `packages/balsm_api` — abstract per-area interfaces (`AuthApi`, `SessionsApi`, …) + dio implementations + hand-written DTOs, wired via core `Provider<XxxApi>`s; raw `dio` never appears in feature modules. Never Supabase.
+- **Build flavors**: `dev` / `staging` / `prod` (`main_<flavor>.dart` + `--dart-define-from-file=env/<flavor>.json`, key `API_BASE_URL`). Dev flavor enables the in-app server selector.
+- **Sub-processors** (data-safety filings must disclose): **Resend** (email OTP), **iCloud Drive** + **Google Drive** (user-owned encrypted PHI backup blobs), **reCAPTCHA Enterprise** (signup abuse), self-hosted **Sentry** (crash, PHI-scrubbed).
 
 ---
 
@@ -49,20 +57,37 @@ Balsm is a healthcare platform consisting of multiple repositories:
 
 ### 2.2 Domain-Driven Design
 
-- the codebase uses DDD with 13 bounded contexts — respect their boundaries:
-  - **Identity & Access** — User, Account, Permission, PermissionGroup, Team, Session, Authentication, Caregiver, EmergencyProfile, HealthPassport
-  - **Entity Management** — Entity, Branch, Department, Room, Bed
+- [`architecture/`](../../architecture/) is the **single source of truth for domain decomposition**: subdomains (problem space) in [`architecture/domain-map.md`](../../architecture/domain-map.md), bounded contexts (solution space) in [`architecture/bounded-contexts/`](../../architecture/bounded-contexts/README.md). All bounded contexts, modules, and submodules MUST be defined there before they exist in code
+- before creating, renaming, splitting, merging, or deleting any module/submodule in any repo, consult `architecture/domain-map.md` and `architecture/bounded-contexts/`; if the proposed module maps to no documented subdomain/context, STOP and propose an architecture/ update first — docs lead, code follows
+- a module that exists in code but not in `architecture/` (or vice versa where the phase is active) is an architecture defect — surface it, do not silently extend it
+- the codebase uses DDD with 20 canonical bounded contexts (+2 provisional), organized by data-ownership plane (ADR-10) — respect their boundaries; full canvases in [`architecture/bounded-contexts/`](../../architecture/bounded-contexts/README.md):
+  - *Consumer plane (patient-owned PHI):*
+  - **Personal Health** (Core) — HealthProfile, TimelineEntry, VaccinationRecord, MedicationSchedule, DoseEvent, EmergencyCardSnapshot, EmergencyToken, RecordDocument
+  - **Provider Directory** — ProviderListing, CatalogProjection
+  - *Provider plane (entity-owned data):*
+  - **Entity Management** — Workspace, Entity, Branch, Department, Room, Bed
+  - **Inventory** — CatalogItem, Barcode, StockLevel, PurchaseEntry, PurchaseReturn, ControlledSubstanceClassification
+  - **Point of Sale** — Sale, Basket, SaleReturn, CashDrawerSession, Receipt
+  - **Customer Relations** — Customer, PaperPrescriptionNote, PurchaseHistory (projection)
   - **Appointment** — Appointment, Slot, Schedule, WaitingList, HouseVisit, Questionnaire, CostEstimate
-  - **Clinical Records** — PatientRecord, Entry, CareTeam, Referral, Consent, SelfReport, DischargeFollowUp, Timeline
-  - **Prescriptions** — Prescription, Medication, DrugInteraction, Validity, RecurringPrescription
-  - **Pharmacy** — Pharmacy, PharmacyInventory, Dispensation, QRCode, Delivery
-  - **Labs** — LabOrder, Specimen, TestResult, QualityControl
-  - **Radiology** — ImagingOrder, Study, RadiologyReport, PACS
-  - **Billing & Finance** — Bill, Claim, Payment, InsurancePolicy, Revenue
-  - **Inventory** — Item, PurchaseOrder, Vendor, StockLevel
-  - **Messaging & Notifications** — Conversation, Message, Notification, Announcement
+  - **Clinical Records** (Core) — Encounter, PatientRecord, ClinicalNote, Addendum, Referral, Consent, AuditTrailEntry
+  - **Prescriptions** (Core) — Prescription, Medication, DrugInteraction, Validity, RecurringPrescription
+  - **Pharmacy** — Dispensation, QRVerification, DeliveryOrder
+  - **Billing & Finance** — Invoice, Claim, Payment, InsurancePolicy, VATReport
+  - **Labs** — Analyte, LabTest, Bundle, ReferenceRange, LabOrder, Specimen, AnalyteResult, QCRun, ReflexRule, ResultShareLink
+  - **Radiology** — ImagingOrder, Study, RadiologyReport
+  - **Care Delivery** — Admission, BedOccupancy, DischargeSummary, TeleconsultSession, VirtualWaitingRoom
   - **Charitable Donations** — Charity, DonationCase, Donation, CaseUpdate
+  - *Platform plane (Balsm-owned, non-PHI):*
+  - **Balsm Network** — FederationPairing, SharingPolicy, Subscription, Entitlement, TunnelRegistration, InstanceRegistration
+  - **Platform Access** — OAuthClient, ConsentGrant, ApiKey, RateLimitPolicy, WebhookSubscription
   - **Marketplace** — AddOn, AddOnDeveloper, AddOnReview, AddOnListing
+  - *Cross-plane:*
+  - **Identity & Access** — User, Account, Session, Device, DeletionRequest, WorkspaceMembership, Permission, PermissionGroup, Team, InviteCode, Caregiver, Guardianship, GeofencePolicy, DisclosureAcceptance
+  - **Messaging & Notifications** — Conversation, Message, Notification, Announcement
+  - *Provisional (P021 gate — modules must not map to these yet):* **Community**, **Population Insights**
+  - note: `PharmacyInventory` moved from Pharmacy to Inventory (`StockLevel`) — one context owns stock
+- every module/package MUST carry a `README.md` with YAML frontmatter declaring `context:` (exact canonical name, or `shared-kernel` / `infrastructure` / `app-shell` / `tooling`), `plane:`, and `features:` (one line per roadmap deliverable, phase-prefixed) — convention spec in [`architecture/bounded-contexts/README.md`](../../architecture/bounded-contexts/README.md#module-readme-convention-binding); a module without a valid mapping is an architecture defect
 
 ### 2.3 Ubiquitous Language
 
@@ -73,12 +98,13 @@ Balsm is a healthcare platform consisting of multiple repositories:
 ### 2.4 Cross-Context Communication
 
 - use domain events for communication between bounded contexts — never create direct dependencies between contexts
+- sole sanctioned exception (constitution v1.8.0, Principle IV): Point of Sale → Inventory `DeductStock`/`RestoreStock` is a synchronous published-interface command inside one local transaction, because P007 requires atomic stock deduction; the never-below-zero invariant stays inside Inventory's `StockLevel` aggregate
 - implement anti-corruption layers when integrating with external systems (HL7/FHIR, DICOM, insurance APIs)
 - each bounded context owns its database schema — no shared tables between contexts
 
 ### 2.5 Tactical Patterns
 
-- apply tactical DDD patterns (aggregates, domain events, value objects, repositories, domain services) in complex contexts: Clinical Records, Prescriptions, Billing, Labs, Radiology
+- apply tactical DDD patterns (aggregates, domain events, value objects, repositories, domain services) in complex contexts: Personal Health, Clinical Records, Prescriptions, Billing & Finance, Labs, Radiology
 - keep simple CRUD contexts (User Profile, Announcements) lightweight — do not over-engineer them with unnecessary patterns
 
 ---
@@ -190,6 +216,7 @@ Read [`CODING_STANDARDS.md`](./CODING_STANDARDS.md) for detailed technical patte
 ## Key Documentation
 
 ### Architecture & Design
+- [`architecture/domain-map.md`](../../architecture/domain-map.md) — **authoritative problem-space decomposition**: domain vision, 17 subdomains (Core/Supporting/Generic), subdomain → bounded-context mapping — consult before any module/context change (§2.2)
 - [`architecture/subdomain-classification.md`](../../architecture/subdomain-classification.md) — DDD subdomain analysis: Core, Supporting, and Generic domains with investment strategies
 - [`architecture/subdomain-map.md`](../../architecture/subdomain-map.md) — visual subdomain organization, context maps, and team ownership
 - [`architecture/communication-architecture.md`](../../architecture/communication-architecture.md) — three-tier architecture (App, Local Server, Cloud)

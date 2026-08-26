@@ -1,0 +1,58 @@
+<!-- @dsCard group="Components" name="ProgressButton" subtitle="determinate fill · indeterminate sheen · inline spinner" viewport="760x260" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    html,body{margin:0;background:#fff}
+    .wrap{padding:26px 28px;display:flex;flex-direction:column;gap:22px}
+    .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);font-weight:600;font-family:var(--font-body);margin-bottom:12px}
+    .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+    .rtl{direction:rtl}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  function ProgressButton({ progress, loading=false, indeterminate=false, variant='primary', size='md', showPct=false, children, disabled, className='', ...rest }) {
+    const pct=progress==null?null:Math.max(0,Math.min(100,progress));
+    const cls=['b-btn',`b-btn-${variant}`,`b-btn-${size}`,'b-progress-btn', indeterminate&&'b-progress-btn--indeterminate', variant!=='primary'&&`b-progress-btn--${variant}`, loading&&'b-btn--loading', className].filter(Boolean).join(' ');
+    return <button type="button" className={cls} disabled={disabled} aria-busy={loading||indeterminate||undefined} {...rest}>
+      <span className="b-progress-btn__fill" style={indeterminate?undefined:{width:`${pct??0}%`}} aria-hidden="true"/>
+      <span className="b-progress-btn__label">{loading&&<span className="b-spinner" aria-hidden="true"/>}{children}{showPct&&pct!=null&&<span className="b-progress-btn__pct">{Math.round(pct)}%</span>}</span>
+    </button>;
+  }
+
+  function Demo() {
+    const [p,setP]=React.useState(0);
+    React.useEffect(()=>{const t=setInterval(()=>setP(v=>v>=100?0:v+2),100);return()=>clearInterval(t)},[]);
+    return (
+      <div className="wrap">
+        <div>
+          <div className="lbl">Determinate fill · uploading</div>
+          <div className="row">
+            <ProgressButton progress={p} showPct>Uploading</ProgressButton>
+            <ProgressButton progress={p} variant="secondary" showPct>Sync now</ProgressButton>
+            <ProgressButton progress={100} variant="primary">Done</ProgressButton>
+          </div>
+        </div>
+        <div>
+          <div className="lbl">Indeterminate sheen · spinner · RTL</div>
+          <div className="row">
+            <ProgressButton indeterminate>Processing</ProgressButton>
+            <ProgressButton loading variant="secondary">Saving</ProgressButton>
+            <ProgressButton indeterminate variant="ghost">Checking stock</ProgressButton>
+            <div className="rtl"><ProgressButton loading>جارٍ الحفظ</ProgressButton></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>

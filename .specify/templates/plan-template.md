@@ -9,6 +9,30 @@
 
 [Extract from feature spec: primary requirement + technical approach from research]
 
+## Module & Bounded Context Mapping
+
+*REQUIRED — detected by `/speckit.plan` before Phase 0. Identify every bounded
+context, repository module, and sub-module this feature touches. Sources:
+Constitution Principle IV (20 canonical contexts + 2 provisional),
+`architecture/bounded-contexts/` (context map + one canvas per context), and
+the affected repos' actual module layout (`../Balsm-API-DotNet/src/Modules/`,
+`../balsm_app/modules/` + `packages/`, `../supabase/`, `admin-ui/`).*
+
+| Bounded Context | Plane (ADR-10) | Repo | Module | Sub-module / Layer | New/Existing |
+|-----------------|----------------|------|--------|--------------------|--------------|
+| [e.g., Prescriptions] | [Consumer / Provider / Platform / Cross-plane] | [e.g., Balsm-API-DotNet] | [e.g., src/Modules/Prescription] | [e.g., Application/Commands] | [Existing] |
+
+**Primary (owning) context**: [exactly one context owns the feature's core invariants]
+**Cross-context interactions**: [domain events / published language per interaction, or "None"]
+**Detection notes**: [why this mapping — key entities → context reasoning; cite the consulted canvas file(s)]
+
+- A module that cannot be mapped to a canonical context is an architecture
+  defect (Principle IV) — STOP and resolve before Phase 0
+- Provisional contexts (Community, Population Insights) MUST NOT own modules
+  until their gate passes
+- A new module or sub-module requires justification here and a canvas update
+  in the same change
+
 ## Technical Context
 
 <!--
@@ -57,6 +81,27 @@
 - [ ] Third-party dependencies pinned and license-audited (no GPL-incompat or non-OSS additions)
 - [ ] Reproducible build inputs documented if feature changes packaging
 - [ ] DCO `Signed-off-by:` commit policy reaffirmed for contributors
+
+**Cross-repo rule & skill gate** *(Principle XIII — required for every feature)*:
+- [ ] Affected stacks identified: [Backend `Balsm-API-DotNet` / Flutter `balsm_app` / Website `website` / Docs `Balsm-Core` `docs` / multi]
+- [ ] Rules/skills read from each affected repo's local relative directory first (`../Balsm-API-DotNet`, `../balsm_app`, `../website`); local working tree takes priority over git remote
+- [ ] Git remote pulled only as fallback (local checkout missing or known-behind); local edits never overwritten
+- [ ] Each affected stack's own rules consulted: `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/*.mdc` / `.cursorrules`
+- [ ] Each affected stack's own skills consulted: `dotnet-skills` (API) / `flutter-*` (Flutter) / `impeccable` (website) / `balsm-ai` shared skills
+- [ ] Cross-stack changes reconciled — naming and contracts consistent across all touched repos (Principle IX)
+- [ ] Precedence honored on conflict: constitution > repo-local rules > skills
+
+**Domain modeling gate** *(Principles IV & IX — required for any feature adding or changing domain logic)*:
+- [ ] "Module & Bounded Context Mapping" section above completed — every touched module, sub-module, and bounded context listed with its data plane
+- [ ] Owning bounded context identified (one of the 20 canonical contexts; Community / Population Insights are provisional and may not own modules); no cross-context table or internal-class access
+- [ ] Relevant context canvas(es) in `architecture/bounded-contexts/` read and cited; mapping consistent with the context map in its README
+- [ ] Subdomain type classified — Core / Supporting / Generic — and modeling depth matched to it
+- [ ] Aggregate(s) and aggregate root(s) identified; aggregates kept small (root + minimal cluster), cross-aggregate references by ID only
+- [ ] Consistency boundaries stated: transactional within an aggregate, eventual (via domain events) between aggregates
+- [ ] Entity vs Value Object decided per model object (prefer immutable Value Objects); invariants placed on the model, not in services (no anemic model)
+- [ ] Domain events named past-tense; internal vs integration events distinguished; integration events cross the boundary via ACL + published language
+- [ ] Repository interfaces defined in the domain layer (implementations in infrastructure); methods speak the ubiquitous language
+- [ ] Names map to the ubiquitous language — no `Manager` / `Helper` / `Processor` / `Util` domain types; hard-to-name concepts flagged as model smells
 
 ## Project Structure
 

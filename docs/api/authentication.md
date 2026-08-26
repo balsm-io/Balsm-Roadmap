@@ -1,6 +1,6 @@
 # Authentication
 
-Secure API access for Balsm.IO healthcare platform.
+Secure API access for Balsm healthcare platform.
 
 ## Overview
 
@@ -12,7 +12,7 @@ All API requests must be authenticated using either:
 
 ### Getting Your API Key
 
-1. Login to your Balsm.IO dashboard
+1. Login to your Balsm dashboard
 2. Navigate to **Settings > API Keys**
 3. Click **Generate New Key**
 4. Copy and securely store your key
@@ -23,12 +23,12 @@ Include your API key in the request header:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-     https://api.balsm.io/v1/patients
+     https://api.balsm.health/v1/patients
 ```
 
 ```javascript
 // JavaScript example
-const response = await fetch('https://api.balsm.io/v1/patients', {
+const response = await fetch('https://api.balsm.health/v1/patients', {
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
     'Content-Type': 'application/json'
@@ -42,7 +42,7 @@ var client = new HttpClient();
 client.DefaultRequestHeaders.Authorization = 
     new AuthenticationHeaderValue("Bearer", "YOUR_API_KEY");
 
-var response = await client.GetAsync("https://api.balsm.io/v1/patients");
+var response = await client.GetAsync("https://api.balsm.health/v1/patients");
 ```
 
 ## OAuth 2.0 Authentication
@@ -51,7 +51,7 @@ var response = await client.GetAsync("https://api.balsm.io/v1/patients");
 
 1. **Redirect to Authorization URL**:
    ```
-   https://auth.balsm.io/oauth/authorize?
+   https://auth.balsm.health/oauth/authorize?
      client_id=YOUR_CLIENT_ID&
      response_type=code&
      redirect_uri=YOUR_REDIRECT_URI&
@@ -60,7 +60,7 @@ var response = await client.GetAsync("https://api.balsm.io/v1/patients");
 
 2. **Exchange Code for Token**:
    ```bash
-   curl -X POST https://auth.balsm.io/oauth/token \
+   curl -X POST https://auth.balsm.health/oauth/token \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "client_id=YOUR_CLIENT_ID" \
      -d "client_secret=YOUR_CLIENT_SECRET" \
@@ -71,7 +71,7 @@ var response = await client.GetAsync("https://api.balsm.io/v1/patients");
 3. **Use Access Token**:
    ```bash
    curl -H "Authorization: Bearer ACCESS_TOKEN" \
-        https://api.balsm.io/v1/patients
+        https://api.balsm.health/v1/patients
    ```
 
 ## Scopes
@@ -114,4 +114,4 @@ var response = await client.GetAsync("https://api.balsm.io/v1/patients");
 
 ---
 
-*Need help? Contact api-support@balsm.io*
+*Need help? Contact api-support@balsm.health*

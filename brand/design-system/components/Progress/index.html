@@ -1,0 +1,101 @@
+<!-- @dsCard group="Components" name="Progress" subtitle="linear · circular · indeterminate · offline-sync states" viewport="760x360" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    html,body{margin:0;background:#fff}
+    .wrap{padding:24px;display:grid;grid-template-columns:1.4fr 1fr;gap:28px 36px;align-items:start}
+    .col{display:flex;flex-direction:column;gap:18px;min-width:0}
+    .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);
+         font-weight:600;font-family:var(--font-body);margin-bottom:2px}
+    .rings{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+    .ring-col{display:flex;flex-direction:column;align-items:center;gap:7px}
+    .ring-cap{font-size:11px;color:var(--fg3)}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  function Progress({ value, variant='primary', size='md', label, showValue=false, indeterminate, striped=false, state, format=(v)=>`${Math.round(v)}%`, className='', style, ...rest }) {
+    const stateStriped = state === 'syncing';
+    const isIndet = indeterminate ?? (value == null) ?? false;
+    const pct = isIndet ? null : Math.max(0, Math.min(100, value));
+    const cls = ['b-progress',`b-progress--${variant}`, size!=='md'&&`b-progress--${size}`, isIndet&&'b-progress--indeterminate', (striped||stateStriped)&&'b-progress--striped', state==='paused'&&'b-progress--paused', state==='queued'&&'b-progress--queued', className].filter(Boolean).join(' ');
+    const showHead = label || showValue;
+    return <div className={cls} style={style} role="progressbar" aria-valuenow={isIndet?undefined:pct} {...rest}>
+      {showHead && <div className="b-progress__head">
+        {label && <span className="b-progress__label">{label}</span>}
+        {showValue && !isIndet && <span className="b-progress__value">{format(pct)}</span>}
+      </div>}
+      <div className="b-progress__track"><span className="b-progress__fill" style={isIndet?undefined:{width:`${pct}%`}}/></div>
+    </div>;
+  }
+  function ProgressRing({ value=0, size=64, thickness=6, variant='primary', showValue=true, format=(v)=>`${Math.round(v)}%`, label }) {
+    const pct=Math.max(0,Math.min(100,value)); const r=(size-thickness)/2; const circ=2*Math.PI*r; const offset=circ*(1-pct/100);
+    return <span className={`b-progress-ring b-progress-ring--${variant}`} style={{width:size,height:size}} role="progressbar" aria-valuenow={pct} aria-label={label}>
+      <svg width={size} height={size}>
+        <circle className="b-progress-ring__track" cx={size/2} cy={size/2} r={r} strokeWidth={thickness}/>
+        <circle className="b-progress-ring__fill" cx={size/2} cy={size/2} r={r} strokeWidth={thickness} strokeDasharray={circ} strokeDashoffset={offset}/>
+      </svg>
+      {showValue && <span className="b-progress-ring__center" style={{fontSize:Math.round(size*0.26)}}>{format(pct)}</span>}
+    </span>;
+  }
+
+  function Demo() {
+    const [p, setP] = React.useState(18);
+    React.useEffect(() => {
+      const t = setInterval(() => setP(v => (v >= 100 ? 6 : v + 1)), 90);
+      return () => clearInterval(t);
+    }, []);
+    return (
+      <div className="wrap">
+        <div className="col">
+          <div>
+            <div className="lbl">Determinate</div>
+            <Progress value={p} variant="primary" label="Uploading lab results" showValue />
+          </div>
+          <div>
+            <div className="lbl">Sizes · semantic</div>
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <Progress value={72} variant="success" size="sm" />
+              <Progress value={46} variant="accent" />
+              <Progress value={88} variant="violet" size="lg" />
+            </div>
+          </div>
+          <div>
+            <div className="lbl">Five-petal brand fill</div>
+            <Progress value={64} variant="brand" size="lg" label="Setting up your record" showValue />
+          </div>
+        </div>
+
+        <div className="col">
+          <div>
+            <div className="lbl">Offline-sync states</div>
+            <div style={{display:'flex',flexDirection:'column',gap:13}}>
+              <Progress value={p} state="syncing" label="Syncing — 3 of 8" showValue />
+              <Progress value={40} state="paused" label="Paused" />
+              <Progress value={null} state="queued" label="Queued · waiting for connection" />
+              <Progress indeterminate variant="primary" label="Checking for updates" />
+            </div>
+          </div>
+          <div>
+            <div className="lbl">Circular</div>
+            <div className="rings">
+              <div className="ring-col"><ProgressRing value={p} size={68} variant="primary"/><span className="ring-cap">Upload</span></div>
+              <div className="ring-col"><ProgressRing value={100} size={56} variant="success"/><span className="ring-cap">Done</span></div>
+              <div className="ring-col"><ProgressRing value={33} size={56} variant="violet"/><span className="ring-cap">Review</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>
