@@ -1,0 +1,1 @@
+../../.claude/commands/ai-governance-check.md

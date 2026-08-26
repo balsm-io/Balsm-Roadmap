@@ -1,0 +1,1 @@
+../../.claude/commands/accessibility-check.md

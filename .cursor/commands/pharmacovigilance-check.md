@@ -1,0 +1,1 @@
+../../.claude/commands/pharmacovigilance-check.md
